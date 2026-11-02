@@ -2,7 +2,9 @@ use alloy::primitives::Address;
 use clap::Parser;
 use derive_builder::Builder;
 use eyre::Result;
-use heimdall_common::ether::bytecode::get_bytecode_from_target;
+use heimdall_common::{
+    ether::bytecode::get_bytecode_from_target, resources::llm::LlmResponseFormat,
+};
 use heimdall_config::parse_url_arg;
 use heimdall_vm::core::hardfork::HardFork;
 
@@ -91,6 +93,25 @@ pub struct DecompilerArgs {
     /// "anthropic/claude-3-haiku").
     #[clap(long, short = 'm', default_value = "", hide_default_value = true)]
     pub model: String,
+
+    /// Base URL of an OpenAI-compatible chat-completions API. Empty uses OpenRouter.
+    #[clap(long, default_value = "", hide_default_value = true)]
+    pub llm_base_url: String,
+
+    /// API key for the configured LLM endpoint. Empty sends no authorization header.
+    #[clap(long, default_value = "", hide_default_value = true)]
+    pub llm_api_key: String,
+
+    /// Requested structured-output format: auto, json-schema, json-object, or text.
+    #[clap(long, value_name = "FORMAT", default_value = None, hide_default_value = true)]
+    #[builder(default)]
+    pub llm_response_format: Option<LlmResponseFormat>,
+
+    /// Path to write a JSON report describing LLM post-processing. Defaults to
+    /// `llm-report.json` in the output directory when post-processing is requested.
+    #[clap(long, value_name = "PATH", default_value = None, hide_default_value = true)]
+    #[builder(default)]
+    pub llm_report: Option<String>,
 
     /// Your Etherscan API key, used for fetching creation bytecode of self-destructed contracts.
     #[clap(long, default_value = "", hide_default_value = true)]
@@ -187,6 +208,10 @@ impl DecompilerArgsBuilder {
             llm_postprocess: Some(false),
             openrouter_api_key: Some(String::new()),
             model: Some(String::new()),
+            llm_base_url: Some(String::new()),
+            llm_api_key: Some(String::new()),
+            llm_response_format: Some(None),
+            llm_report: Some(None),
             etherscan_api_key: Some(String::new()),
             hardfork: Some(HardFork::Latest),
         }
@@ -196,6 +221,34 @@ impl DecompilerArgsBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn llm_endpoint_flags_parse() {
+        let args = DecompilerArgs::try_parse_from([
+            "decompile",
+            "0x00",
+            "--llm-base-url",
+            "http://127.0.0.1:11434/v1",
+            "--llm-api-key",
+            "secret",
+            "--llm-response-format",
+            "json-object",
+            "--llm-report",
+            "report.json",
+        ])
+        .unwrap();
+
+        assert_eq!(args.llm_base_url, "http://127.0.0.1:11434/v1");
+        assert_eq!(args.llm_api_key, "secret");
+        assert_eq!(args.llm_response_format, Some(LlmResponseFormat::JsonObject));
+        assert_eq!(args.llm_report.as_deref(), Some("report.json"));
+
+        let defaults = DecompilerArgs::try_parse_from(["decompile", "0x00"]).unwrap();
+        assert_eq!(defaults.llm_base_url, "");
+        assert_eq!(defaults.llm_api_key, "");
+        assert_eq!(defaults.llm_response_format, None);
+        assert_eq!(defaults.llm_report, None);
+    }
 
     #[test]
     fn indexed_log_lookup_is_opt_in_for_cli_and_library() {

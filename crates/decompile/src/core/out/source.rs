@@ -4,17 +4,22 @@ use std::{collections::BTreeSet, str::FromStr, time::Instant};
 use alloy::primitives::U256;
 use alloy_json_abi::{JsonAbi, StateMutability};
 
-use eyre::{OptionExt, Result};
+use eyre::Result;
 use heimdall_common::{
     ether::signatures::{ResolvedError, ResolvedLog},
-    resources::openrouter::{complete_chat_structured, AnnotatedContractResponse},
+    resources::llm::{
+        complete_chat_structured_with_config, AnnotatedContractResponse, LlmConfig, LlmOutcome,
+    },
     utils::{hex::ToLowerHex, strings::encode_hex_reduced},
 };
 
-use tracing::debug;
+use tracing::{debug, warn};
 
 use crate::{
-    core::{analyze::AnalyzerType, postprocess::getter_type_matches, types::SolidityType},
+    core::{
+        analyze::AnalyzerType, llm::LlmPostprocessReport, postprocess::getter_type_matches,
+        types::SolidityType,
+    },
     interfaces::AnalyzedFunction,
     utils::constants::{
         DECOMPILED_SOURCE_HEADER_SOL, DECOMPILED_SOURCE_HEADER_YUL, LLM_POSTPROCESSING_PROMPT,
@@ -22,17 +27,29 @@ use crate::{
 };
 
 /// Annotates the entire contract source code using an LLM with structured output.
-async fn annotate_contract(source: &str, openrouter_api_key: &str, model: &str) -> Result<String> {
-    let response: AnnotatedContractResponse = complete_chat_structured(
+async fn annotate_contract(
+    source: &str,
+    config: &LlmConfig,
+) -> Result<LlmOutcome<AnnotatedContractResponse>> {
+    let outcome = complete_chat_structured_with_config::<AnnotatedContractResponse>(
         &LLM_POSTPROCESSING_PROMPT.replace("{source}", source),
-        openrouter_api_key,
-        model,
+        config,
         "annotated_contract",
     )
-    .await
-    .ok_or_eyre("failed to llm postprocess contract")?;
+    .await?;
+    outcome.value.validate()?;
 
-    Ok(response.source)
+    Ok(outcome)
+}
+
+/// Deterministic and post-processed source representations produced by [`build_source`].
+pub(crate) struct BuiltSource {
+    /// The final source, which is baseline output when LLM post-processing did not apply.
+    pub source: String,
+    /// The deterministic source before any LLM post-processing.
+    pub baseline_source: String,
+    /// Audit report for the optional LLM pass.
+    pub report: LlmPostprocessReport,
 }
 
 #[derive(Clone, Debug)]
@@ -47,10 +64,8 @@ pub(crate) async fn build_source(
     all_resolved_logs: &HashMap<String, ResolvedLog>,
     abi: &JsonAbi,
     storage_variables: &HashMap<String, StorageVariable>,
-    llm_postprocess: bool,
-    openrouter_api_key: String,
-    model: String,
-) -> Result<Option<String>> {
+    llm_config: Option<&LlmConfig>,
+) -> Result<Option<BuiltSource>> {
     // we can get the AnalyzerType from the first function, since they are all the same
     let analyzer_type = functions.first().map(|f| f.analyzer_type).unwrap_or(AnalyzerType::Yul);
     if analyzer_type == AnalyzerType::Abi {
@@ -147,25 +162,35 @@ pub(crate) async fn build_source(
             source = source.replace(getter_for_storage_variable, &resolved_name);
         });
 
-    // apply LLM postprocessing to the entire contract source
-    if llm_postprocess {
-        let postprocess_start = Instant::now();
-        debug!("llm postprocessing entire contract source");
+    // preserve the deterministic source so evaluation can compare it with any LLM candidate
+    let baseline_source = source.clone();
+    let mut report = llm_config
+        .map_or_else(LlmPostprocessReport::not_requested, LlmPostprocessReport::requested);
 
-        match annotate_contract(&source, &openrouter_api_key, &model).await {
-            Ok(annotated_source) => {
+    // apply LLM postprocessing to the entire contract source
+    if let Some(config) = llm_config {
+        let postprocess_start = Instant::now();
+        debug!(endpoint = %config.endpoint_label(), model = %config.model, "llm postprocessing entire contract source");
+
+        match annotate_contract(&source, config).await {
+            Ok(outcome) => {
                 debug!("llm postprocessing contract took {:?}", postprocess_start.elapsed());
-                source = annotated_source;
+                report.record_success(&outcome);
+                source = outcome.value.source;
             }
-            Err(e) => {
-                debug!("llm postprocessing contract failed: {:?}", e);
+            Err(error) => {
+                warn!(
+                    endpoint = %config.endpoint_label(),
+                    "llm postprocessing failed; retaining the deterministic baseline source: {error}"
+                );
+                report.record_failure(&error);
             }
         }
     }
 
     debug!("constructing {} source took {:?}", analyzer_type, start_time.elapsed());
 
-    Ok(Some(source))
+    Ok(Some(BuiltSource { source, baseline_source, report }))
 }
 
 /// Helper function which returns the header for the decompiled source code.
@@ -530,7 +555,7 @@ fn get_indentation_imbalance(source: &[String]) -> i32 {
 mod tests {
     use super::*;
     use crate::interfaces::sort_analyzed_functions;
-    use heimdall_common::ether::signatures::ResolvedFunction;
+    use heimdall_common::{ether::signatures::ResolvedFunction, resources::llm::LlmResponseFormat};
 
     /// Builds a function with a distinguishable body, so we can assert that bodies stay attached
     /// to their headers when functions are reordered.
@@ -588,19 +613,44 @@ mod tests {
     }
 
     async fn build(functions: &[AnalyzedFunction]) -> String {
+        build_with_llm(functions, None).await.source
+    }
+
+    async fn build_with_llm(
+        functions: &[AnalyzedFunction],
+        llm_config: Option<&LlmConfig>,
+    ) -> BuiltSource {
         build_source(
             functions,
             &HashMap::new(),
             &HashMap::new(),
             &JsonAbi::new(),
             &HashMap::new(),
-            false,
-            String::new(),
-            String::new(),
+            llm_config,
         )
         .await
         .expect("failed to build source")
         .expect("source is empty")
+    }
+
+    #[tokio::test]
+    async fn llm_failure_preserves_baseline_and_reports_error() {
+        let functions = fixture(AnalyzerType::Solidity);
+
+        // an empty model fails config validation before any network request
+        let config = LlmConfig::custom("http://127.0.0.1:1/v1", None, "", LlmResponseFormat::Auto);
+        let built = build_with_llm(&functions, Some(&config)).await;
+
+        assert_eq!(built.source, built.baseline_source);
+        assert!(built.report.requested);
+        assert!(!built.report.applied);
+        assert!(built.report.error.as_deref().is_some_and(|error| error.contains("model")));
+        assert_eq!(built.report.latency_ms, 0);
+
+        let without_llm = build_with_llm(&functions, None).await;
+        assert!(!without_llm.report.requested);
+        assert_eq!(without_llm.source, without_llm.baseline_source);
+        assert_eq!(without_llm.source, built.baseline_source);
     }
 
     /// Returns the emitted function names, in the order they appear in the source.

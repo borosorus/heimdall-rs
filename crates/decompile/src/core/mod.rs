@@ -2,10 +2,13 @@ pub(crate) mod analyze;
 pub(crate) mod control_flow;
 mod event_logs;
 pub(crate) mod ir;
+pub(crate) mod llm;
 pub(crate) mod out;
 pub(crate) mod postprocess;
 pub(crate) mod resolve;
 pub(crate) mod types;
+
+pub use llm::LlmPostprocessReport;
 
 use alloy::primitives::Address;
 use alloy_dyn_abi::{DynSolType, DynSolValue};
@@ -21,6 +24,7 @@ use heimdall_common::{
         },
         types::to_type,
     },
+    resources::llm::LlmConfig,
     utils::strings::{decode_hex, encode_hex, encode_hex_reduced, StringExt},
 };
 use heimdall_disassembler::{disassemble, DisassemblerArgsBuilder};
@@ -51,8 +55,12 @@ use tracing::{debug, info, warn};
 /// Contains the decompiled source code (if requested) and the reconstructed ABI
 /// of the contract.
 pub struct DecompileResult {
-    /// The decompiled source code in Solidity or Yul format (if requested)
+    /// The final decompiled source code in Solidity or Yul format (if requested)
     pub source: Option<String>,
+    /// The deterministic source before optional LLM post-processing (if requested)
+    pub baseline_source: Option<String>,
+    /// Report describing the optional LLM post-processing pass
+    pub llm_postprocess: LlmPostprocessReport,
     /// The reconstructed JSON ABI of the contract
     pub abi: JsonAbi,
     /// The extended ABI with selector and signature information
@@ -84,16 +92,43 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
             "arguments '--include-sol' and '--include-yul' are mutually exclusive.".to_string(),
         )));
     }
-    if args.llm_postprocess && args.openrouter_api_key.is_empty() {
+    if args.llm_postprocess &&
+        args.llm_base_url.trim().is_empty() &&
+        args.openrouter_api_key.is_empty()
+    {
         return Err(Error::Eyre(eyre!(
-                "llm postprocessing requires an OpenRouter API key. please provide one using the '--openrouter-api-key' flag."
-            )));
+            "llm postprocessing requires an API key. provide '--llm-api-key' for a custom endpoint, \
+            or '--openrouter-api-key' to use OpenRouter."
+        )));
     }
     if !args.include_solidity && args.llm_postprocess {
         return Err(Error::Eyre(eyre!(
             "llm postprocessing requires including solidity source code. please enable the '--include-sol' flag."
         )));
     }
+
+    let llm_config = if args.llm_postprocess {
+        let response_format = args.llm_response_format.unwrap_or_default();
+        let config = if args.llm_base_url.trim().is_empty() {
+            let mut config =
+                LlmConfig::openrouter(args.openrouter_api_key.clone(), args.model.clone());
+            config.response_format = response_format;
+            config
+        } else {
+            LlmConfig::custom(
+                args.llm_base_url.clone(),
+                Some(args.llm_api_key.clone()),
+                args.model.clone(),
+                response_format,
+            )
+        };
+        config
+            .validate()
+            .map_err(|error| Error::Eyre(eyre!("invalid LLM configuration: {error}")))?;
+        Some(config)
+    } else {
+        None
+    };
 
     if args.indexed_log_check {
         event_logs::validate_lookup(&args)?;
@@ -387,19 +422,21 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
         warn!("indexed log lookup failed; retaining inferred event layouts");
     }
     let abi_with_details = build_abi_with_details(&abi, &analyzed_functions)?;
-    let source = build_source(
+    let built_source = build_source(
         &analyzed_functions,
         &all_resolved_errors,
         &all_resolved_events,
         &abi,
         &storage_variables,
-        args.llm_postprocess,
-        args.openrouter_api_key,
-        args.model,
+        llm_config.as_ref(),
     )
     .await?;
+    let (source, baseline_source, llm_postprocess) = match built_source {
+        Some(built) => (Some(built.source), Some(built.baseline_source), built.report),
+        None => (None, None, LlmPostprocessReport::not_requested()),
+    };
 
     debug!("decompilation took {:?}", start_time.elapsed());
 
-    Ok(DecompileResult { source, abi, abi_with_details })
+    Ok(DecompileResult { source, baseline_source, llm_postprocess, abi, abi_with_details })
 }
