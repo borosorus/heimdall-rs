@@ -8,6 +8,7 @@ use clap::Parser;
 use eyre::{eyre, Result};
 use heimdall_cache::cache;
 use output::{build_output_path, print_with_less};
+use std::env;
 use tracing::info;
 
 use heimdall_common::utils::{
@@ -15,7 +16,9 @@ use heimdall_common::utils::{
     io::file::write_file,
     version::{current_version, remote_nightly_version, remote_version},
 };
-use heimdall_config::{config, Configuration};
+use heimdall_config::{
+    config, resolve_llm_settings, Configuration, LlmCliOverrides, LlmEnvironment,
+};
 use heimdall_core::{
     heimdall_cfg::cfg, heimdall_decoder::decode, heimdall_decompiler::decompile,
     heimdall_disassembler::disassemble, heimdall_dump::dump, heimdall_inspect::inspect,
@@ -31,10 +34,12 @@ async fn main() -> Result<()> {
 
     // spawn a new tokio runtime to get remote version while the main runtime is running
     let current_version = current_version();
-    let remote_ver = if current_version.is_nightly() {
-        tokio::task::spawn(remote_nightly_version()).await??
+    let remote_ver = if args.no_update_check {
+        None
+    } else if current_version.is_nightly() {
+        Some(tokio::task::spawn(remote_nightly_version()).await??)
     } else {
-        tokio::task::spawn(remote_version()).await??
+        Some(tokio::task::spawn(remote_version()).await??)
     };
 
     let configuration =
@@ -76,18 +81,35 @@ async fn main() -> Result<()> {
         Subcommands::Decompile(mut cmd) => {
             // if the user has not specified a rpc url, use the default
             if cmd.rpc_url.as_str() == "" {
-                cmd.rpc_url = configuration.rpc_url;
+                cmd.rpc_url = configuration.rpc_url.clone();
             }
 
-            // if the user has not specified an openrouter api key, use the default
-            if cmd.openrouter_api_key.as_str() == "" {
-                cmd.openrouter_api_key = configuration.openrouter_api_key;
+            // resolve LLM settings from explicit flags, environment variables and stored config
+            let llm = resolve_llm_settings(
+                LlmCliOverrides {
+                    base_url: cmd.llm_base_url.clone(),
+                    api_key: cmd.llm_api_key.clone(),
+                    openrouter_api_key: cmd.openrouter_api_key.clone(),
+                    model: cmd.model.clone(),
+                    response_format: cmd.llm_response_format,
+                },
+                LlmEnvironment {
+                    base_url: env::var("HEIMDALL_LLM_BASE_URL").ok(),
+                    api_key: env::var("HEIMDALL_LLM_API_KEY").ok(),
+                },
+                &configuration,
+            );
+            if llm.uses_openrouter_default {
+                cmd.llm_base_url.clear();
+                cmd.llm_api_key.clear();
+                cmd.openrouter_api_key = llm.api_key;
+            } else {
+                cmd.llm_base_url = llm.base_url;
+                cmd.llm_api_key = llm.api_key;
+                cmd.openrouter_api_key.clear();
             }
-
-            // if the user has not specified a model, use the default
-            if cmd.model.as_str() == "" {
-                cmd.model = configuration.openrouter_model;
-            }
+            cmd.model = llm.model;
+            cmd.llm_response_format = Some(llm.response_format);
 
             // if the user has not specified an etherscan api key, use the default
             if cmd.etherscan_api_key.as_str() == "" {
@@ -116,6 +138,13 @@ async fn main() -> Result<()> {
 
                 if let Some(source) = &result.source {
                     output_str.push_str(&format!("Source:\n\n{source}\n"));
+                }
+
+                if cmd.llm_postprocess {
+                    output_str.push_str(&format!(
+                        "\nLLM post-processing report:\n\n{}\n",
+                        serde_json::to_string_pretty(&result.llm_postprocess)?
+                    ));
                 }
 
                 print_with_less(&output_str)
@@ -154,6 +183,38 @@ async fn main() -> Result<()> {
                     };
                     write_file(&output_path, source)
                         .map_err(|e| eyre!("failed to write source: {}", e))?;
+                }
+
+                if cmd.llm_postprocess {
+                    // preserve the deterministic source alongside the LLM candidate
+                    if let Some(baseline_source) = &result.baseline_source {
+                        let baseline_path = build_output_path(
+                            &cmd.output,
+                            &cmd.target,
+                            &cmd.rpc_url,
+                            &format!("{}.baseline.sol", &decompiled_output_filename),
+                        )
+                        .await
+                        .map_err(|e| eyre!("failed to build output path: {}", e))?;
+                        write_file(&baseline_path, baseline_source)
+                            .map_err(|e| eyre!("failed to write baseline source: {}", e))?;
+                    }
+
+                    let report = serde_json::to_string_pretty(&result.llm_postprocess)?;
+                    let report_path =
+                        match cmd.llm_report.as_deref().filter(|path| !path.trim().is_empty()) {
+                            Some(path) => path.to_string(),
+                            None => build_output_path(
+                                &cmd.output,
+                                &cmd.target,
+                                &cmd.rpc_url,
+                                "llm-report.json",
+                            )
+                            .await
+                            .map_err(|e| eyre!("failed to build output path: {}", e))?,
+                        };
+                    write_file(&report_path, &report)
+                        .map_err(|e| eyre!("failed to write LLM report: {}", e))?;
                 }
             }
         }
@@ -320,12 +381,14 @@ async fn main() -> Result<()> {
     }
 
     // check if the version is up to date
-    if current_version.is_nightly() && current_version.ne(&remote_ver) {
-        info!("great news! A new nightly build is available!");
-        info!("you can update now by running: `bifrost +nightly`");
-    } else if remote_ver.gt(&current_version) {
-        info!("great news! An update is available!");
-        info!("you can update now by running: `bifrost --version {}`", remote_ver);
+    if let Some(remote_ver) = remote_ver {
+        if current_version.is_nightly() && current_version.ne(&remote_ver) {
+            info!("great news! A new nightly build is available!");
+            info!("you can update now by running: `bifrost +nightly`");
+        } else if remote_ver.gt(&current_version) {
+            info!("great news! An update is available!");
+            info!("you can update now by running: `bifrost --version {}`", remote_ver);
+        }
     }
 
     Ok(())

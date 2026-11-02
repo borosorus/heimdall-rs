@@ -24,6 +24,10 @@ pub(crate) struct Arguments {
     #[clap(subcommand)]
     pub sub: Subcommands,
 
+    /// Skip the remote version check at startup.
+    #[clap(long, global = true)]
+    pub no_update_check: bool,
+
     #[clap(flatten)]
     pub logs: LogArgs,
 }
