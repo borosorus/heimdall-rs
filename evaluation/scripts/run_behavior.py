@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Run a bounded behavioral repair experiment for a decompiled contract.
 
-The harness is intentionally evaluation-only. It compiles a candidate, executes deterministic
-raw-calldata probes against the original runtime bytecode and the candidate on a local Anvil node,
-then optionally asks a model for one repair based on the failing observation.
-
-Reference Solidity is never read by this script or sent to the model. Reference ABI is used only to
-verify selector bindings and to report interface compatibility.
+The harness is intentionally evaluation-only. It compiles a baseline source and an LLM candidate,
+executes deterministic raw-calldata probes against the original runtime bytecode and each
+candidate on a local Anvil node, then optionally asks a model for bounded repairs based on all
+observed failures. Reference Solidity is never read by this script or sent to the model. Reference
+ABI is used only to resolve selectors and to report interface compatibility.
 """
 
 from __future__ import annotations
@@ -235,6 +234,9 @@ def compile_candidate(
 def encode_step(selector: str, step: dict[str, Any]) -> str:
     if step.get("truncated"):
         return selector
+    tail = step.get("args_tail")
+    if tail:
+        return selector + tail.removeprefix("0x")
     args = step.get("args", [])
     encoded = "".join(f"{int(value, 0):064x}" for value in args)
     return selector + encoded
@@ -330,7 +332,7 @@ def run_sequence(
     rpc: Rpc,
     to: str,
     steps: list[dict[str, Any]],
-    bindings: dict[str, dict[str, str]],
+    bindings: dict[str, dict[str, Any]],
     side: str,
     accounts: list[str],
 ) -> list[dict[str, Any]]:
@@ -339,9 +341,30 @@ def run_sequence(
         call_name = step["call"]
         binding = bindings[call_name]
         selector = binding[f"{side}_selector"]
-        calldata = encode_step(selector, step)
         sender = accounts[int(step.get("caller", 0))]
         value = int(step.get("value", "0"), 0)
+        mode = "send" if step.get("send", False) else "read"
+        if side == "candidate" and binding.get("available") is False:
+            results.append(
+                {
+                    "call": call_name,
+                    "calldata": None,
+                    "call_ok": False,
+                    "ok": False,
+                    "status": 0,
+                    "return_data": None,
+                    "revert_data": None,
+                    "logs": [],
+                    "contract_balance": rpc.call("eth_getBalance", [to, "latest"]),
+                    "sender": sender,
+                    "value": str(value),
+                    "mode": mode,
+                    "unbound": True,
+                    "unbound_reason": binding.get("unavailable_reason"),
+                }
+            )
+            continue
+        calldata = encode_step(selector, step)
         observation = call_step(
             rpc,
             to,
@@ -353,12 +376,14 @@ def run_sequence(
         observation["call"] = call_name
         observation["sender"] = sender
         observation["value"] = str(value)
-        observation["mode"] = "send" if step.get("send", False) else "read"
+        observation["mode"] = mode
         results.append(observation)
     return results
 
 
 def semantic_view(observation: dict[str, Any]) -> dict[str, Any]:
+    if observation.get("unbound"):
+        return {"unbound": observation.get("unbound_reason") or "binding unavailable"}
     return {
         "ok": observation.get("ok"),
         "return_data": (observation.get("return_data") or "").lower() or None,
@@ -368,14 +393,25 @@ def semantic_view(observation: dict[str, Any]) -> dict[str, Any]:
 
 
 def sequence_matches(reference: list[dict[str, Any]], candidate: list[dict[str, Any]]) -> bool:
-    return all(
+    return len(reference) == len(candidate) and all(
         semantic_view(left) == semantic_view(right)
         for left, right in zip(reference, candidate)
     )
 
 
+def combined_semantic_match(
+    setup_reference: list[dict[str, Any]],
+    setup_candidate: list[dict[str, Any]],
+    reference: list[dict[str, Any]],
+    candidate: list[dict[str, Any]],
+) -> bool:
+    return sequence_matches(setup_reference, setup_candidate) and sequence_matches(
+        reference, candidate
+    )
+
+
 def prompt_view(observation: dict[str, Any], include_logs: bool) -> dict[str, Any]:
-    return {
+    view = {
         "step": None,
         "mode": observation.get("mode"),
         "sender": observation.get("sender"),
@@ -387,6 +423,10 @@ def prompt_view(observation: dict[str, Any], include_logs: bool) -> dict[str, An
         "contract_balance": observation.get("contract_balance"),
         "logs": observation.get("logs", []) if include_logs else [],
     }
+    if observation.get("unbound"):
+        view["unbound"] = True
+        view["unbound_reason"] = observation.get("unbound_reason")
+    return view
 
 
 def configured_match(result: dict[str, Any], compare_events: bool) -> bool:
@@ -394,10 +434,401 @@ def configured_match(result: dict[str, Any], compare_events: bool) -> bool:
 
 
 def event_matches(reference: list[dict[str, Any]], candidate: list[dict[str, Any]]) -> bool:
-    return all(
+    return len(reference) == len(candidate) and all(
         left.get("logs", []) == right.get("logs", [])
         for left, right in zip(reference, candidate)
     )
+
+
+def combined_event_match(
+    setup_reference: list[dict[str, Any]],
+    setup_candidate: list[dict[str, Any]],
+    reference: list[dict[str, Any]],
+    candidate: list[dict[str, Any]],
+) -> bool:
+    return event_matches(setup_reference, setup_candidate) and event_matches(
+        reference, candidate
+    )
+
+
+def load_bindings(spec: dict[str, Any], reference_abi: list[dict[str, Any]]) -> dict[str, Any]:
+    reference_selectors = abi_selectors(reference_abi)
+    bindings = json.loads(json.dumps(spec["bindings"]))
+    for name, binding in bindings.items():
+        reference_signature = binding["reference_signature"]
+        candidate_signature = binding["candidate_signature"]
+        baseline_signature = binding.get("baseline_signature", candidate_signature)
+        reference_selector = cast_selector(reference_signature)
+        if reference_selector not in reference_selectors:
+            raise HarnessError(
+                f"reference signature not in reference ABI: {reference_signature}"
+            )
+        binding["reference_selector"] = reference_selector
+        binding["baseline_signature"] = baseline_signature
+        binding["baseline_selector"] = cast_selector(baseline_signature)
+        binding["candidate_selector"] = cast_selector(candidate_signature)
+    return bindings
+
+
+def stage_address(index: int) -> str:
+    return "0x" + format(0xB2 + index, "040x")
+
+
+def bindings_for_stage(
+    bindings: dict[str, Any], selector_key: str, compiled_selectors: set[str]
+) -> dict[str, Any]:
+    result = {}
+    for name, binding in bindings.items():
+        selector = binding[f"{selector_key}_selector"]
+        available = selector in compiled_selectors
+        entry = dict(binding)
+        entry["candidate_selector"] = selector
+        entry["available"] = available
+        entry["unavailable_reason"] = (
+            None
+            if available
+            else f"{selector_key} selector {selector} is not in the compiled ABI"
+        )
+        result[name] = entry
+    return result
+
+
+def interface_report(
+    reference_selectors: set[str], candidate_selectors: set[str]
+) -> dict[str, Any]:
+    return {
+        "reference_selector_count": len(reference_selectors),
+        "candidate_selector_count": len(candidate_selectors),
+        "matched": len(reference_selectors & candidate_selectors),
+        "missing": sorted(reference_selectors - candidate_selectors),
+        "candidate_only": sorted(candidate_selectors - reference_selectors),
+    }
+
+
+def run_probes(
+    rpc: Rpc,
+    spec: dict[str, Any],
+    bindings: dict[str, Any],
+    reference_addr: str,
+    candidate_addr: str,
+    accounts: list[str],
+) -> dict[str, Any]:
+    setup = spec.get("setup", [])
+    probe_results: dict[str, Any] = {}
+    base_snapshot = rpc.call("evm_snapshot")
+    for probe in spec["probes"]:
+        name = probe["name"]
+        rpc.call("evm_revert", [base_snapshot])
+        base_snapshot = rpc.call("evm_snapshot")
+        setup_reference = (
+            run_sequence(rpc, reference_addr, setup, bindings, "reference", accounts)
+            if setup
+            else []
+        )
+        reference = run_sequence(
+            rpc, reference_addr, probe["steps"], bindings, "reference", accounts
+        )
+
+        rpc.call("evm_revert", [base_snapshot])
+        base_snapshot = rpc.call("evm_snapshot")
+        setup_candidate = (
+            run_sequence(rpc, candidate_addr, setup, bindings, "candidate", accounts)
+            if setup
+            else []
+        )
+        candidate = run_sequence(
+            rpc, candidate_addr, probe["steps"], bindings, "candidate", accounts
+        )
+        probe_results[name] = {
+            "reference": reference,
+            "candidate": candidate,
+            "setup_reference": setup_reference,
+            "setup_candidate": setup_candidate,
+            "semantic_match": combined_semantic_match(
+                setup_reference, setup_candidate, reference, candidate
+            ),
+            "event_match": combined_event_match(
+                setup_reference, setup_candidate, reference, candidate
+            ),
+        }
+    rpc.call("evm_revert", [base_snapshot])
+    return probe_results
+
+
+def summarize_stage(stage: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any]:
+    compare_events = bool(spec.get("compare_events", False))
+    withheld = set(spec.get("withheld", []))
+    feedback_names = [probe["name"] for probe in spec["probes"] if probe["name"] not in withheld]
+    withheld_names = [probe["name"] for probe in spec["probes"] if probe["name"] in withheld]
+    results = stage.get("probe_results", {})
+    matches = {
+        name: configured_match(result, compare_events) for name, result in results.items()
+    }
+    compiled = bool(stage.get("compile"))
+    stage.update(
+        {
+            "feedback_total": len(feedback_names),
+            "withheld_total": len(withheld_names),
+            "feedback_matched": sum(1 for name in feedback_names if matches.get(name))
+            if compiled
+            else None,
+            "withheld_matched": sum(1 for name in withheld_names if matches.get(name))
+            if compiled
+            else None,
+            "feedback_failing": (
+                [name for name in feedback_names if not matches.get(name)] if compiled else []
+            ),
+            "withheld_failing": (
+                [name for name in withheld_names if not matches.get(name)] if compiled else []
+            ),
+            "semantic_failing": [
+                name for name, result in results.items() if not result["semantic_match"]
+            ],
+            "event_mismatches": [
+                name for name, result in results.items() if not result["event_match"]
+            ],
+            "matches": matches,
+            "executed_steps": sum(len(result["reference"]) for result in results.values()),
+            "setup_steps": sum(
+                len(result.get("setup_reference", [])) for result in results.values()
+            ),
+            "unbound_calls": sorted(
+                {
+                    observation["call"]
+                    for result in results.values()
+                    for observation in result["candidate"] + result.get("setup_candidate", [])
+                    if observation.get("unbound")
+                }
+            ),
+            "unbound_probes": sorted(
+                {
+                    name
+                    for name, result in results.items()
+                    if any(
+                        observation.get("unbound")
+                        for observation in result["candidate"]
+                        + result.get("setup_candidate", [])
+                    )
+                }
+            ),
+            "blocked_reason": None if compiled else "candidate did not compile",
+        }
+    )
+    return stage
+
+
+def stage_metrics(stage: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "label": stage["label"],
+        "compile": stage["compile"],
+        "source_sha256": stage.get("source_sha256"),
+        "interface": stage.get("interface"),
+        "feedback_matched": stage.get("feedback_matched"),
+        "feedback_total": stage.get("feedback_total"),
+        "withheld_matched": stage.get("withheld_matched"),
+        "withheld_total": stage.get("withheld_total"),
+        "feedback_failing": stage.get("feedback_failing", []),
+        "withheld_failing": stage.get("withheld_failing", []),
+        "semantic_failing": stage.get("semantic_failing", []),
+        "event_mismatches": stage.get("event_mismatches", []),
+        "unbound_calls": stage.get("unbound_calls", []),
+        "unbound_probes": stage.get("unbound_probes", []),
+        "executed_steps": stage.get("executed_steps", 0),
+        "setup_steps": stage.get("setup_steps", 0),
+        "blocked_reason": stage.get("blocked_reason"),
+    }
+
+
+def build_repair_prompt(
+    template: str,
+    baseline_source: str,
+    candidate_source: str,
+    bindings: dict[str, Any],
+    probe_results: dict[str, Any],
+    passing_names: list[str],
+    failing_names: list[str],
+    opaque_entries: dict[str, str],
+    opaque_probes: dict[str, str],
+    compare_events: bool,
+) -> str:
+    bindings_block = [
+        {
+            "entrypoint": opaque_entries[name],
+            "reference_selector": binding["reference_selector"],
+            "candidate_selector": binding["candidate_selector"],
+            "candidate_signature": binding["candidate_signature"],
+        }
+        for name, binding in bindings.items()
+    ]
+    passing_block = {
+        opaque_probes[name]: {
+            "setup": [
+                {**prompt_view(observation, compare_events), "step": index}
+                for index, observation in enumerate(
+                    probe_results[name].get("setup_candidate", [])
+                )
+            ],
+            "steps": [
+                {**prompt_view(observation, compare_events), "step": index}
+                for index, observation in enumerate(probe_results[name]["candidate"])
+            ],
+        }
+        for name in passing_names
+    }
+    failing_block = [
+        {
+            "probe": opaque_probes[name],
+            "setup": {
+                "reference": [
+                    {**prompt_view(observation, compare_events), "step": index}
+                    for index, observation in enumerate(
+                        probe_results[name].get("setup_reference", [])
+                    )
+                ],
+                "candidate": [
+                    {**prompt_view(observation, compare_events), "step": index}
+                    for index, observation in enumerate(
+                        probe_results[name].get("setup_candidate", [])
+                    )
+                ],
+            },
+            "reference": [
+                {**prompt_view(observation, compare_events), "step": index}
+                for index, observation in enumerate(probe_results[name]["reference"])
+            ],
+            "candidate": [
+                {**prompt_view(observation, compare_events), "step": index}
+                for index, observation in enumerate(probe_results[name]["candidate"])
+            ],
+        }
+        for name in failing_names
+    ]
+    return (
+        template.replace("<<BASELINE_SOURCE>>", baseline_source)
+        .replace("<<CANDIDATE_SOURCE>>", candidate_source)
+        .replace("<<BINDINGS>>", json.dumps(bindings_block, indent=2))
+        .replace("<<PASSING_OBSERVATIONS>>", json.dumps(passing_block, indent=2))
+        .replace("<<FAILING_OBSERVATIONS>>", json.dumps(failing_block, indent=2))
+    )
+
+
+def request_repair(
+    base_url: str,
+    model: str,
+    api_key: str,
+    timeout: int,
+    max_tokens: int,
+    temperature: float,
+    seed: int,
+    prompt: str,
+    result_dir: Path,
+    label: str,
+) -> tuple[str | None, str | None]:
+    body: dict[str, Any] = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": temperature,
+        "seed": seed,
+        "max_tokens": max_tokens,
+        "stream": False,
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "repaired_contract",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {"source": {"type": "string"}},
+                    "required": ["source"],
+                    "additionalProperties": False,
+                },
+            },
+        },
+    }
+    request_body = json.dumps(body).encode("utf-8")
+    write_json(result_dir / f"{label}-request.json", body)
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    request = urllib.request.Request(
+        base_url.rstrip("/") + "/chat/completions",
+        data=request_body,
+        headers=headers,
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            response_body = response.read().decode("utf-8")
+        (result_dir / f"{label}-response.json").write_text(
+            response_body + "\n", encoding="utf-8"
+        )
+        parsed = json.loads(response_body)
+        content = parsed["choices"][0]["message"].get("content")
+        if not content:
+            raise HarnessError("repair response had no content")
+        repaired_response = json.loads(content) if isinstance(content, str) else content
+        repaired_source = repaired_response["source"]
+        if not isinstance(repaired_source, str) or not repaired_source.strip():
+            raise HarnessError("repair response source must be a nonempty string")
+        return repaired_source, None
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        return None, f"LLM HTTP error {exc.code}: {detail}"
+    except (
+        urllib.error.URLError,
+        HarnessError,
+        json.JSONDecodeError,
+        IndexError,
+        KeyError,
+        TypeError,
+        ValueError,
+        AttributeError,
+        TimeoutError,
+    ) as error:
+        return None, str(error)
+
+
+def evaluate_stage(
+    rpc: Rpc,
+    spec: dict[str, Any],
+    bindings: dict[str, Any],
+    reference_selectors: set[str],
+    source: str,
+    label: str,
+    selector_key: str,
+    stage_index: int,
+    result_dir: Path,
+) -> dict[str, Any]:
+    work_dir = result_dir / "work" / label
+    compile_record = compile_candidate(source, spec["solc_version"], work_dir, label)
+    write_json(result_dir / f"compile-{label}.json", compile_record)
+    stage: dict[str, Any] = {
+        "label": label,
+        "source_sha256": sha256_text(source),
+        "compile": bool(compile_record.get("ok")),
+        "probe_results": {},
+    }
+    if not stage["compile"]:
+        return summarize_stage(stage, spec)
+
+    candidate_selectors = abi_selectors(compile_record["abi"])
+    stage_bindings = bindings_for_stage(bindings, selector_key, candidate_selectors)
+    stage["bindings"] = stage_bindings
+    stage["interface"] = interface_report(reference_selectors, candidate_selectors)
+
+    candidate_addr = stage_address(stage_index)
+    rpc.call("anvil_setCode", [candidate_addr, compile_record["deployed_bytecode"]])
+    rpc.call("anvil_setBalance", [candidate_addr, "0x0"])
+    stage["address"] = candidate_addr
+    stage["probe_results"] = run_probes(
+        rpc, spec, stage_bindings, REF_ADDR, candidate_addr, rpc.call("eth_accounts")
+    )
+    write_json(result_dir / f"probe-results-{label}.json", stage["probe_results"])
+    write_json(
+        result_dir / f"selector-bindings-{label}.json",
+        {"bindings": stage_bindings, "interface": stage["interface"]},
+    )
+    return summarize_stage(stage, spec)
 
 
 def main() -> int:
@@ -406,7 +837,8 @@ def main() -> int:
     parser.add_argument("--baseline", required=True, type=Path)
     parser.add_argument("--candidate", required=True, type=Path)
     parser.add_argument("--run-id", default=None)
-    parser.add_argument("--repair", action="store_true", help="send one repair request")
+    parser.add_argument("--repair", action="store_true", help="send bounded repair requests")
+    parser.add_argument("--repair-rounds", type=int, default=1)
     parser.add_argument("--llm-base-url", default="")
     parser.add_argument("--model", default="")
     parser.add_argument("--llm-api-key", default="")
@@ -415,6 +847,8 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--llm-timeout", type=int, default=600)
     args = parser.parse_args()
+    if not 1 <= args.repair_rounds <= 5:
+        raise HarnessError("--repair-rounds must be between 1 and 5")
 
     root = repo_root()
     spec = read_json(args.spec)
@@ -434,112 +868,171 @@ def main() -> int:
     reference_runtime = (root / spec["reference_runtime"]).read_text(encoding="utf-8").strip()
     if not reference_runtime.startswith("0x"):
         reference_runtime = "0x" + reference_runtime
-
-    reference_selector_set = abi_selectors(reference_abi)
-    bindings = json.loads(json.dumps(spec["bindings"]))
-    for name, binding in bindings.items():
-        reference_selector = cast_selector(binding["reference_signature"])
-        candidate_selector = cast_selector(binding["candidate_signature"])
-        if reference_selector not in reference_selector_set:
-            raise HarnessError(
-                f"reference signature not in reference ABI: {binding['reference_signature']}"
-            )
-        binding["reference_selector"] = reference_selector
-        binding["candidate_selector"] = candidate_selector
-
-    work_root = result_dir / "work"
-    compile1 = compile_candidate(candidate_source, spec["solc_version"], work_root / "llm1", "llm1")
-    write_json(result_dir / "compile-llm1.json", compile1)
-    if not compile1.get("ok"):
-        write_json(
-            result_dir / "metrics.json",
-            {
-                "schema_version": 1,
-                "fixture": fixture,
-                "run_id": run_id,
-                "llm1_compile": False,
-                "selected": "none",
-                "selected_reason": "llm1 did not compile",
-            },
-        )
-        print("llm1 did not compile; no behavioral probes were executed", file=sys.stderr)
-        return 2
-
-    candidate_selector_set = abi_selectors(compile1["abi"])
-    for name, binding in bindings.items():
-        if binding["candidate_selector"] not in candidate_selector_set:
-            raise HarnessError(
-                f"candidate signature {binding['candidate_signature']!r} is not in the compiled ABI"
-            )
-
-    compiled_interface = {
-        "reference_selector_count": len(reference_selector_set),
-        "candidate_selector_count": len(candidate_selector_set),
-        "matched": len(reference_selector_set & candidate_selector_set),
-        "missing": sorted(reference_selector_set - candidate_selector_set),
-        "candidate_only": sorted(candidate_selector_set - reference_selector_set),
+    reference_selectors = abi_selectors(reference_abi)
+    bindings = load_bindings(spec, reference_abi)
+    compare_events = bool(spec.get("compare_events", False))
+    withheld = set(spec.get("withheld", []))
+    feedback_names = [probe["name"] for probe in spec["probes"] if probe["name"] not in withheld]
+    withheld_names = [probe["name"] for probe in spec["probes"] if probe["name"] in withheld]
+    opaque_entries = {name: f"entrypoint_{index + 1}" for index, name in enumerate(bindings)}
+    opaque_probes = {
+        probe["name"]: f"probe_{index + 1}" for index, probe in enumerate(spec["probes"])
     }
-    write_json(
-        result_dir / "selector-bindings.json",
-        {"bindings": bindings, "interface": compiled_interface},
-    )
 
+    stages: list[dict[str, Any]] = []
+    attempts: list[dict[str, Any]] = []
+    repair_error: str | None = None
+    selected_stage: dict[str, Any] | None = None
+    selected_label = "none"
+    selected_reason = "llm1 did not compile"
     anvil = Anvil()
     try:
         rpc = anvil.rpc
-        accounts = rpc.call("eth_accounts")
         rpc.call("anvil_setCode", [REF_ADDR, reference_runtime])
-        rpc.call("anvil_setCode", [CAND_ADDR, compile1["deployed_bytecode"]])
         rpc.call("anvil_setBalance", [REF_ADDR, "0x0"])
-        rpc.call("anvil_setBalance", [CAND_ADDR, "0x0"])
+        baseline_stage = evaluate_stage(
+            rpc, spec, bindings, reference_selectors, baseline_source, "baseline", "baseline", 0, result_dir
+        )
+        stages.append(baseline_stage)
+        llm1_stage = evaluate_stage(
+            rpc, spec, bindings, reference_selectors, candidate_source, "llm1", "candidate", 1, result_dir
+        )
+        stages.append(llm1_stage)
+        selected_stage = llm1_stage
+        selected_label = "llm1"
+        selected_reason = "no repair requested" if not args.repair else "llm1 did not compile"
 
-        probe_results: dict[str, Any] = {}
-        base_snapshot = rpc.call("evm_snapshot")
-        for probe in spec["probes"]:
-            name = probe["name"]
-            rpc.call("evm_revert", [base_snapshot])
-            base_snapshot = rpc.call("evm_snapshot")
-            reference = run_sequence(rpc, REF_ADDR, probe["steps"], bindings, "reference", accounts)
-
-            rpc.call("evm_revert", [base_snapshot])
-            base_snapshot = rpc.call("evm_snapshot")
-            candidate = run_sequence(
-                rpc, CAND_ADDR, probe["steps"], bindings, "candidate", accounts
-            )
-
-            probe_results[name] = {
-                "reference": reference,
-                "candidate": candidate,
-                "semantic_match": sequence_matches(reference, candidate),
-                "event_match": event_matches(reference, candidate),
-            }
-        rpc.call("evm_revert", [base_snapshot])
+        if args.repair and llm1_stage["compile"]:
+            if not args.llm_base_url or not args.model:
+                repair_error = "--repair requires --llm-base-url and --model"
+                selected_reason = "repair configuration missing"
+            else:
+                current_stage = llm1_stage
+                current_source = candidate_source
+                for round_index in range(1, args.repair_rounds + 1):
+                    allowed = set(spec.get("repair_targets", [])) or set(feedback_names)
+                    targets = [
+                        name
+                        for name in current_stage["feedback_failing"]
+                        if name in allowed
+                    ]
+                    if not targets:
+                        selected_reason = "no repair targets remain"
+                        break
+                    passing = [
+                        name
+                        for name in feedback_names
+                        if current_stage["matches"].get(name)
+                    ]
+                    prompt_template = (
+                        root / "evaluation" / "prompts" / "behavior_repair.txt"
+                    ).read_text(encoding="utf-8")
+                    prompt = build_repair_prompt(
+                        prompt_template,
+                        baseline_source,
+                        current_source,
+                        current_stage["bindings"],
+                        current_stage["probe_results"],
+                        passing,
+                        targets,
+                        opaque_entries,
+                        opaque_probes,
+                        compare_events,
+                    )
+                    label = f"repair-{round_index}"
+                    (result_dir / f"{label}-prompt.txt").write_text(prompt, encoding="utf-8")
+                    repaired_source, request_error = request_repair(
+                        args.llm_base_url,
+                        args.model,
+                        args.llm_api_key,
+                        args.llm_timeout,
+                        args.max_tokens,
+                        args.temperature,
+                        args.seed,
+                        prompt,
+                        result_dir,
+                        label,
+                    )
+                    if request_error:
+                        repair_error = request_error
+                        selected_reason = "repair request failed; retained current candidate"
+                        break
+                    assert repaired_source is not None
+                    (result_dir / f"{label}.sol").write_text(repaired_source, encoding="utf-8")
+                    repaired_stage = evaluate_stage(
+                        rpc,
+                        spec,
+                        bindings,
+                        reference_selectors,
+                        repaired_source,
+                        label,
+                        "candidate",
+                        1 + round_index,
+                        result_dir,
+                    )
+                    stages.append(repaired_stage)
+                    prior_matches = current_stage["matches"]
+                    new_matches = repaired_stage.get("matches", {})
+                    regressions = [
+                        name
+                        for name in feedback_names
+                        if prior_matches.get(name) and not new_matches.get(name)
+                    ]
+                    fixed = [
+                        name
+                        for name in feedback_names
+                        if not prior_matches.get(name) and new_matches.get(name)
+                    ]
+                    target_fixed = all(new_matches.get(name) for name in targets)
+                    accepted = (
+                        repaired_stage["compile"] and not regressions and bool(fixed)
+                    )
+                    attempts.append(
+                        {
+                            "round": round_index,
+                            "label": label,
+                            "compile": repaired_stage["compile"],
+                            "accepted": accepted,
+                            "targets": targets,
+                            "target_fixed": target_fixed,
+                            "fixed": fixed,
+                            "regressions": regressions,
+                            "feedback_failing": repaired_stage["feedback_failing"],
+                            "withheld_failing": repaired_stage["withheld_failing"],
+                            "unbound_calls": repaired_stage["unbound_calls"],
+                        }
+                    )
+                    if not accepted:
+                        selected_reason = (
+                            "repair rejected: "
+                            f"compile={repaired_stage['compile']}, "
+                            f"fixed={fixed}, regressions={regressions}"
+                        )
+                        break
+                    current_stage = repaired_stage
+                    current_source = repaired_source
+                    selected_stage = repaired_stage
+                    selected_label = label
+                    selected_reason = (
+                        f"repair fixed {len(fixed)} feedback probe(s) without regression"
+                    )
+                    if not repaired_stage["feedback_failing"]:
+                        break
     finally:
         anvil.stop()
 
-    write_json(result_dir / "probe-results.json", probe_results)
-    compare_events = bool(spec.get("compare_events", False))
-    semantic_failing = [
-        name for name, result in probe_results.items() if not result["semantic_match"]
-    ]
-    event_mismatches = [
-        name for name, result in probe_results.items() if not result["event_match"]
-    ]
-    failing = [
-        name
-        for name, result in probe_results.items()
-        if not configured_match(result, compare_events)
-    ]
-    print(f"semantic failures: {semantic_failing}")
-    print(f"event mismatches: {event_mismatches}")
+    if selected_stage is None:
+        selected_stage = stages[-1] if stages else {"label": "none", "compile": False}
 
     metrics: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "fixture": fixture,
         "run_id": run_id,
         "model": args.model if args.repair else None,
         "temperature": args.temperature if args.repair else None,
         "seed": args.seed if args.repair else None,
+        "max_tokens": args.max_tokens if args.repair else None,
+        "timeout_seconds": args.llm_timeout if args.repair else None,
         "solc_version": spec["solc_version"],
         "compare_events": compare_events,
         "send_payload_capture": "not_captured",
@@ -552,283 +1045,49 @@ def main() -> int:
         ],
         "baseline_sha256": sha256_text(baseline_source),
         "llm1_sha256": sha256_text(candidate_source),
-        "llm1_compile": compile1.get("ok"),
-        "interface": compiled_interface,
-        "semantic_failing_probes": semantic_failing,
-        "event_mismatches": event_mismatches,
-        "failing_probes": failing,
-        "selected": "llm1",
-        "selected_reason": "no repair requested" if not args.repair else None,
+        "baseline_compile": stages[0]["compile"] if stages else False,
+        "llm1_compile": stages[1]["compile"] if len(stages) > 1 else False,
+        "feedback_probes": feedback_names,
+        "withheld_probes": withheld_names,
+        "bound_reference_selectors": sorted(
+            binding["reference_selector"] for binding in bindings.values()
+        ),
+        "unbound_reference_selectors": sorted(
+            reference_selectors
+            - {binding["reference_selector"] for binding in bindings.values()}
+        ),
+        "planned_probes": len(spec["probes"]),
+        "executed_probes": len(selected_stage.get("probe_results", {})),
+        "blocked_probes": len(spec["probes"]) - len(selected_stage.get("probe_results", {})),
+        "stages": [stage_metrics(stage) for stage in stages],
+        "selected": selected_label,
+        "selected_reason": selected_reason,
+        "selected_feedback_matched": selected_stage.get("feedback_matched"),
+        "selected_feedback_total": selected_stage.get("feedback_total"),
+        "selected_withheld_matched": selected_stage.get("withheld_matched"),
+        "selected_withheld_total": selected_stage.get("withheld_total"),
+        "selected_feedback_failing": selected_stage.get("feedback_failing", []),
+        "selected_withheld_failing": selected_stage.get("withheld_failing", []),
+        "selected_unbound_calls": selected_stage.get("unbound_calls", []),
+        "repair_attempts": attempts,
+        "repair_error": repair_error,
     }
     write_json(result_dir / "metrics.json", metrics)
 
-    if args.repair:
-        if not args.llm_base_url or not args.model:
-            metrics["selected_reason"] = "repair configuration missing"
-            metrics["repair_error"] = "--repair requires --llm-base-url and --model"
-            write_json(result_dir / "metrics.json", metrics)
-            return 1
-        targets = [name for name in spec.get("repair_targets", []) if name in failing]
-        if not targets:
-            metrics["selected_reason"] = "no configured repair target failed"
-            write_json(result_dir / "metrics.json", metrics)
-            return 0
-
-        target = targets[0]
-        passing = [
-            name
-            for name, result in probe_results.items()
-            if configured_match(result, compare_events)
-        ]
-        opaque_entries = {
-            name: f"entrypoint_{index + 1}" for index, name in enumerate(bindings)
-        }
-        opaque_probes = {
-            name: f"probe_{index + 1}" for index, name in enumerate(probe_results)
-        }
-        prompt_template = (root / "evaluation" / "prompts" / "behavior_repair.txt").read_text(
-            encoding="utf-8"
+    for stage in stages:
+        print(
+            f"{stage['label']}: compile={stage['compile']} "
+            f"feedback={stage.get('feedback_matched')}/{stage.get('feedback_total')} "
+            f"withheld={stage.get('withheld_matched')}/{stage.get('withheld_total')}"
         )
-        prompt = (
-            prompt_template.replace("<<BASELINE_SOURCE>>", baseline_source)
-            .replace("<<CANDIDATE_SOURCE>>", candidate_source)
-            .replace(
-                "<<BINDINGS>>",
-                json.dumps(
-                    [
-                        {
-                            "entrypoint": opaque_entries[name],
-                            "reference_selector": binding["reference_selector"],
-                            "candidate_selector": binding["candidate_selector"],
-                            "candidate_signature": binding["candidate_signature"],
-                        }
-                        for name, binding in bindings.items()
-                    ],
-                    indent=2,
-                ),
-            )
-            .replace(
-                "<<PASSING_OBSERVATIONS>>",
-                json.dumps(
-                    {
-                        opaque_probes[name]: [
-                            {**prompt_view(observation, compare_events), "step": index}
-                            for index, observation in enumerate(probe_results[name]["candidate"])
-                        ]
-                        for name in passing
-                    },
-                    indent=2,
-                ),
-            )
-            .replace(
-                "<<FAILING_OBSERVATION>>",
-                json.dumps(
-                    {
-                        "probe": opaque_probes[target],
-                        "reference": [
-                            {**prompt_view(observation, compare_events), "step": index}
-                            for index, observation in enumerate(probe_results[target]["reference"])
-                        ],
-                        "candidate": [
-                            {**prompt_view(observation, compare_events), "step": index}
-                            for index, observation in enumerate(probe_results[target]["candidate"])
-                        ],
-                    },
-                    indent=2,
-                ),
-            )
-        )
-        (result_dir / "repair-prompt.txt").write_text(prompt, encoding="utf-8")
-
-        body: dict[str, Any] = {
-            "model": args.model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": args.temperature,
-            "seed": args.seed,
-            "max_tokens": args.max_tokens,
-            "stream": False,
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "repaired_contract",
-                    "strict": True,
-                    "schema": {
-                        "type": "object",
-                        "properties": {"source": {"type": "string"}},
-                        "required": ["source"],
-                        "additionalProperties": False,
-                    },
-                },
-            },
-        }
-        request_body = json.dumps(body).encode("utf-8")
-        (result_dir / "repair-request.json").write_text(
-            json.dumps(body, indent=2) + "\n", encoding="utf-8"
-        )
-        headers = {"Content-Type": "application/json"}
-        if args.llm_api_key:
-            headers["Authorization"] = f"Bearer {args.llm_api_key}"
-        request = urllib.request.Request(
-            args.llm_base_url.rstrip("/") + "/chat/completions",
-            data=request_body,
-            headers=headers,
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=args.llm_timeout) as response:
-                response_body = response.read().decode("utf-8")
-            (result_dir / "repair-response.json").write_text(
-                response_body + "\n", encoding="utf-8"
-            )
-            parsed = json.loads(response_body)
-            content = parsed["choices"][0]["message"].get("content")
-            if not content:
-                raise HarnessError("repair response had no content")
-            repaired_response = json.loads(content)
-            repaired_source = repaired_response["source"]
-            if not isinstance(repaired_source, str) or not repaired_source.strip():
-                raise HarnessError("repair response source must be a nonempty string")
-        except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")
-            metrics["repair_error"] = f"LLM HTTP error {exc.code}: {detail}"
-            metrics["selected_reason"] = "repair request failed; retained llm1"
-            write_json(result_dir / "metrics.json", metrics)
-            return 1
-        except (
-            urllib.error.URLError,
-            HarnessError,
-            json.JSONDecodeError,
-            IndexError,
-            KeyError,
-            TypeError,
-            ValueError,
-            AttributeError,
-            TimeoutError,
-        ) as error:
-            metrics["repair_error"] = str(error)
-            metrics["selected_reason"] = "repair request failed; retained llm1"
-            write_json(result_dir / "metrics.json", metrics)
-            return 1
-        (result_dir / "llm2.sol").write_text(repaired_source, encoding="utf-8")
-
-        compile2 = compile_candidate(
-            repaired_source, spec["solc_version"], work_root / "llm2", "llm2"
-        )
-        write_json(result_dir / "compile-llm2.json", compile2)
-        metrics["llm2_sha256"] = sha256_text(repaired_source)
-        metrics["llm2_compile"] = compile2.get("ok")
-        if not compile2.get("ok"):
-            metrics["selected_reason"] = "repair candidate did not compile"
-            write_json(result_dir / "metrics.json", metrics)
-            return 0
-
-        candidate_selector_set2 = abi_selectors(compile2["abi"])
-        interface2 = {
-            "reference_selector_count": len(reference_selector_set),
-            "candidate_selector_count": len(candidate_selector_set2),
-            "matched": len(reference_selector_set & candidate_selector_set2),
-            "missing": sorted(reference_selector_set - candidate_selector_set2),
-            "candidate_only": sorted(candidate_selector_set2 - reference_selector_set),
-        }
-        metrics["llm2_interface"] = interface2
-        for name, binding in bindings.items():
-            if binding["candidate_selector"] not in candidate_selector_set2:
-                metrics["selected_reason"] = (
-                    f"repair changed or removed entrypoint {name} "
-                    f"({binding['candidate_signature']})"
-                )
-                write_json(result_dir / "metrics.json", metrics)
-                return 0
-
-        anvil = Anvil()
-        try:
-            rpc = anvil.rpc
-            accounts = rpc.call("eth_accounts")
-            rpc.call("anvil_setCode", [REF_ADDR, reference_runtime])
-            rpc.call("anvil_setCode", [CAND_ADDR, compile2["deployed_bytecode"]])
-            rpc.call("anvil_setBalance", [REF_ADDR, "0x0"])
-            rpc.call("anvil_setBalance", [CAND_ADDR, "0x0"])
-
-            repaired_results: dict[str, Any] = {}
-            base_snapshot = rpc.call("evm_snapshot")
-            for probe in spec["probes"]:
-                name = probe["name"]
-                rpc.call("evm_revert", [base_snapshot])
-                base_snapshot = rpc.call("evm_snapshot")
-                reference = run_sequence(
-                    rpc, REF_ADDR, probe["steps"], bindings, "reference", accounts
-                )
-                rpc.call("evm_revert", [base_snapshot])
-                base_snapshot = rpc.call("evm_snapshot")
-                candidate = run_sequence(
-                    rpc, CAND_ADDR, probe["steps"], bindings, "candidate", accounts
-                )
-                repaired_results[name] = {
-                    "reference": reference,
-                    "candidate": candidate,
-                    "semantic_match": sequence_matches(reference, candidate),
-                    "event_match": event_matches(reference, candidate),
-                }
-            rpc.call("evm_revert", [base_snapshot])
-        finally:
-            anvil.stop()
-
-        write_json(result_dir / "probe-results-llm2.json", repaired_results)
-        llm1_semantic = {
-            name: result["semantic_match"] for name, result in probe_results.items()
-        }
-        llm2_semantic = {
-            name: result["semantic_match"] for name, result in repaired_results.items()
-        }
-        semantic_regressions = [
-            name
-            for name in llm1_semantic
-            if llm1_semantic[name] and not llm2_semantic[name]
-        ]
-        llm1_events = {
-            name: result["event_match"] for name, result in probe_results.items()
-        }
-        llm2_events = {
-            name: result["event_match"] for name, result in repaired_results.items()
-        }
-        event_regressions = [
-            name
-            for name in llm1_events
-            if compare_events and llm1_events[name] and not llm2_events[name]
-        ]
-        regressions = list(dict.fromkeys(semantic_regressions + event_regressions))
-        target_fixed = configured_match(repaired_results[target], compare_events)
-        metrics["repair_target"] = target
-        metrics["target_fixed"] = target_fixed
-        metrics["semantic_regressions"] = semantic_regressions
-        metrics["event_regressions"] = event_regressions
-        metrics["regressions"] = regressions
-        metrics["llm2_semantic_failing_probes"] = [
-            name for name, result in repaired_results.items() if not result["semantic_match"]
-        ]
-        metrics["llm2_failing_probes"] = [
-            name
-            for name, result in repaired_results.items()
-            if not configured_match(result, compare_events)
-        ]
-        metrics["llm2_event_mismatches"] = [
-            name for name, result in repaired_results.items() if not result["event_match"]
-        ]
-        metrics["selected"] = (
-            "llm2"
-            if target_fixed and not semantic_regressions and not event_regressions
-            else "llm1"
-        )
-        metrics["selected_reason"] = (
-            "repair fixed target without semantic or configured event regressions"
-            if target_fixed and not semantic_regressions and not event_regressions
-            else "repair did not fix target without semantic or configured event regressions"
-        )
-
-    write_json(result_dir / "metrics.json", metrics)
-    print(f"results: {result_dir}")
+    print(f"selected: {selected_label} ({selected_reason})")
+    if repair_error:
+        print(f"repair error: {repair_error}", file=sys.stderr)
+    if not stages or not stages[1]["compile"]:
+        return 2
+    if repair_error and args.repair:
+        return 1
     return 0
-
 
 if __name__ == "__main__":
     try:

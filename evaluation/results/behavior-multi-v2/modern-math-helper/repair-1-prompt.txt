@@ -1,0 +1,631 @@
+You are repairing a Solidity reconstruction generated from EVM bytecode. Your goal is behavioral
+fidelity, not style. Use only the bytecode-derived metadata and runtime observations below. Do not
+assume access to the original source.
+
+DETERMINISTIC DECOMPILER SOURCE:
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+
+/// @title            Decompiled Contract
+/// @author           Jonathan Becker <jonathan@jbecker.dev>
+/// @custom:version   heimdall-rs v0.9.2
+///
+/// @notice           This contract was decompiled using the heimdall-rs decompiler.
+///                     It was generated directly by tracing the EVM opcodes from this contract.
+///                     As a result, it may not compile or even be valid solidity code.
+///                     Despite this, it should be obvious what each function does. Overall
+///                     logic should have been preserved throughout decompiling.
+///
+/// @custom:github    You can find the open-source decompiler here:
+///                       https://heimdall.rs
+
+contract DecompiledContract {
+    uint256 public unresolved_1b3ed722; // storage slot: 0x00
+    
+    event Event_c6d3a874();
+    
+    /// @custom:selector    0x641579a6
+    /// @custom:signature   Unresolved_641579a6(uint256 arg0) public payable
+    /// @param              arg0 ["uint256", "bytes32", "int256"]
+    function Unresolved_641579a6(uint256 arg0) public payable {
+        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);
+        unresolved_1b3ed722 = arg0;
+    }
+    
+    /// @custom:selector    0x771602f7
+    /// @custom:signature   Unresolved_771602f7(uint256 arg0) public pure
+    /// @param              arg0 ["uint256", "bytes32", "int256"]
+    function Unresolved_771602f7(uint256 arg0) public pure {
+        revert();
+    }
+    
+    /// @custom:selector    0xc6888fa1
+    /// @custom:signature   Unresolved_c6888fa1(uint256 arg0) public view returns (uint256)
+    /// @param              arg0 ["uint256", "bytes32", "int256"]
+    function Unresolved_c6888fa1(uint256 arg0) public view returns (uint256) {
+        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);
+        if (!arg0 | unresolved_1b3ed722 == arg0 * unresolved_1b3ed722 / arg0) {
+            emit Event_c6d3a874(arg0, arg0 * unresolved_1b3ed722);
+            return arg0 * unresolved_1b3ed722;
+        }
+    }
+}
+
+CURRENT CANDIDATE SOURCE:
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+
+/// @title            Decompiled Contract
+/// @author           Jonathan Becker <jonathan@jbecker.dev>
+/// @custom:version   heimdall-rs v0.9.2
+///
+/// @notice           This contract was decompiled using the heimdall-rs decompiler.
+///                     It was generated directly by tracing the EVM opcodes from this contract.
+///                     As a result, it may not compile or even be valid solidity code.
+///                     Despite this, it should be obvious what each function does. Overall
+///                     logic should have been preserved throughout decompiling.
+///
+/// @custom:github    You can find the open-source decompiler here:
+///                       https://heimdall.rs
+
+contract DecompiledContract {
+    // Value stored in slot 0. Originally named `unresolved_1b3ed722`.
+    uint256 public storedValue; // storage slot: 0x00
+
+    // Emitted by the multiplication function. The decompiler omitted the event parameters.
+    event Event_c6d3a874(uint256 value, uint256 product);
+
+    /// @custom:selector    0x641579a6
+    /// @custom:signature   Unresolved_641579a6(uint256 arg0) public payable
+    /// @param              newValue ["uint256", "bytes32", "int256"]
+    /// @notice             Stores `newValue` as the contract's current stored value.
+    function Unresolved_641579a6(uint256 newValue) public payable {
+        // The original calldata-length check was redundant with ABI decoding.
+        storedValue = newValue;
+    }
+
+    /// @custom:selector    0x771602f7
+    /// @custom:signature   Unresolved_771602f7(uint256 arg0) public pure
+    /// @param              unusedValue ["uint256", "bytes32", "int256"]
+    /// @notice             Unconditionally reverts; this function is not usable.
+    function Unresolved_771602f7(uint256 unusedValue) public pure {
+        revert();
+    }
+
+    /// @custom:selector    0xc6888fa1
+    /// @custom:signature   Unresolved_c6888fa1(uint256 arg0) public view returns (uint256)
+    /// @param              value ["uint256", "bytes32", "int256"]
+    /// @notice             Multiplies `value` by the stored value, emits the result, and returns it when the multiplication does not overflow.
+    // Note: mutability changed from `view` to non-view because this function emits an event.
+    function Unresolved_c6888fa1(uint256 value) public returns (uint256) {
+        // EVM multiplication wraps modulo 2^256. Compute the wrapped product first.
+        uint256 product;
+        unchecked {
+            product = value * storedValue;
+        }
+
+        // If value is nonzero, division must recover the stored value; otherwise the
+        // multiplication overflowed and the original code falls through returning zero.
+        if (value != 0 && product / value != storedValue) {
+            return 0;
+        }
+
+        emit Event_c6d3a874(value, product);
+        return product;
+    }
+}
+
+
+BYTECODE-DERIVED ENTRYPOINTS:
+[
+  {
+    "entrypoint": "entrypoint_1",
+    "reference_selector": "0x1b3ed722",
+    "candidate_selector": "0x6d619daa",
+    "candidate_signature": "storedValue()"
+  },
+  {
+    "entrypoint": "entrypoint_2",
+    "reference_selector": "0x641579a6",
+    "candidate_selector": "0xfcd38d9c",
+    "candidate_signature": "Unresolved_641579a6(uint256)"
+  },
+  {
+    "entrypoint": "entrypoint_3",
+    "reference_selector": "0xc6888fa1",
+    "candidate_selector": "0xdfa9ec54",
+    "candidate_signature": "Unresolved_c6888fa1(uint256)"
+  }
+]
+
+RUNTIME OBSERVATIONS THAT MATCH THE COMPARED FIELDS:
+{
+  "probe_1": {
+    "setup": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_2": {
+    "setup": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec540000000000000000000000000000000000000000000000000000000000000000",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_3": {
+    "setup": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec540000000000000000000000000000000000000000000000000000000000000001",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_4": {
+    "setup": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec54000000000000000000000000000000000000000000000000000000000000002a",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000054",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_6": {
+    "setup": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000000",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec54000000000000000000000000000000000000000000000000000000000000007b",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_7": {
+    "setup": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000003",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec540000000000000000000000000000000000000000000000000000000000000005",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000000f",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_9": {
+    "setup": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec54",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x",
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  }
+}
+
+FAILING RUNTIME OBSERVATIONS TO FIX:
+[
+  {
+    "probe": "probe_5",
+    "setup": {
+      "reference": [
+        {
+          "step": 0,
+          "mode": "send",
+          "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "value": "0",
+          "calldata": "0x641579a60000000000000000000000000000000000000000000000000000000000000002",
+          "ok": true,
+          "return_data": null,
+          "revert_data": null,
+          "contract_balance": "0x0",
+          "logs": []
+        }
+      ],
+      "candidate": [
+        {
+          "step": 0,
+          "mode": "send",
+          "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "value": "0",
+          "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+          "ok": true,
+          "return_data": null,
+          "revert_data": null,
+          "contract_balance": "0x0",
+          "logs": []
+        }
+      ]
+    },
+    "reference": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xc6888fa1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000011",
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "candidate": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec54ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  {
+    "probe": "probe_8",
+    "setup": {
+      "reference": [
+        {
+          "step": 0,
+          "mode": "send",
+          "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "value": "0",
+          "calldata": "0x641579a60000000000000000000000000000000000000000000000000000000000000002",
+          "ok": true,
+          "return_data": null,
+          "revert_data": null,
+          "contract_balance": "0x0",
+          "logs": []
+        }
+      ],
+      "candidate": [
+        {
+          "step": 0,
+          "mode": "send",
+          "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "value": "0",
+          "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+          "ok": true,
+          "return_data": null,
+          "revert_data": null,
+          "contract_balance": "0x0",
+          "logs": []
+        }
+      ]
+    },
+    "reference": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "1",
+        "calldata": "0x641579a60000000000000000000000000000000000000000000000000000000000000005",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x1b3ed722",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "candidate": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "1",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000005",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x1",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000005",
+        "revert_data": null,
+        "contract_balance": "0x1",
+        "logs": []
+      }
+    ]
+  },
+  {
+    "probe": "probe_10",
+    "setup": {
+      "reference": [
+        {
+          "step": 0,
+          "mode": "send",
+          "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "value": "0",
+          "calldata": "0x641579a60000000000000000000000000000000000000000000000000000000000000002",
+          "ok": true,
+          "return_data": null,
+          "revert_data": null,
+          "contract_balance": "0x0",
+          "logs": []
+        }
+      ],
+      "candidate": [
+        {
+          "step": 0,
+          "mode": "send",
+          "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "value": "0",
+          "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000002",
+          "ok": true,
+          "return_data": null,
+          "revert_data": null,
+          "contract_balance": "0x0",
+          "logs": []
+        }
+      ]
+    },
+    "reference": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "1",
+        "calldata": "0x641579a60000000000000000000000000000000000000000000000000000000000000004",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xc6888fa10000000000000000000000000000000000000000000000000000000000000003",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000006",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "candidate": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "1",
+        "calldata": "0xfcd38d9c0000000000000000000000000000000000000000000000000000000000000004",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x1",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0xdfa9ec540000000000000000000000000000000000000000000000000000000000000003",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000000c",
+        "revert_data": null,
+        "contract_balance": "0x1",
+        "logs": []
+      }
+    ]
+  }
+]
+
+Each observation has a `setup` trace and a `steps` trace. The setup trace ran first on the same
+fresh state and is compared like the steps. Apply setup first when replaying an observation.
+
+REPAIR RULES:
+- Return the complete repaired Solidity contract source.
+- Fix every failing observation. Make the smallest changes that explain all failures while
+  preserving all matching observations.
+- Preserve the candidate entrypoint names and argument order exactly. Do not rename functions.
+- Do not remove guards, events, storage or return paths unless the observations require it.
+- Do not add unrelated comments or refactorings.
+- A null return_data or revert_data on a send step means the payload was not captured; it is not
+  evidence that the payload is empty.
+- Event logs are compared only when the harness enables event comparison. Treat unlisted event
+  differences as outside this repair unless a failing observation includes event logs.
+- Do not assume the observations cover the whole contract. Keep behavior that they do not
+  contradict.
+- The response must be a JSON object with exactly one key, "source", whose value is the complete
+  Solidity source. Do not return prose, Markdown fences, or a diff.

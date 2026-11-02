@@ -1,0 +1,186 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "9ca40782ee166154a0174f0cf52e4eb81a75e67bbdb809f16a6088398e027b20",
+  "blocked_probes": 0,
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "executed_probes": 13,
+  "feedback_probes": [
+    "initial_get",
+    "set_zero_get",
+    "set_123_get",
+    "set_max_get",
+    "set_with_value",
+    "truncated_set",
+    "set_from_second_caller",
+    "repeated_writes"
+  ],
+  "fixture": "modern-simple",
+  "llm1_compile": true,
+  "llm1_sha256": "ab12b6967300b9a890e7ae4b7c610ef5d3d48624c53ccf6d321257fb551cb738",
+  "max_tokens": 32768,
+  "model": "dsv41",
+  "planned_probes": 13,
+  "repair_attempts": [
+    {
+      "accepted": true,
+      "compile": true,
+      "feedback_failing": [],
+      "fixed": [
+        "set_with_value"
+      ],
+      "label": "repair-1",
+      "regressions": [],
+      "round": 1,
+      "target_fixed": true,
+      "targets": [
+        "set_with_value"
+      ],
+      "unbound_calls": [],
+      "withheld_failing": []
+    }
+  ],
+  "repair_error": null,
+  "run_id": "behavior-multi-simple-v2",
+  "schema_version": 2,
+  "seed": 1,
+  "selected": "repair-1",
+  "selected_feedback_failing": [],
+  "selected_feedback_matched": 8,
+  "selected_feedback_total": 8,
+  "selected_reason": "repair fixed 1 feedback probe(s) without regression",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 5,
+  "selected_withheld_total": 5,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.22",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 8,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "9ca40782ee166154a0174f0cf52e4eb81a75e67bbdb809f16a6088398e027b20",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 5
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [
+        "set_zero_get",
+        "set_123_get",
+        "set_max_get",
+        "set_with_value",
+        "set_from_second_caller",
+        "repeated_writes",
+        "set_42_get",
+        "set_max_then_zero_get",
+        "set_values_from_two_callers",
+        "truncated_then_valid",
+        "value_rejection_then_read"
+      ],
+      "executed_steps": 30,
+      "feedback_failing": [
+        "set_with_value"
+      ],
+      "feedback_matched": 7,
+      "feedback_total": 8,
+      "interface": {
+        "candidate_only": [
+          "0x2aed481d",
+          "0x6d619daa"
+        ],
+        "candidate_selector_count": 2,
+        "matched": 0,
+        "missing": [
+          "0x60fe47b1",
+          "0x6d4ce63c"
+        ],
+        "reference_selector_count": 2
+      },
+      "label": "llm1",
+      "semantic_failing": [
+        "set_with_value",
+        "value_rejection_then_read"
+      ],
+      "setup_steps": 0,
+      "source_sha256": "ab12b6967300b9a890e7ae4b7c610ef5d3d48624c53ccf6d321257fb551cb738",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [
+        "value_rejection_then_read"
+      ],
+      "withheld_matched": 4,
+      "withheld_total": 5
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [
+        "set_zero_get",
+        "set_123_get",
+        "set_max_get",
+        "set_from_second_caller",
+        "repeated_writes",
+        "set_42_get",
+        "set_max_then_zero_get",
+        "set_values_from_two_callers",
+        "truncated_then_valid",
+        "value_rejection_then_read"
+      ],
+      "executed_steps": 30,
+      "feedback_failing": [],
+      "feedback_matched": 8,
+      "feedback_total": 8,
+      "interface": {
+        "candidate_only": [
+          "0x2aed481d",
+          "0x6d619daa"
+        ],
+        "candidate_selector_count": 2,
+        "matched": 0,
+        "missing": [
+          "0x60fe47b1",
+          "0x6d4ce63c"
+        ],
+        "reference_selector_count": 2
+      },
+      "label": "repair-1",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "622d45222b5b6da2758e2b56993700c3660c5b301da02101c630d4483d872256",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 5,
+      "withheld_total": 5
+    }
+  ],
+  "temperature": 0.0,
+  "timeout_seconds": 600,
+  "withheld_probes": [
+    "set_42_get",
+    "set_max_then_zero_get",
+    "set_values_from_two_callers",
+    "truncated_then_valid",
+    "value_rejection_then_read"
+  ]
+}

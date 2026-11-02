@@ -1,0 +1,181 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "4b7da185929b1b0606f91f27d4439898687a6572f738e63340f8be1cc5950f66",
+  "blocked_probes": 0,
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "executed_probes": 15,
+  "feedback_probes": [
+    "multiplier_initial",
+    "multiply_zero",
+    "multiply_one",
+    "multiply_42",
+    "multiply_overflow",
+    "set_multiplier_zero_then_multiply",
+    "set_multiplier_three_then_multiply_five",
+    "set_multiplier_with_value",
+    "truncated_multiply",
+    "multiply_after_rejected_value"
+  ],
+  "fixture": "modern-math-helper",
+  "llm1_compile": true,
+  "llm1_sha256": "f5473696159dd872e07a56f421b79c2748a69218c160cc36758ee9ce2d7fcb3b",
+  "max_tokens": 32768,
+  "model": "dsv41",
+  "planned_probes": 15,
+  "repair_attempts": [
+    {
+      "accepted": true,
+      "compile": true,
+      "feedback_failing": [],
+      "fixed": [
+        "multiply_overflow",
+        "set_multiplier_with_value",
+        "multiply_after_rejected_value"
+      ],
+      "label": "repair-1",
+      "regressions": [],
+      "round": 1,
+      "target_fixed": true,
+      "targets": [
+        "multiply_overflow",
+        "set_multiplier_with_value",
+        "multiply_after_rejected_value"
+      ],
+      "unbound_calls": [],
+      "withheld_failing": []
+    }
+  ],
+  "repair_error": null,
+  "run_id": "behavior-multi-v2",
+  "schema_version": 2,
+  "seed": 1,
+  "selected": "repair-1",
+  "selected_feedback_failing": [],
+  "selected_feedback_matched": 10,
+  "selected_feedback_total": 10,
+  "selected_reason": "repair fixed 3 feedback probe(s) without regression",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 5,
+  "selected_withheld_total": 5,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.30",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 10,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "4b7da185929b1b0606f91f27d4439898687a6572f738e63340f8be1cc5950f66",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 5
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 24,
+      "feedback_failing": [
+        "multiply_overflow",
+        "set_multiplier_with_value",
+        "multiply_after_rejected_value"
+      ],
+      "feedback_matched": 7,
+      "feedback_total": 10,
+      "interface": {
+        "candidate_only": [
+          "0x102ee228",
+          "0x6d619daa",
+          "0xdfa9ec54",
+          "0xfcd38d9c"
+        ],
+        "candidate_selector_count": 4,
+        "matched": 0,
+        "missing": [
+          "0x1b3ed722",
+          "0x641579a6",
+          "0x771602f7",
+          "0xc6888fa1"
+        ],
+        "reference_selector_count": 4
+      },
+      "label": "llm1",
+      "semantic_failing": [
+        "multiply_overflow",
+        "set_multiplier_with_value",
+        "multiply_after_rejected_value",
+        "set_multiplier_max_then_multiply_two"
+      ],
+      "setup_steps": 15,
+      "source_sha256": "f5473696159dd872e07a56f421b79c2748a69218c160cc36758ee9ce2d7fcb3b",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [
+        "set_multiplier_max_then_multiply_two"
+      ],
+      "withheld_matched": 4,
+      "withheld_total": 5
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 24,
+      "feedback_failing": [],
+      "feedback_matched": 10,
+      "feedback_total": 10,
+      "interface": {
+        "candidate_only": [
+          "0x102ee228",
+          "0x6d619daa",
+          "0xdfa9ec54",
+          "0xfcd38d9c"
+        ],
+        "candidate_selector_count": 4,
+        "matched": 0,
+        "missing": [
+          "0x1b3ed722",
+          "0x641579a6",
+          "0x771602f7",
+          "0xc6888fa1"
+        ],
+        "reference_selector_count": 4
+      },
+      "label": "repair-1",
+      "semantic_failing": [],
+      "setup_steps": 15,
+      "source_sha256": "094ac2019520793804448443f3bfac753a55782c8a936e5bc3abd01ab0d2108c",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 5,
+      "withheld_total": 5
+    }
+  ],
+  "temperature": 0.0,
+  "timeout_seconds": 600,
+  "withheld_probes": [
+    "multiply_max_with_multiplier_one",
+    "set_multiplier_max_then_multiply_two",
+    "multiply_seven",
+    "set_multiplier_seven_then_multiply_nine",
+    "multiply_after_truncated"
+  ]
+}

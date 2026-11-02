@@ -1,0 +1,135 @@
+{
+  "fixture": "modern-math-helper",
+  "reference_runtime": "evaluation/fixtures/modern-math-helper/runtime.hex",
+  "reference_abi": "evaluation/fixtures/modern-math-helper/abi.json",
+  "solc_version": "0.8.30",
+  "bindings": {
+    "multiplier": {
+      "reference_signature": "multiplier()",
+      "baseline_signature": "unresolved_1b3ed722()",
+      "candidate_signature": "storedValue()"
+    },
+    "setMultiplier": {
+      "reference_signature": "setMultiplier(uint256)",
+      "baseline_signature": "Unresolved_641579a6(uint256)",
+      "candidate_signature": "Unresolved_641579a6(uint256)"
+    },
+    "multiply": {
+      "reference_signature": "multiply(uint256)",
+      "baseline_signature": "Unresolved_c6888fa1(uint256)",
+      "candidate_signature": "Unresolved_c6888fa1(uint256)"
+    }
+  },
+  "setup": [
+    {"call": "setMultiplier", "args": ["2"], "send": true}
+  ],
+  "probes": [
+    {
+      "name": "multiplier_initial",
+      "steps": [
+        {"call": "multiplier"}
+      ]
+    },
+    {
+      "name": "multiply_zero",
+      "steps": [
+        {"call": "multiply", "args": ["0"]}
+      ]
+    },
+    {
+      "name": "multiply_one",
+      "steps": [
+        {"call": "multiply", "args": ["1"]}
+      ]
+    },
+    {
+      "name": "multiply_42",
+      "steps": [
+        {"call": "multiply", "args": ["42"]}
+      ]
+    },
+    {
+      "name": "multiply_overflow",
+      "steps": [
+        {"call": "multiply", "args": ["115792089237316195423570985008687907853269984665640564039457584007913129639935"]}
+      ]
+    },
+    {
+      "name": "set_multiplier_zero_then_multiply",
+      "steps": [
+        {"call": "setMultiplier", "args": ["0"], "send": true},
+        {"call": "multiply", "args": ["123"]}
+      ]
+    },
+    {
+      "name": "set_multiplier_three_then_multiply_five",
+      "steps": [
+        {"call": "setMultiplier", "args": ["3"], "send": true},
+        {"call": "multiply", "args": ["5"]}
+      ]
+    },
+    {
+      "name": "set_multiplier_with_value",
+      "steps": [
+        {"call": "setMultiplier", "args": ["5"], "value": "1", "send": true},
+        {"call": "multiplier"}
+      ]
+    },
+    {
+      "name": "truncated_multiply",
+      "steps": [
+        {"call": "multiply", "truncated": true}
+      ]
+    },
+    {
+      "name": "multiply_after_rejected_value",
+      "steps": [
+        {"call": "setMultiplier", "args": ["4"], "value": "1", "send": true},
+        {"call": "multiply", "args": ["3"]}
+      ]
+    },
+    {
+      "name": "multiply_max_with_multiplier_one",
+      "steps": [
+        {"call": "setMultiplier", "args": ["1"], "send": true},
+        {"call": "multiply", "args": ["115792089237316195423570985008687907853269984665640564039457584007913129639935"]}
+      ]
+    },
+    {
+      "name": "set_multiplier_max_then_multiply_two",
+      "steps": [
+        {"call": "setMultiplier", "args": ["115792089237316195423570985008687907853269984665640564039457584007913129639935"], "send": true},
+        {"call": "multiply", "args": ["2"]}
+      ]
+    },
+    {
+      "name": "multiply_seven",
+      "steps": [
+        {"call": "multiply", "args": ["7"]}
+      ]
+    },
+    {
+      "name": "set_multiplier_seven_then_multiply_nine",
+      "steps": [
+        {"call": "setMultiplier", "args": ["7"], "send": true},
+        {"call": "multiply", "args": ["9"]}
+      ]
+    },
+    {
+      "name": "multiply_after_truncated",
+      "steps": [
+        {"call": "multiply", "truncated": true},
+        {"call": "setMultiplier", "args": ["5"], "send": true},
+        {"call": "multiply", "args": ["6"]}
+      ]
+    }
+  ],
+  "withheld": [
+    "multiply_max_with_multiplier_one",
+    "set_multiplier_max_then_multiply_two",
+    "multiply_seven",
+    "set_multiplier_seven_then_multiply_nine",
+    "multiply_after_truncated"
+  ],
+  "compare_events": false
+}

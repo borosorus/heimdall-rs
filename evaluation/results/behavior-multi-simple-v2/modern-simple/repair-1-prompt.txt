@@ -1,0 +1,381 @@
+You are repairing a Solidity reconstruction generated from EVM bytecode. Your goal is behavioral
+fidelity, not style. Use only the bytecode-derived metadata and runtime observations below. Do not
+assume access to the original source.
+
+DETERMINISTIC DECOMPILER SOURCE:
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+
+/// @title            Decompiled Contract
+/// @author           Jonathan Becker <jonathan@jbecker.dev>
+/// @custom:version   heimdall-rs v0.9.2
+///
+/// @notice           This contract was decompiled using the heimdall-rs decompiler.
+///                     It was generated directly by tracing the EVM opcodes from this contract.
+///                     As a result, it may not compile or even be valid solidity code.
+///                     Despite this, it should be obvious what each function does. Overall
+///                     logic should have been preserved throughout decompiling.
+///
+/// @custom:github    You can find the open-source decompiler here:
+///                       https://heimdall.rs
+
+contract DecompiledContract {
+    uint256 public unresolved_6d4ce63c; // storage slot: 0x00
+    
+    event Event_012c78e2();
+    
+    /// @custom:selector    0x60fe47b1
+    /// @custom:signature   Unresolved_60fe47b1(uint256 arg0) public payable
+    /// @param              arg0 ["uint256", "bytes32", "int256"]
+    function Unresolved_60fe47b1(uint256 arg0) public payable {
+        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);
+        unresolved_6d4ce63c = arg0;
+        emit Event_012c78e2(arg0);
+    }
+}
+
+CURRENT CANDIDATE SOURCE:
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+
+/// @title            Decompiled Contract
+/// @author           Jonathan Becker <jonathan@jbecker.dev>
+/// @custom:version   heimdall-rs v0.9.2
+///
+/// @notice           This contract was decompiled using the heimdall-rs decompiler.
+///                     It was generated directly by tracing the EVM opcodes from this contract.
+///                     As a result, it may not compile or even be valid solidity code.
+///                     Despite this, it should be obvious what each function does. Overall
+///                     logic should have been preserved throughout decompiling.
+///
+/// @custom:github    You can find the open-source decompiler here:
+///                       https://heimdall.rs
+
+contract DecompiledContract {
+    /// @notice The value stored in storage slot 0; exposed by the generated public getter.
+    /// @dev Original decompiled name: unresolved_6d4ce63c.
+    uint256 public storedValue; // storage slot: 0x00
+    
+    /// @notice Emitted whenever `storedValue` is updated.
+    /// @dev Original decompiled event name: Event_012c78e2.
+    event ValueUpdated(uint256 value);
+    
+    /// @custom:selector    0x60fe47b1
+    /// @custom:signature   Unresolved_60fe47b1(uint256 arg0) public payable
+    /// @param              arg0 ["uint256", "bytes32", "int256"]
+    /// @notice             Stores the supplied value in contract storage and emits an update event.
+    function Unresolved_60fe47b1(uint256 arg0) public payable {
+        // `arg0` is the new value to persist in storage. The decompiled calldata
+        // length check was redundant because Solidity's ABI decoder already
+        // validates that a uint256 argument is present.
+        storedValue = arg0;
+        
+        // Notify off-chain observers of the storage update.
+        emit ValueUpdated(arg0);
+    }
+}
+
+BYTECODE-DERIVED ENTRYPOINTS:
+[
+  {
+    "entrypoint": "entrypoint_1",
+    "reference_selector": "0x60fe47b1",
+    "candidate_selector": "0x2aed481d",
+    "candidate_signature": "Unresolved_60fe47b1(uint256)"
+  },
+  {
+    "entrypoint": "entrypoint_2",
+    "reference_selector": "0x6d4ce63c",
+    "candidate_selector": "0x6d619daa",
+    "candidate_signature": "storedValue()"
+  }
+]
+
+RUNTIME OBSERVATIONS THAT MATCH THE COMPARED FIELDS:
+{
+  "probe_1": {
+    "setup": [],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_2": {
+    "setup": [],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x2aed481d0000000000000000000000000000000000000000000000000000000000000000",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_3": {
+    "setup": [],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x2aed481d000000000000000000000000000000000000000000000000000000000000007b",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_4": {
+    "setup": [],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x2aed481dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_6": {
+    "setup": [],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x2aed481d",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_7": {
+    "setup": [],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": "0",
+        "calldata": "0x2aed481d00000000000000000000000000000000000000000000000000000000000001c8",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000001c8",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  },
+  "probe_8": {
+    "setup": [],
+    "steps": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x2aed481d0000000000000000000000000000000000000000000000000000000000000001",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x2aed481d0000000000000000000000000000000000000000000000000000000000000002",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 2,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ]
+  }
+}
+
+FAILING RUNTIME OBSERVATIONS TO FIX:
+[
+  {
+    "probe": "probe_5",
+    "setup": {
+      "reference": [],
+      "candidate": []
+    },
+    "reference": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "1",
+        "calldata": "0x60fe47b1000000000000000000000000000000000000000000000000000000000000007b",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d4ce63c",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "contract_balance": "0x0",
+        "logs": []
+      }
+    ],
+    "candidate": [
+      {
+        "step": 0,
+        "mode": "send",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "1",
+        "calldata": "0x2aed481d000000000000000000000000000000000000000000000000000000000000007b",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "contract_balance": "0x1",
+        "logs": []
+      },
+      {
+        "step": 1,
+        "mode": "read",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "value": "0",
+        "calldata": "0x6d619daa",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+        "revert_data": null,
+        "contract_balance": "0x1",
+        "logs": []
+      }
+    ]
+  }
+]
+
+Each observation has a `setup` trace and a `steps` trace. The setup trace ran first on the same
+fresh state and is compared like the steps. Apply setup first when replaying an observation.
+
+REPAIR RULES:
+- Return the complete repaired Solidity contract source.
+- Fix every failing observation. Make the smallest changes that explain all failures while
+  preserving all matching observations.
+- Preserve the candidate entrypoint names and argument order exactly. Do not rename functions.
+- Do not remove guards, events, storage or return paths unless the observations require it.
+- Do not add unrelated comments or refactorings.
+- A null return_data or revert_data on a send step means the payload was not captured; it is not
+  evidence that the payload is empty.
+- Event logs are compared only when the harness enables event comparison. Treat unlisted event
+  differences as outside this repair unless a failing observation includes event logs.
+- Do not assume the observations cover the whole contract. Keep behavior that they do not
+  contradict.
+- The response must be a JSON object with exactly one key, "source", whose value is the complete
+  Solidity source. Do not return prose, Markdown fences, or a diff.

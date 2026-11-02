@@ -14,19 +14,24 @@ BYTECODE-DERIVED ENTRYPOINTS:
 RUNTIME OBSERVATIONS THAT MATCH THE COMPARED FIELDS:
 <<PASSING_OBSERVATIONS>>
 
-FAILING RUNTIME OBSERVATION TO FIX:
-<<FAILING_OBSERVATION>>
+FAILING RUNTIME OBSERVATIONS TO FIX:
+<<FAILING_OBSERVATIONS>>
+
+Each observation has a `setup` trace and a `steps` trace. The setup trace ran first on the same
+fresh state and is compared like the steps. Apply setup first when replaying an observation.
 
 REPAIR RULES:
 - Return the complete repaired Solidity contract source.
-- Make the smallest change that explains the failing observation and preserves all matching
-  observations.
+- Fix every failing observation. Make the smallest changes that explain all failures while
+  preserving all matching observations.
 - Preserve the candidate entrypoint names and argument order exactly. Do not rename functions.
 - Do not remove guards, events, storage or return paths unless the observations require it.
 - Do not add unrelated comments or refactorings.
 - A null return_data or revert_data on a send step means the payload was not captured; it is not
   evidence that the payload is empty.
 - Event logs are compared only when the harness enables event comparison. Treat unlisted event
-  differences as outside this repair unless the failing observation includes event logs.
+  differences as outside this repair unless a failing observation includes event logs.
+- Do not assume the observations cover the whole contract. Keep behavior that they do not
+  contradict.
 - The response must be a JSON object with exactly one key, "source", whose value is the complete
   Solidity source. Do not return prose, Markdown fences, or a diff.

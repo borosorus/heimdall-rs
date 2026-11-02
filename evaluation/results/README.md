@@ -5,7 +5,89 @@ general model quality. Do not reuse a run directory; the harness rejects nonempt
 directories so saved evidence cannot be silently overwritten. Scratch `work/` directories are
 ignored.
 
-## `behavior-repair-v4` — one bounded behavioral repair
+## `behavior-multi-v2` and `behavior-multi-simple-v2` — multi-defect repair with withheld probes
+
+Model `dsv41`, temperature `0`, seed `1`, 32,768 completion tokens, 600-second timeout. Both runs
+used one repair request (`repair-1`); the second allowed round was not needed. Reference runtime and
+ABI came from the committed fixtures; candidate sources were separate Heimdall LLM passes over the
+same runtimes.
+
+| Fixture | Solc | Feedback sequences | Withheld sequences | Baseline | `llm1` | `repair-1` |
+| --- | --- | --- | --- | --- | --- | --- |
+| `modern-simple` | 0.8.22 | 8 | 5 | compile blocked | 7/8 feedback, 4/5 withheld | 8/8 feedback, 5/5 withheld |
+| `modern-math-helper` | 0.8.30 | 10 | 5 | compile blocked | 7/10 feedback, 4/5 withheld | 10/10 feedback, 5/5 withheld |
+| **Total** | | **18** | **10** | **0 executable** | **22/28** | **28/28** |
+
+The accepted repairs fixed six `llm1` failures across the two fixtures: four feedback failures and
+two withheld failures. No feedback regression and no withheld regression was observed.
+
+- `modern-simple`: the setter was payable, so a value-bearing call succeeded and stored the value
+  where the reference reverted. The repair removed `payable`.
+- `modern-math-helper`: the setter was payable, and `multiply` used unchecked arithmetic and
+  returned `0` on overflow where the reference reverted. The repair removed `payable` and restored
+  checked multiplication. This also fixed the withheld overflow case without seeing it in the
+  prompt.
+- `modern-math-helper` uses a `setup` trace (`setMultiplier(2)`) before every probe, because the
+  published runtime is deployed with empty storage. Setup calls are executed and compared on both
+  sides; they are included in repair prompts and are not free state.
+
+### Measurement details
+
+- A matched sequence means every compared field agrees: success/revert status, read return data,
+  read revert data, contract balance, and setup behavior. Events are compared only when
+  `compare_events` is enabled; it is disabled in both specs.
+- Both baseline sources failed Solidity compilation, so they have no behavioral score. The change
+  from baseline to `llm1` is therefore unmeasured.
+- Interface compatibility remains unrelated to selection: compiled candidates match 0/6 reference
+  selectors. `modern-math-helper` also has no bound two-argument `add(uint256,uint256)`, so that
+  reference function is not behaviorally tested; its selector appears in the interface report as
+  missing.
+- `modern-simple` sends are mined transactions; their return/revert payloads are not captured.
+  `modern-math-helper` uses `eth_call` for multiply so return/revert data is captured, but event
+  logs from those calls are not.
+- The withheld sets are small and fixture-local. They check that the repair did not only memorize
+  the feedback examples; they are not an unbiased generalization test.
+
+### Supported claim
+
+On two fixtures and 28 predefined sequences, one bounded repair request per fixture removed all six
+observed `llm1` behavioral mismatches, including two withheld cases, with no regression on the
+measured feedback or withheld sequences. This is evidence that black-box counterexamples can
+repair localized logic and mutability defects in decompiled Solidity.
+
+It does **not** establish general behavioral improvement, baseline-to-LLM improvement, full
+function coverage, event fidelity, constructor correctness, or interface compatibility. The
+`add` mismatch and small fixture-local withheld sets remain explicit gaps.
+
+### Reproduce
+
+```bash
+python3 evaluation/scripts/run_behavior.py \
+  --spec evaluation/tests/modern-math-helper.json \
+  --baseline evaluation/results/behavior-multi-v2/modern-math-helper/baseline.sol \
+  --candidate evaluation/results/behavior-multi-v2/modern-math-helper/llm1.sol \
+  --run-id behavior-multi-replay \
+  --repair --repair-rounds 2 \
+  --llm-base-url http://127.0.0.1:8000/v1 \
+  --model dsv41 --seed 1 --temperature 0 --llm-timeout 600
+
+python3 evaluation/scripts/run_behavior.py \
+  --spec evaluation/tests/modern-simple.json \
+  --baseline evaluation/results/behavior-multi-simple-v2/modern-simple/baseline.sol \
+  --candidate evaluation/results/behavior-multi-simple-v2/modern-simple/llm1.sol \
+  --run-id behavior-multi-simple-replay \
+  --repair --repair-rounds 2 \
+  --llm-base-url http://127.0.0.1:8000/v1 \
+  --model dsv41 --seed 1 --temperature 0 --llm-timeout 600
+```
+
+Sampling and server behavior can differ even with the same seed and temperature. Treat a replay as
+a new result, not as proof that the saved run reproduces bit-for-bit.
+
+## `behavior-repair-v4` — earlier single-defect pilot
+
+This run predates baseline evaluation, withheld probes, and multi-failure repair. It remains as a
+pilot record; the two runs above supersede it for measurement claims.
 
 Fixture `modern-simple`, model `dsv41`, temperature `0`, seed `1`, 32,768 completion tokens,
 600-second timeout, Solidity 0.8.22. The reference runtime and ABI came from the committed fixture;
@@ -59,6 +141,8 @@ These checks used the same harness and were not all retained as committed run di
 | --- | --- |
 | Repaired candidate | zero semantic failures |
 | Deliberately wrong write behavior | five semantic failures |
+| Setup mismatch followed by matching reads | probe rejected (unit test) |
+| Multi-defect repair | fixed three feedback failures in one request |
 | Non-Solidity candidate | compile rejection, exit code 2 |
 | Event comparison enabled on the repaired candidate | five event mismatches reported |
 | Reusing a nonempty run ID | rejected, exit code 1 |
