@@ -1,0 +1,52 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "arg0",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_60fe47b1",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "storedValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "ValueUpdated",
+      "type": "event"
+    }
+  ],
+  "artifact": "out/Candidate.sol/DecompiledContract.json",
+  "deployed_bytecode": "0x608060405234801561000f575f80fd5b5060043610610034575f3560e01c80632aed481d146100385780636d619daa14610054575b5f80fd5b610052600480360381019061004d91906100ee565b610072565b005b61005c6100b2565b6040516100699190610128565b60405180910390f35b805f819055507f4273d0736f60e0dedfe745e86718093d8ec8646ebd2a60cd60643eeced565811816040516100a79190610128565b60405180910390a150565b5f5481565b5f80fd5b5f819050919050565b6100cd816100bb565b81146100d7575f80fd5b50565b5f813590506100e8816100c4565b92915050565b5f60208284031215610103576101026100b7565b5b5f610110848285016100da565b91505092915050565b610122816100bb565b82525050565b5f60208201905061013b5f830184610119565b9291505056fea2646970667358221220dcf44bd9339a6271c61651e5bdcf561c6a0b71a9e9b4a40623dfd140107e581c64736f6c63430008160033",
+  "label": "llm2",
+  "ok": true,
+  "returncode": 0,
+  "solc_version": "0.8.22",
+  "source_sha256": "622d45222b5b6da2758e2b56993700c3660c5b301da02101c630d4483d872256",
+  "stderr": "",
+  "stdout": "Compiling 1 files with Solc 0.8.22\nSolc 0.8.22 finished in 5.25ms\nCompiler run successful!\n"
+}

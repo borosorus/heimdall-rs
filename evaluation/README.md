@@ -85,12 +85,62 @@ See [`docs/llm-provider-configuration.md`](../docs/llm-provider-configuration.md
 supported response formats, failure behavior and other provider examples. The reference Solidity
 and ABI remain evaluation-only and are never sent to the model.
 
+## Behavioral differential harness (evaluation-only)
+
+[`scripts/run_behavior.py`](scripts/run_behavior.py) checks whether a reconstructed contract
+reproduces observable behavior of the original runtime bytecode. It is an experiment, not part of
+the decompiler or CI. Requirements: Foundry (`forge`, `anvil`, `cast`) on `PATH`, a `solc` release
+matching the fixture, and a deterministic baseline source plus an LLM candidate source.
+
+```bash
+# Baseline and candidate must come from separate decompile runs.
+python3 evaluation/scripts/run_behavior.py \
+  --spec evaluation/tests/modern-simple.json \
+  --baseline /tmp/heimdall-eval/baseline/modern-simple/decompiled.sol \
+  --candidate /tmp/heimdall-modern-simple-llm/decompiled.sol \
+  --run-id my-behavior-run
+```
+
+The harness:
+
+1. Compiles the candidate offline with `forge build --force --offline --no-cache --use <solc>`.
+2. Verifies every reference/candidate selector binding against the reference ABI and the compiled
+   candidate ABI.
+3. Starts a local Anvil node, installs the original runtime and the compiled candidate at fixed
+   addresses, and executes each probe from a fresh snapshot.
+4. Compares transaction status, read return/revert data, and contract balance. Event logs are
+   compared only when the spec sets `compare_events: true`.
+5. Reports compiled-selector compatibility separately; selector mismatch is not treated as a
+   semantic failure because generated candidates generally cannot preserve interface names.
+
+Add `--repair --llm-base-url ... --model ...` to send one bounded repair request after the probes.
+The model receives only the baseline source, the candidate source, opaque `entrypoint_N`/`probe_N`
+identifiers, and the observations; it never receives reference Solidity or reference ABI names.
+The repaired candidate must compile, preserve the candidate's bound entrypoints, fix the configured
+repair target, and introduce no semantic regression (or event regression when event comparison is
+enabled). Otherwise the original candidate is retained. A failed request records `repair_error`.
+Raw request/response bodies are saved per run; do not pass secrets on the command line for runs
+whose artifacts will be committed.
+
+Output goes to `evaluation/results/<run-id>/<fixture>/` and includes sources, compile reports,
+selector bindings, per-step probe results, the repair prompt/request/response, and `metrics.json`.
+An existing nonempty run directory is rejected so evidence is never silently overwritten.
+Compilation scratch directories under `work/` are ignored by git.
+
+The harness does **not** capture return or revert data from mined transactions, so send steps are
+compared only by status, balance, and optionally logs. It does not verify constructor behavior,
+storage layout, gas, or interface compatibility. Deploying runtime bytecode at a fixed address also
+bypasses constructor initialization, which matters for fixtures with constructor state.
+
+See [`results/README.md`](results/README.md) for the recorded experiment, controls, and the precise
+claim supported by it.
+
 ## Research limitations and next work
 
 - **Compiler settings:** the Kaleido example project says the artifacts were compiled manually. The exact legacy `solc` versions, optimization settings, source filenames and metadata settings have **not** been established or independently reproduced. The source and bytecode are published together by the project, but have not been proven to compile into byte-identical deployed bytecode. These are **seed pairs** rather than fully compiler-verified goldens. Do not claim Phase 2 reproducible compilation is complete.
 - **Modern pairs:** `SenderCreator` has independently published deployed code and source, but full compile context/settings still need reproduction. Its runtime is a *deployed* bytecode snapshot, not creation code. Four Tevm examples use modern published generated artifacts, but their exact compiler settings also need to be recovered.
 - **Constructor state:** `hdwallet` and `ipfs` set storage in constructors. Runtime bytecode does not encode the initialized storage; differential tests must align initial state or perform equivalent deployments, not assume empty storage is representative.
-- **Behavioral evaluation:** this commit includes fixture data and integrity checks **only**. It does not implement the LLM adapter, invoke any local model, test Heimdall's output, or compare observable semantics.
+- **Behavioral evaluation:** the harness covers deterministic read/write probes on one fixture per spec, with optional event comparison and one repair request. It is not a full differential suite: constructor behavior, send payloads, storage layout, and interface compatibility are unverified.
 - **Coverage:** the set now includes four legacy 0.4-era contracts, one Solidity 0.8.23 contract and four Solidity 0.8.22/0.8.30 contracts. It still lacks dedicated ERC20, deep mapping and proxy fixtures, and separate confirmed viaIR/optimizer variants. Expand only with demonstrably paired source/bytecode or explicitly generated pinned builds.
 - **Avoid data leakage:** keep reference source, source-derived identifiers and `abi.json` out of prompts unless explicitly running an ABI-assisted experiment (which must be reported separately). Baseline tests should decompile `runtime.hex` only.
 

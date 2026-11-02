@@ -1,0 +1,32 @@
+You are repairing a Solidity reconstruction generated from EVM bytecode. Your goal is behavioral
+fidelity, not style. Use only the bytecode-derived metadata and runtime observations below. Do not
+assume access to the original source.
+
+DETERMINISTIC DECOMPILER SOURCE:
+<<BASELINE_SOURCE>>
+
+CURRENT CANDIDATE SOURCE:
+<<CANDIDATE_SOURCE>>
+
+BYTECODE-DERIVED ENTRYPOINTS:
+<<BINDINGS>>
+
+RUNTIME OBSERVATIONS THAT MATCH THE COMPARED FIELDS:
+<<PASSING_OBSERVATIONS>>
+
+FAILING RUNTIME OBSERVATION TO FIX:
+<<FAILING_OBSERVATION>>
+
+REPAIR RULES:
+- Return the complete repaired Solidity contract source.
+- Make the smallest change that explains the failing observation and preserves all matching
+  observations.
+- Preserve the candidate entrypoint names and argument order exactly. Do not rename functions.
+- Do not remove guards, events, storage or return paths unless the observations require it.
+- Do not add unrelated comments or refactorings.
+- A null return_data or revert_data on a send step means the payload was not captured; it is not
+  evidence that the payload is empty.
+- Event logs are compared only when the harness enables event comparison. Treat unlisted event
+  differences as outside this repair unless the failing observation includes event logs.
+- The response must be a JSON object with exactly one key, "source", whose value is the complete
+  Solidity source. Do not return prose, Markdown fences, or a diff.

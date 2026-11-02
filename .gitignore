@@ -4,6 +4,11 @@
 
 Cargo.lock
 *.rustc_info.json
+
+# Evaluation harness scratch output
+evaluation/results/**/work/
+evaluation/**/__pycache__/
+
 out.json
 .idea
 .DS_STORE

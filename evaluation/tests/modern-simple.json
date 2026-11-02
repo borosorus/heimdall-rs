@@ -1,0 +1,76 @@
+{
+  "fixture": "modern-simple",
+  "reference_runtime": "evaluation/fixtures/modern-simple/runtime.hex",
+  "reference_abi": "evaluation/fixtures/modern-simple/abi.json",
+  "solc_version": "0.8.22",
+  "bindings": {
+    "set": {
+      "reference_signature": "set(uint256)",
+      "candidate_signature": "Unresolved_60fe47b1(uint256)"
+    },
+    "get": {
+      "reference_signature": "get()",
+      "candidate_signature": "storedValue()"
+    }
+  },
+  "probes": [
+    {
+      "name": "initial_get",
+      "steps": [
+        {"call": "get"}
+      ]
+    },
+    {
+      "name": "set_zero_get",
+      "steps": [
+        {"call": "set", "args": ["0"], "send": true},
+        {"call": "get"}
+      ]
+    },
+    {
+      "name": "set_123_get",
+      "steps": [
+        {"call": "set", "args": ["123"], "send": true},
+        {"call": "get"}
+      ]
+    },
+    {
+      "name": "set_max_get",
+      "steps": [
+        {"call": "set", "args": ["115792089237316195423570985008687907853269984665640564039457584007913129639935"], "send": true},
+        {"call": "get"}
+      ]
+    },
+    {
+      "name": "set_with_value",
+      "steps": [
+        {"call": "set", "args": ["123"], "value": "1", "send": true},
+        {"call": "get"}
+      ]
+    },
+    {
+      "name": "truncated_set",
+      "steps": [
+        {"call": "set", "truncated": true, "send": true},
+        {"call": "get"}
+      ]
+    },
+    {
+      "name": "set_from_second_caller",
+      "steps": [
+        {"call": "set", "args": ["456"], "caller": 1, "send": true},
+        {"call": "get"}
+      ]
+    },
+    {
+      "name": "repeated_writes",
+      "steps": [
+        {"call": "set", "args": ["1"], "send": true},
+        {"call": "set", "args": ["2"], "send": true},
+        {"call": "get"}
+      ]
+    }
+  ],
+  "repair_targets": ["set_with_value"],
+  "compare_events": false
+}

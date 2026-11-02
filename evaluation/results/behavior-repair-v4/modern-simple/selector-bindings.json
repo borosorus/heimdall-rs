@@ -1,0 +1,29 @@
+{
+  "bindings": {
+    "get": {
+      "candidate_selector": "0x6d619daa",
+      "candidate_signature": "storedValue()",
+      "reference_selector": "0x6d4ce63c",
+      "reference_signature": "get()"
+    },
+    "set": {
+      "candidate_selector": "0x2aed481d",
+      "candidate_signature": "Unresolved_60fe47b1(uint256)",
+      "reference_selector": "0x60fe47b1",
+      "reference_signature": "set(uint256)"
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x2aed481d",
+      "0x6d619daa"
+    ],
+    "candidate_selector_count": 2,
+    "matched": 0,
+    "missing": [
+      "0x60fe47b1",
+      "0x6d4ce63c"
+    ],
+    "reference_selector_count": 2
+  }
+}
