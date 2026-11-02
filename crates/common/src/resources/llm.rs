@@ -684,11 +684,18 @@ pub struct AnnotatedContractResponse {
 }
 
 impl AnnotatedContractResponse {
-    /// Validates that the model returned a nonempty source value.
+    /// Validates that the model returned a nonempty Solidity contract.
     pub fn validate(&self) -> Result<(), LlmError> {
         if self.source.trim().is_empty() {
             return Err(LlmError::MalformedResponse {
                 message: "structured response contained an empty source value".to_string(),
+                raw_content: None,
+            });
+        }
+        if !self.source.contains("contract") {
+            return Err(LlmError::MalformedResponse {
+                message: "structured response did not contain a `contract` declaration"
+                    .to_string(),
                 raw_content: None,
             });
         }
@@ -753,6 +760,31 @@ mod tests {
         assert_eq!("json-object".parse(), Ok(LlmResponseFormat::JsonObject));
         assert_eq!("plain".parse(), Ok(LlmResponseFormat::Text));
         assert!("yaml".parse::<LlmResponseFormat>().is_err());
+    }
+
+    #[test]
+    fn annotated_source_must_contain_a_contract_declaration() {
+        assert!(
+            AnnotatedContractResponse {
+                source: "contract X {}".to_string()
+            }
+            .validate()
+            .is_ok()
+        );
+        assert!(
+            AnnotatedContractResponse {
+                source: "```...```".to_string()
+            }
+            .validate()
+            .is_err()
+        );
+        assert!(
+            AnnotatedContractResponse {
+                source: "   ".to_string()
+            }
+            .validate()
+            .is_err()
+        );
     }
 
     #[test]
