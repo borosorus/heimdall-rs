@@ -17,7 +17,6 @@ bench = false
 workspace = true
 
 [dependencies]
-async-openai.workspace = true
 clap = { workspace = true, features = ["derive"] }
 colored.workspace = true
 crossbeam-channel.workspace = true

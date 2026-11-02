@@ -1,5 +1,7 @@
-/// OpenRouter API integration for AI-powered analysis.
-/// OpenRouter provides access to multiple LLM providers through a unified API.
+/// Provider-neutral OpenAI-compatible chat-completions integration.
+pub mod llm;
+
+/// Backwards-compatible OpenRouter helpers built on [`llm`].
 pub mod openrouter;
 
 /// Transpose API integration for blockchain data access.
