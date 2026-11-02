@@ -618,12 +618,14 @@ openrouter_model = ""
 
     #[test]
     fn custom_endpoint_does_not_inherit_openrouter_settings() {
-        let mut config = Configuration::default();
-        config.openrouter_api_key = "openrouter-key".to_string();
-        config.openrouter_model = "openrouter-model".to_string();
-        config.llm_base_url = "http://127.0.0.1:1234/v1".to_string();
-        config.llm_api_key = "local-key".to_string();
-        config.llm_model = "local-model".to_string();
+        let config = Configuration {
+            openrouter_api_key: "openrouter-key".to_string(),
+            openrouter_model: "openrouter-model".to_string(),
+            llm_base_url: "http://127.0.0.1:1234/v1".to_string(),
+            llm_api_key: "local-key".to_string(),
+            llm_model: "local-model".to_string(),
+            ..Configuration::default()
+        };
 
         let resolved =
             resolve_llm_settings(LlmCliOverrides::default(), LlmEnvironment::default(), &config);
@@ -637,9 +639,11 @@ openrouter_model = ""
 
     #[test]
     fn custom_endpoint_requires_an_explicit_model() {
-        let mut config = Configuration::default();
-        config.llm_base_url = "http://127.0.0.1:1234/v1".to_string();
-        config.openrouter_model = "openrouter-model".to_string();
+        let config = Configuration {
+            llm_base_url: "http://127.0.0.1:1234/v1".to_string(),
+            openrouter_model: "openrouter-model".to_string(),
+            ..Configuration::default()
+        };
 
         let resolved =
             resolve_llm_settings(LlmCliOverrides::default(), LlmEnvironment::default(), &config);
@@ -650,11 +654,13 @@ openrouter_model = ""
 
     #[test]
     fn cli_overrides_environment_and_config() {
-        let mut config = Configuration::default();
-        config.llm_base_url = "http://config.example/v1".to_string();
-        config.llm_api_key = "config-key".to_string();
-        config.llm_model = "config-model".to_string();
-        config.llm_response_format = Some(LlmResponseFormat::JsonSchema);
+        let config = Configuration {
+            llm_base_url: "http://config.example/v1".to_string(),
+            llm_api_key: "config-key".to_string(),
+            llm_model: "config-model".to_string(),
+            llm_response_format: Some(LlmResponseFormat::JsonSchema),
+            ..Configuration::default()
+        };
 
         let environment = LlmEnvironment {
             base_url: Some("http://env.example/v1".to_string()),
@@ -678,10 +684,12 @@ openrouter_model = ""
 
     #[test]
     fn environment_overrides_stored_config() {
-        let mut config = Configuration::default();
-        config.llm_base_url = "http://config.example/v1".to_string();
-        config.llm_api_key = "config-key".to_string();
-        config.llm_model = "config-model".to_string();
+        let config = Configuration {
+            llm_base_url: "http://config.example/v1".to_string(),
+            llm_api_key: "config-key".to_string(),
+            llm_model: "config-model".to_string(),
+            ..Configuration::default()
+        };
 
         let environment = LlmEnvironment {
             base_url: Some("http://env.example/v1".to_string()),
@@ -697,9 +705,11 @@ openrouter_model = ""
 
     #[test]
     fn openrouter_legacy_precedence_is_preserved() {
-        let mut config = Configuration::default();
-        config.openrouter_api_key = "config-openrouter-key".to_string();
-        config.openrouter_model = "config-openrouter-model".to_string();
+        let config = Configuration {
+            openrouter_api_key: "config-openrouter-key".to_string(),
+            openrouter_model: "config-openrouter-model".to_string(),
+            ..Configuration::default()
+        };
 
         let cli = LlmCliOverrides {
             openrouter_api_key: "cli-openrouter-key".to_string(),
@@ -737,8 +747,10 @@ openrouter_model = ""
 
     #[test]
     fn response_format_precedence_is_respected() {
-        let mut config = Configuration::default();
-        config.llm_response_format = Some(LlmResponseFormat::JsonSchema);
+        let config = Configuration {
+            llm_response_format: Some(LlmResponseFormat::JsonSchema),
+            ..Configuration::default()
+        };
 
         let resolved =
             resolve_llm_settings(LlmCliOverrides::default(), LlmEnvironment::default(), &config);
@@ -754,16 +766,17 @@ openrouter_model = ""
 
     #[test]
     fn debug_output_redacts_secrets_and_rpc_paths() {
-        let mut config = Configuration::default();
-        config.rpc_url =
-            "https://user:password@rpc.example.com/v2/SUPER_SECRET?api_key=QUERY_SECRET"
-                .to_string();
-        config.local_rpc_url = "http://localhost:8545".to_string();
-        config.etherscan_api_key = "etherscan-secret".to_string();
-        config.transpose_api_key = "transpose-secret".to_string();
-        config.openrouter_api_key = "openrouter-secret".to_string();
-        config.llm_base_url = "http://127.0.0.1:11434/v1?token=ENDPOINT_SECRET".to_string();
-        config.llm_api_key = "llm-secret".to_string();
+        let config = Configuration {
+            rpc_url: "https://user:password@rpc.example.com/v2/SUPER_SECRET?api_key=QUERY_SECRET"
+                .to_string(),
+            local_rpc_url: "http://localhost:8545".to_string(),
+            etherscan_api_key: "etherscan-secret".to_string(),
+            transpose_api_key: "transpose-secret".to_string(),
+            openrouter_api_key: "openrouter-secret".to_string(),
+            llm_base_url: "http://127.0.0.1:11434/v1?token=ENDPOINT_SECRET".to_string(),
+            llm_api_key: "llm-secret".to_string(),
+            ..Configuration::default()
+        };
 
         let debug = format!("{config:?}");
 
