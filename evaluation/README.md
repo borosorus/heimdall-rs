@@ -66,7 +66,22 @@ cargo build --release --bin heimdall
 
 The baseline is reproducible without RPC or LLM when using local bytecode and `--skip-resolving`. These commands are examples to run with a compiled Heimdall binary, **not results of a completed decompilation run**.
 
-Once Phase 1 of the [plan](../docs/llm-decompilation-evaluation-plan.md) is implemented, add the configured local LLM flags and capture its output separately.
+Phase 1 provider configuration is implemented. Add the local LLM flags and capture its output
+separately from the deterministic baseline:
+
+```bash
+./target/release/heimdall --no-update-check decompile evaluation/fixtures/modern-simple/runtime.hex \
+  --include-sol --skip-resolving --default \
+  --llm-postprocess \
+  --llm-base-url http://127.0.0.1:8000/v1 \
+  --model your-served-model-id \
+  --output /tmp/heimdall-modern-simple-llm
+```
+
+This writes the final source, `decompiled.baseline.sol`, and `llm-report.json`. See
+[`docs/llm-provider-configuration.md`](../docs/llm-provider-configuration.md) for precedence,
+supported response formats, failure behavior and other provider examples. The reference Solidity
+and ABI remain evaluation-only and are never sent to the model.
 
 ## Research limitations and next work
 

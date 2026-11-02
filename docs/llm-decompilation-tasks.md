@@ -4,13 +4,13 @@ This checklist is for coding agents working on this fork. **Read [the full speci
 
 ## Phase 1 — configurable OpenAI-compatible LLM client
 
-- [ ] Add provider-neutral configurable base URL, model and auth to decompile and shared LLM consumers, preserving existing OpenRouter defaults and flags.
-- [ ] Support unauthenticated localhost APIs; ensure custom local model names and local HTTP work; document config precedence and secret handling.
-- [ ] Implement structured JSON response compatibility/fallback with explicit outcomes and errors rather than a hidden silent fallback.
-- [ ] Add offline local mock-server tests for success and error paths, model/base URL/auth forwarding and backward compatibility.
-- [ ] Document and actually test a local Ollama/LM Studio/vLLM-compatible usage command.
+- [x] Add provider-neutral configurable base URL, model and auth to decompile and shared LLM consumers, preserving existing OpenRouter defaults and flags.
+- [x] Support unauthenticated localhost APIs; ensure custom local model names and local HTTP work; document config precedence and secret handling.
+- [x] Implement structured JSON response compatibility/fallback with explicit outcomes and errors rather than a hidden silent fallback.
+- [x] Add offline local mock-server tests for success and error paths, model/base URL/auth forwarding and backward compatibility.
+- [ ] Document and actually test a local Ollama/LM Studio/vLLM-compatible usage command. The CLI path is verified against an offline OpenAI-compatible mock; a real local model smoke test remains manual.
 
-**Gate:** mock-driven tests pass without internet, API keys or local GPU. Existing OpenRouter CLI remains usable.
+**Gate:** mock-driven tests pass without internet, API keys or local GPU. Existing OpenRouter CLI remains usable. Provider flags, precedence, artifacts and limitations are documented in [`llm-provider-configuration.md`](llm-provider-configuration.md).
 
 ## Phase 2 — reproducible bytecode and source fixtures
 
