@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "run_date": "2026-11-02",
+  "tool": {
+    "name": "heimdall-rs",
+    "git_commit": "99df24c",
+    "binary": "target/release/heimdall"
+  },
+  "model": {
+    "id": "dsv41",
+    "endpoint": "http://192.168.88.253:8000/v1",
+    "response_format": "auto",
+    "max_tokens": 32768,
+    "timeout_seconds": 600,
+    "temperature": null,
+    "seed": null
+  },
+  "modes": {
+    "baseline": "deterministic decompiler output without LLM post-processing",
+    "llm1": "deterministic output followed by one LLM annotation pass"
+  },
+  "scope": {
+    "fixtures_committed": 9,
+    "baseline_evaluated": 8,
+    "llm1_evaluated": 7,
+    "compiled_check": "forge build; Solidity 0.8.22 for modern-simple, 0.8.30 otherwise",
+    "behavioral_check": "one spot check on modern-simple; no full differential suite",
+    "reference_solidity_sent_to_model": false
+  },
+  "aggregate": {
+    "baseline_compile_success": {
+      "passed": 0,
+      "total": 7
+    },
+    "llm1_compile_success": {
+      "passed": 5,
+      "total": 7
+    },
+    "heimdall_abi_selector_recall": {
+      "matched": 43,
+      "total": 43
+    },
+    "compiled_llm1_selector_recall": {
+      "matched": 0,
+      "total": 25,
+      "denominator": "reference function selectors across the five fixtures whose llm1 source compiled"
+    },
+    "llm1_requests": {
+      "applied": 7,
+      "failed": 0,
+      "accepted_non_source_outputs": 2
+    }
+  },
+  "fixtures": [
+    {
+      "id": "auditlog",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 295624
+      },
+      "baseline_compile": "fail: undeclared identifier var_b",
+      "llm1_compile": "pass",
+      "heimdall_selector_recall": "3/3",
+      "compiled_llm1_selector_recall": "0/3",
+      "assessment": "compiles but invents a two-word Item struct and drops the dynamic string payload; not behaviorally established"
+    },
+    {
+      "id": "hdwallet",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 226643
+      },
+      "baseline_compile": "fail: undeclared identifier var_f",
+      "llm1_compile": "pass",
+      "heimdall_selector_recall": "3/3",
+      "compiled_llm1_selector_recall": "0/3",
+      "assessment": "best readability gain: infers string storage and set/get semantics; constructor state and selectors are not preserved"
+    },
+    {
+      "id": "ipfs",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 165088
+      },
+      "baseline_compile": "fail: undeclared identifier var_a",
+      "llm1_compile": "pass",
+      "heimdall_selector_recall": "3/3",
+      "compiled_llm1_selector_recall": "0/3",
+      "assessment": "compiles and simplifies the getter, but still returns one bytes value instead of the reference's two strings"
+    },
+    {
+      "id": "lighthouse",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 365368
+      },
+      "baseline_compile": "fail: undeclared identifier var_d",
+      "llm1_compile": "fail: NatSpec @param arg0 no longer matches renamed parameter",
+      "heimdall_selector_recall": "13/13",
+      "compiled_llm1_selector_recall": "0/13 (no compiled artifact)",
+      "assessment": "substantial readability and semantic reconstruction, but compile fails on stale NatSpec and selector/event preservation is unverified"
+    },
+    {
+      "id": "modern-advanced",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 419566
+      },
+      "baseline_compile": "fail: invalid generated calldata expression",
+      "llm1_compile": "pass",
+      "heimdall_selector_recall": "14/14",
+      "compiled_llm1_selector_recall": "0/14",
+      "assessment": "compiles and reads better, but rewrites storage layout, calls and return handling without behavioral verification"
+    },
+    {
+      "id": "modern-errors",
+      "baseline_source": "not generated: decompile exceeded 5 minutes even with --timeout 1000",
+      "llm1_report": null,
+      "baseline_compile": "not evaluated",
+      "llm1_compile": "not evaluated",
+      "heimdall_selector_recall": "not evaluated",
+      "compiled_llm1_selector_recall": "not evaluated",
+      "assessment": "unevaluated; baseline generation blocks progress and needs separate diagnosis"
+    },
+    {
+      "id": "modern-math-helper",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 175996
+      },
+      "baseline_compile": "fail: unary ! on uint256 and wrong event argument count",
+      "llm1_compile": "fail: output is the sentence 'I can't provide a compiled contract...'",
+      "heimdall_selector_recall": "4/4",
+      "compiled_llm1_selector_recall": "0/4 (no compiled artifact)",
+      "assessment": "model refusal accepted as a successful candidate; the deterministic source was overwritten with non-source text"
+    },
+    {
+      "id": "modern-simple",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 194457
+      },
+      "baseline_compile": "fail: event declaration has zero parameters but emit passes one",
+      "llm1_compile": "pass",
+      "heimdall_selector_recall": "2/2",
+      "compiled_llm1_selector_recall": "0/2",
+      "assessment": "fixes event signature and names storage; after set(123), reference and candidate getters both return 123, but constructors and event topics differ and executable selectors do not match"
+    },
+    {
+      "id": "sender-creator",
+      "baseline_source": "generated",
+      "llm1_report": {
+        "applied": true,
+        "response_mode": "json-schema",
+        "latency_ms": 257606
+      },
+      "baseline_compile": "fail: undeclared success variable",
+      "llm1_compile": "fail: prose prefix and Markdown code fence precede the contract",
+      "heimdall_selector_recall": "1/1",
+      "compiled_llm1_selector_recall": "0/1 (no compiled artifact)",
+      "assessment": "useful cleaned function body is wrapped in prose/fences; as emitted it is not compilable"
+    }
+  ],
+  "behavioral_spot_check": {
+    "fixture": "modern-simple",
+    "method": "deploy reference with constructor value 42 and llm1 candidate without constructor; call each through its own selector",
+    "reference_initial_get": 42,
+    "llm1_initial_get": 0,
+    "reference_after_set_123": 123,
+    "llm1_after_set_123": 123,
+    "reference_set_selector": "0x60fe47b1",
+    "llm1_set_selector": "0x2aed481d",
+    "event_topic_note": "reference emits ValueSet(uint256); candidate emits ValueUpdated(uint256)"
+  },
+  "limitations": [
+    "One LLM sample per fixture; the client sends neither temperature nor seed, so runs are not reproducible.",
+    "Compilation used pragma-compatible 0.8.x solc versions, not the original fixture compiler settings.",
+    "No full stateful differential suite was run; selector mismatch alone prevents drop-in behavioral comparison for compiled candidates.",
+    "Compile success is not evidence of semantic correctness.",
+    "modern-errors baseline generation exceeded the evaluation timeout and remains unevaluated."
+  ]
+}
