@@ -8,10 +8,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_inspect_simple() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let args = InspectArgs {
             abi: None,
@@ -31,10 +32,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_inspect_create() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let args = InspectArgs {
             abi: None,
@@ -56,10 +58,11 @@ mod integration_tests {
     #[test]
     #[ignore]
     fn heavy_integration_test() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // load ./tests/testdata/txids.json into a vector using serde
         let txids = serde_json::from_str::<Value>(

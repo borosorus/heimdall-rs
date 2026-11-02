@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "fixture_id": "modern-simple",
+  "contract": "SimpleContract",
+  "summary": "Modern PUSH0 storage setter/getter and event",
+  "source_provenance": {
+    "repository": "https://github.com/evmts/tevm",
+    "commit": "1785ae300bac2afe9209a20c536b20e24a58b36b",
+    "source_path": "test/test-utils/src/SimpleContract.s.sol",
+    "compiled_artifact_path": "packages/contract/src/contract-lib/SimpleContract.s.sol.ts",
+    "license": "MIT"
+  },
+  "compilation": {
+    "pragma": "^0.8.0",
+    "compiler_version_from_bytecode_metadata": "0.8.22",
+    "exact_solc_version": null,
+    "optimizer": null,
+    "via_ir": null,
+    "reproducible_compilation_verified": false
+  },
+  "runtime": {
+    "kind": "deployed_runtime_bytecode",
+    "filename": "runtime.hex",
+    "byte_length": 378,
+    "sha256": "25db316b88889b2f5ce172c6f6013e67444c14da5eb39af8242d3df0778fb824"
+  },
+  "abi": {
+    "filename": "abi.json",
+    "function_count": 2
+  },
+  "provenance_status": "published Solidity source and generated runtime in same repo; not independently recompiled",
+  "evaluation_warning": "Published runtime code is copied from Tevm's generated contract TypeScript, not locally compiled for this import. Compiler settings are unknown. Treat as a published paired seed, not bitwise reproducible golden."
+}

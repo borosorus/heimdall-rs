@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "fixture_id": "hdwallet",
+  "contract": "hdwallet",
+  "summary": "Constructor-set string, mutable dynamic storage, public getters",
+  "source_provenance": {
+    "repository": "https://github.com/kaleido-io/kaleido-samples-gallery",
+    "commit": "ce380cef86b0eac9fc08f2f5a30f3e729877cb22",
+    "source_path": "src/contracts/hdwallet.sol",
+    "compiled_artifact_path": "src/contracts/hdwallet.json",
+    "license": "Apache-2.0"
+  },
+  "compilation": {
+    "pragma": "^0.4.17",
+    "exact_solc_version": null,
+    "optimizer": null,
+    "evm_version": null,
+    "metadata": null,
+    "reproducible_compilation_verified": false
+  },
+  "runtime": {
+    "kind": "deployed_runtime_bytecode",
+    "filename": "runtime.hex",
+    "byte_length": 853,
+    "sha256": "647e3e032b461fe459f4d8b6254936e60e8682a705d7ae7a64d0ac099db1f56b"
+  },
+  "abi": {
+    "filename": "abi.json",
+    "function_count": 3
+  },
+  "provenance_status": "publisher_source_and_runtime_artifact_paired; not_independently_recompiled",
+  "evaluation_warning": "Bytecode is copied exactly from the upstream published runtimeBytecode field. The upstream compiler version and flags were not published; exact source-to-bytecode recompilation is not yet verified. Do not conflate with a compiler-reproducible golden fixture."
+}

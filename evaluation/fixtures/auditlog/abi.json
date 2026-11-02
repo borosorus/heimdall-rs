@@ -1,0 +1,62 @@
+[
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "logEntries",
+    "outputs": [
+      {
+        "name": "entityAddress",
+        "type": "address"
+      },
+      {
+        "name": "payload",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "entityAddress",
+        "type": "address"
+      },
+      {
+        "name": "payload",
+        "type": "string"
+      }
+    ],
+    "name": "push",
+    "outputs": [
+      {
+        "name": "rowNumber",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getSize",
+    "outputs": [
+      {
+        "name": "size",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

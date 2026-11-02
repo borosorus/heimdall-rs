@@ -31,10 +31,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_calldata_when_target_is_txhash() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let calldata = get_calldata_from_target(
             "0x317907eeece00619fd4418c18a4ec4ebe5c87cdbff808f4b01cc2c6384799837",
@@ -49,10 +50,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_calldata_when_target_is_calldata() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let calldata = get_calldata_from_target(
             "0xf14fcbc8bf9eac48d61719f80efb268ef1099a248fa332ed639041337954647ec6583f2e",
@@ -67,10 +69,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_calldata_when_target_is_neither() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let calldata = get_calldata_from_target(
             "asfnsdalkfasdlfnlasdkfnalkdsfndaskljfnasldkjfnasf",
@@ -84,10 +87,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_calldata_when_target_is_calldata_that_is_exactly_32_bytes() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let calldata = get_calldata_from_target(
             "0x317907eeece00619fd4418c18a4ec4ebe5c87cdbff808f4b01cc2c6384799837",

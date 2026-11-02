@@ -1,0 +1,93 @@
+{
+  "upstream_path": "packages/contract/src/contract-lib/AdvancedContract.s.sol.ts",
+  "upstream_commit": "1785ae300bac2afe9209a20c536b20e24a58b36b",
+  "contract": "MathHelper",
+  "runtimeBytecode": "0x608060405234801561000f575f5ffd5b506004361061004a575f3560e01c80631b3ed7221461004e578063641579a61461006c578063771602f714610088578063c6888fa1146100b8575b5f5ffd5b6100566100e8565b6040516100639190610176565b60405180910390f35b610086600480360381019061008191906101bd565b6100ed565b005b6100a2600480360381019061009d91906101e8565b6100f6565b6040516100af9190610176565b60405180910390f35b6100d260048036038101906100cd91906101bd565b61010b565b6040516100df9190610176565b60405180910390f35b5f5481565b805f8190555050565b5f81836101039190610253565b905092915050565b5f5f5f548361011a9190610286565b90507fc6d3a874561afb85c1bb3c6a732cdb68de81773583e3a3ae43144ac3fb2c06e5838260405161014d9291906102c7565b60405180910390a180915050919050565b5f819050919050565b6101708161015e565b82525050565b5f6020820190506101895f830184610167565b92915050565b5f5ffd5b61019c8161015e565b81146101a6575f5ffd5b50565b5f813590506101b781610193565b92915050565b5f602082840312156101d2576101d161018f565b5b5f6101df848285016101a9565b91505092915050565b5f5f604083850312156101fe576101fd61018f565b5b5f61020b858286016101a9565b925050602061021c858286016101a9565b9150509250929050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f61025d8261015e565b91506102688361015e565b92508282019050808211156102805761027f610226565b5b92915050565b5f6102908261015e565b915061029b8361015e565b92508282026102a98161015e565b915082820484148315176102c0576102bf610226565b5b5092915050565b5f6040820190506102da5f830185610167565b6102e76020830184610167565b939250505056fea264697066735822122021376062f207d413d5af15b0a511cd14380b043550a9497df2003c089edd705a64736f6c634300081e0033",
+  "humanReadableAbi": [
+    "event Calculated(uint256 input, uint256 result)",
+    "function add(uint256 a, uint256 b) pure returns (uint256)",
+    "function multiplier() view returns (uint256)",
+    "function multiply(uint256 value) returns (uint256)",
+    "function setMultiplier(uint256 newMultiplier)"
+  ],
+  "abi": [
+    {
+      "type": "event",
+      "inputs": [
+        {
+          "name": "input",
+          "type": "uint256",
+          "indexed": false
+        },
+        {
+          "name": "result",
+          "type": "uint256",
+          "indexed": false
+        }
+      ],
+      "name": "Calculated"
+    },
+    {
+      "type": "function",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "uint256"
+        },
+        {
+          "name": "b",
+          "type": "uint256"
+        }
+      ],
+      "name": "add",
+      "stateMutability": "pure",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "inputs": [],
+      "name": "multiplier",
+      "stateMutability": "view",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "inputs": [
+        {
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "multiply",
+      "stateMutability": "nonpayable",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "inputs": [
+        {
+          "name": "newMultiplier",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMultiplier",
+      "stateMutability": "nonpayable",
+      "outputs": []
+    }
+  ]
+}

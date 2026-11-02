@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "fixture_id": "modern-math-helper",
+  "contract": "MathHelper",
+  "summary": "Simple checked arithmetic, configurable multiplier and event emission",
+  "source_provenance": {
+    "repository": "https://github.com/evmts/tevm",
+    "commit": "1785ae300bac2afe9209a20c536b20e24a58b36b",
+    "source_path": "test/test-utils/src/AdvancedContract.s.sol",
+    "compiled_artifact_path": "packages/contract/src/contract-lib/AdvancedContract.s.sol.ts",
+    "license": "MIT"
+  },
+  "compilation": {
+    "pragma": "^0.8.0",
+    "compiler_version_from_bytecode_metadata": "0.8.30",
+    "exact_solc_version": null,
+    "optimizer": null,
+    "via_ir": null,
+    "reproducible_compilation_verified": false
+  },
+  "runtime": {
+    "kind": "deployed_runtime_bytecode",
+    "filename": "runtime.hex",
+    "byte_length": 804,
+    "sha256": "6166db1c6df50bba1c5a858d2ee4f411d835e625926d31e4f8c30b2b4b589fed"
+  },
+  "abi": {
+    "filename": "abi.json",
+    "function_count": 4
+  },
+  "provenance_status": "published Solidity source and generated runtime in same repo; not independently recompiled",
+  "evaluation_warning": "Published runtime code is copied from Tevm's generated contract TypeScript, not locally compiled for this import. Compiler settings are unknown. Treat as published paired seed, not bitwise reproducible golden."
+}

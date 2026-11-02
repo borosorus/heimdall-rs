@@ -55,10 +55,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_output_default_address() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let output = "output";
         let target = "0x0000000000000000000000000000000000000001";
@@ -72,10 +73,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_output_default_local() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let output = "output";
         let target =
@@ -88,10 +90,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_output_specified() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let output = "/some_dir";
         let target = "0x0000000000000000000000000000000000000001";

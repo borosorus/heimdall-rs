@@ -1,0 +1,126 @@
+[
+  {
+    "type": "error",
+    "inputs": [
+      {
+        "name": "message",
+        "type": "string"
+      },
+      {
+        "name": "hash",
+        "type": "bytes32"
+      },
+      {
+        "name": "users",
+        "type": "address[]"
+      }
+    ],
+    "name": "ErrorWithMultipleParams"
+  },
+  {
+    "type": "error",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ErrorWithSingleParam"
+  },
+  {
+    "type": "error",
+    "inputs": [],
+    "name": "SimpleError"
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "errorOutOfGas",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "errorWithInvalidOpcode",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "panicWithArithmeticOverflow",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "panicWithArrayOutOfBounds",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "panicWithAssertFailure",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "panicWithDivisionByZero",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "revertWithCustomErrorMultipleParams",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "revertWithCustomErrorSingleParam",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "revertWithRequireAndMessage",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "revertWithRequireNoMessage",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "revertWithSimpleCustomError",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "revertWithStringError",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "revertWithoutMessage",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  }
+]

@@ -11,10 +11,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_cfg_simple() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let result = heimdall_cfg::cfg(CfgArgs {
             target: String::from("0x1bf797219482a29013d804ad96d1c6f84fba4c45"),
@@ -41,10 +42,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_cfg_complex() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let result = heimdall_cfg::cfg(CfgArgs {
             target: String::from("0xE90d8Fb7B79C8930B5C8891e61c298b412a6e81a"),
@@ -73,10 +75,11 @@ mod integration_tests {
         // the entry node dispatches to the fallback handler when `CALLDATASIZE < 4`, but the
         // edge into that block was previously dropped when the block had already been visited
         // through another path (e.g. the dispatcher's fall-through).
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // WETH (0xc02a...cc2) exhibits the missing fallback edge from the entry node.
         let result = heimdall_cfg::cfg(CfgArgs {
@@ -113,10 +116,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_cfg_auto_hardfork() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // Test auto hardfork detection with a real contract
         let result = heimdall_cfg::cfg(CfgArgs {
@@ -179,7 +183,7 @@ mod integration_tests {
         let dataset_dir = root_dir.join("largest1k");
         if !dataset_dir.exists() {
             eprintln!("dataset not found in root, skipping test");
-            std::process::exit(0);
+            return;
         }
 
         // list files in root_dir

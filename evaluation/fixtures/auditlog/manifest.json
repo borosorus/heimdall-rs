@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "fixture_id": "auditlog",
+  "contract": "auditlog",
+  "summary": "Dynamic struct array, dynamic strings, public getters, state writes",
+  "source_provenance": {
+    "repository": "https://github.com/kaleido-io/kaleido-samples-gallery",
+    "commit": "ce380cef86b0eac9fc08f2f5a30f3e729877cb22",
+    "source_path": "src/contracts/auditlog.sol",
+    "compiled_artifact_path": "src/contracts/auditlog.json",
+    "license": "Apache-2.0"
+  },
+  "compilation": {
+    "pragma": "^0.4.17",
+    "exact_solc_version": null,
+    "optimizer": null,
+    "evm_version": null,
+    "metadata": null,
+    "reproducible_compilation_verified": false
+  },
+  "runtime": {
+    "kind": "deployed_runtime_bytecode",
+    "filename": "runtime.hex",
+    "byte_length": 1080,
+    "sha256": "ec57b18a422dce5f6f7e212b3f0df53de6df1ec41331fca1ba87c79cc70a6254"
+  },
+  "abi": {
+    "filename": "abi.json",
+    "function_count": 3
+  },
+  "provenance_status": "publisher_source_and_runtime_artifact_paired; not_independently_recompiled",
+  "evaluation_warning": "Bytecode is copied exactly from the upstream published runtimeBytecode field. The upstream compiler version and flags were not published; exact source-to-bytecode recompilation is not yet verified. Do not conflate with a compiler-reproducible golden fixture."
+}

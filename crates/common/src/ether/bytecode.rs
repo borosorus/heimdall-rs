@@ -138,10 +138,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_bytecode_when_target_is_address() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let bytecode =
             get_bytecode_from_target("0x9f00c43700bc0000Ff91bE00841F8e04c0495000", &rpc_url, "")
@@ -153,10 +154,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_bytecode_when_target_is_bytecode() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let bytecode = get_bytecode_from_target(
             include_str!("../../../core/tests/testdata/common/zero_bytecode.hex"),
@@ -171,10 +173,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_bytecode_when_target_is_file_path() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let file_path = "./mock-file.txt";
         let mock_bytecode = include_str!("../../../core/tests/testdata/common/zero_bytecode.hex");
@@ -192,14 +195,17 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_creation_bytecode_for_self_destructed_contract() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
-        let etherscan_api_key = std::env::var("ETHERSCAN_API_KEY").unwrap_or_else(|_| {
-            println!("ETHERSCAN_API_KEY not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
+        let etherscan_api_key =
+            std::env::var("ETHERSCAN_API_KEY").ok().filter(|value| !value.trim().is_empty());
+        let Some(etherscan_api_key) = etherscan_api_key else {
+            eprintln!("ETHERSCAN_API_KEY missing or blank, skipping test");
+            return;
+        };
 
         // Self-destructed contract from yETH hack
         // https://etherscan.io/address/0xadbe952ebb9b3e247261d2e3b96835f00f721f8e
@@ -216,10 +222,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_bytecode_returns_empty_for_self_destructed_without_api_key() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // Self-destructed contract - without API key, should return empty bytecode
         let self_destructed_address = "0xadbe952ebb9b3e247261d2e3b96835f00f721f8e";

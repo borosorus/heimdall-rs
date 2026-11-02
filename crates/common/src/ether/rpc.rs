@@ -234,10 +234,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_chain_id() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let rpc_chain_id = chain_id(&rpc_url).await.expect("chain_id() returned an error!");
 
@@ -254,10 +255,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_get_code() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let contract_address = address!("c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2");
         let bytecode =
@@ -268,10 +270,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_get_transaction() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let transaction_hash = "0x9a5f4ef7678a94dd87048eeec931d30af21b1f4cecbf7e850a531d2bb64a54ac";
         let transaction = get_transaction(transaction_hash.parse().expect("invalid"), &rpc_url)
@@ -283,10 +286,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_get_trace() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let transaction_hash = "0x9a5f4ef7678a94dd87048eeec931d30af21b1f4cecbf7e850a531d2bb64a54ac";
         let trace = get_trace(transaction_hash, &rpc_url).await;
@@ -296,10 +300,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_get_trace_invalid_transaction_hash() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let transaction_hash = "0x0";
         let trace = get_trace(transaction_hash, &rpc_url).await;
@@ -309,10 +314,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_get_block_logs() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let block_number = 18_000_000;
         let logs = get_block_logs(block_number, &rpc_url)
@@ -324,10 +330,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_get_contract_creation_block() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // WETH contract on mainnet, deployed at block 4719568
         let contract_address = address!("c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2");
@@ -340,10 +347,11 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_chain_id_with_ws_rpc() {
-        let rpc_url = std::env::var("WS_RPC_URL").unwrap_or_else(|_| {
-            println!("WS_RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("WS_RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("WS_RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let rpc_chain_id = chain_id(&rpc_url).await.expect("chain_id() returned an error!");
 

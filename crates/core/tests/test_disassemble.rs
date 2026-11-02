@@ -140,10 +140,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_disassemble_from_rpc() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // This contract was deployed before Fusaka, so use Pectra hardfork
         // to show CLZ (0x1e) as unknown (it's part of the contract metadata)
@@ -166,10 +167,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_disassemble_auto_hardfork() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // WETH contract deployed at block 4719568 (Byzantium era)
         // Auto hardfork detection should correctly identify this
@@ -226,7 +228,7 @@ mod integration_tests {
         let dataset_dir = root_dir.join("largest1k");
         if !dataset_dir.exists() {
             eprintln!("dataset not found in root, skipping test");
-            std::process::exit(0);
+            return;
         }
 
         // list files in root_dir

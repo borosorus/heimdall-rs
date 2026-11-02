@@ -1,0 +1,80 @@
+[
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "result",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "name": "Calculated"
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "a",
+        "type": "uint256"
+      },
+      {
+        "name": "b",
+        "type": "uint256"
+      }
+    ],
+    "name": "add",
+    "stateMutability": "pure",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "multiplier",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "multiply",
+    "stateMutability": "nonpayable",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newMultiplier",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMultiplier",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  }
+]

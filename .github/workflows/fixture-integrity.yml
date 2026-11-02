@@ -1,0 +1,25 @@
+name: fixture integrity
+on:
+  push:
+    paths:
+      - 'evaluation/**'
+      - '.github/workflows/fixture-integrity.yml'
+  pull_request:
+    paths:
+      - 'evaluation/**'
+      - '.github/workflows/fixture-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check published bytecode, ABI and provenance
+        run: python3 evaluation/scripts/check_fixtures.py
+      - name: Syntax-check fixture verification scripts
+        run: python3 -m py_compile evaluation/scripts/check_fixtures.py evaluation/scripts/recompile_modern.py

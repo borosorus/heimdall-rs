@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "fixture_id": "sender-creator",
+  "contract": "SenderCreator",
+  "summary": "Modern optimized ERC-4337 factory forwarding helper: dynamic bytes slicing, external CALL, assembly memory handling",
+  "source_provenance": {
+    "repository": "https://github.com/eth-infinitism/account-abstraction",
+    "commit": "7af70c8993a6f42973f520ae0752386a5032abe7",
+    "source_path": "contracts/core/SenderCreator.sol",
+    "license": "GPL-3.0"
+  },
+  "runtime_provenance": {
+    "repository": "https://github.com/ethereum/zkapi",
+    "path": "protocol/contracts/test/fixtures/sender-creator-v0.7.0.runtime.hex",
+    "chain": "Ethereum mainnet",
+    "chain_id": 1,
+    "contract_address": "0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C",
+    "snapshot_date": "2026-10-12",
+    "secondary_reference": "https://www.codeslaw.app/contracts/ethereum/0xefc2c1444ebcc4db75e7613d20c6a62ff67a167c"
+  },
+  "compilation": {
+    "pragma": "^0.8.23",
+    "exact_solc_version": "0.8.23+commit.f704f362",
+    "optimizer": {
+      "enabled": true,
+      "runs": 1000000
+    },
+    "via_ir": null,
+    "settings_reproduction_verified": false,
+    "notes": "Exact source and on-chain code are publicly paired; full compile configuration is not independently proven here. The upstream Hardhat config has per-file overrides. Do not claim bit-for-bit build reproducibility until replayed."
+  },
+  "runtime": {
+    "kind": "deployed_runtime_bytecode",
+    "filename": "runtime.hex",
+    "byte_length": 451,
+    "sha256": "46ce0a80a81a08523313640038083c3941ebb67909ec13b6ba257b0d3dc4a1db"
+  },
+  "abi": {
+    "filename": "abi.json",
+    "function_count": 1
+  },
+  "provenance_status": "published_onchain_runtime_with_verified_reference_source; not_independently_recompiled",
+  "evaluation_warning": "GPL-3.0 source is a separately licensed test fixture. Source is strictly an evaluation oracle; do not send it to a decompiler LLM."
+}

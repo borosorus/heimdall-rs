@@ -10,10 +10,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_decompile_precompile() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let result = decompile(DecompilerArgs {
             target: String::from("0x1bf797219482a29013d804ad96d1c6f84fba4c45"),
@@ -49,10 +50,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_decompile_edge_case_u256_conversion_overflow_1() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let _ = decompile(DecompilerArgs {
             target: String::from("0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7"),
@@ -81,10 +83,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_decompile_edge_case_u256_conversion_overflow_2() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let _ = decompile(DecompilerArgs {
             target: String::from("0x5141b82f5ffda4c6fe1e372978f1c5427640a190"),
@@ -113,10 +116,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_decompile_edge_case_vec_overflow() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let _ = decompile(DecompilerArgs {
             target: String::from("0x8579970692bf77fafeeb017f07dec9a8fdb4893d"),
@@ -145,10 +149,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_decompile_weth() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let result = decompile(DecompilerArgs {
             target: String::from("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
@@ -194,10 +199,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_decompile_ctf() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         let result = decompile(DecompilerArgs {
             target: String::from("0x9f00c43700bc0000Ff91bE00841F8e04c0495000"),
@@ -367,10 +373,11 @@ mod integration_tests {
 
     #[tokio::test]
     async fn test_decompile_auto_hardfork() {
-        let rpc_url = std::env::var("RPC_URL").unwrap_or_else(|_| {
-            println!("RPC_URL not set, skipping test");
-            std::process::exit(0);
-        });
+        let rpc_url = std::env::var("RPC_URL").ok().filter(|value| !value.trim().is_empty());
+        let Some(rpc_url) = rpc_url else {
+            eprintln!("RPC_URL missing or blank, skipping test");
+            return;
+        };
 
         // Test auto hardfork detection with a real contract
         let result = decompile(DecompilerArgs {
@@ -449,7 +456,7 @@ mod integration_tests {
         let dataset_dir = root_dir.join("largest1k");
         if !dataset_dir.exists() {
             eprintln!("dataset not found in root, skipping test");
-            std::process::exit(0);
+            return;
         }
 
         // list files in root_dir

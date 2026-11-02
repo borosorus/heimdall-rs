@@ -1,0 +1,318 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "initialNumber",
+        "type": "uint256"
+      },
+      {
+        "name": "initialBool",
+        "type": "bool"
+      },
+      {
+        "name": "initialString",
+        "type": "string"
+      },
+      {
+        "name": "initialAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "address",
+        "indexed": false
+      }
+    ],
+    "name": "AddressSet"
+  },
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "number",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "boolean",
+        "type": "bool",
+        "indexed": false
+      },
+      {
+        "name": "str",
+        "type": "string",
+        "indexed": false
+      },
+      {
+        "name": "addr",
+        "type": "address",
+        "indexed": false
+      }
+    ],
+    "name": "AllValuesSet"
+  },
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "bool",
+        "indexed": false
+      }
+    ],
+    "name": "BoolSet"
+  },
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "result",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "name": "DelegateCallResult"
+  },
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "result",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "name": "ExternalCallResult"
+  },
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "name": "NumberSet"
+  },
+  {
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "string",
+        "indexed": false
+      }
+    ],
+    "name": "StringSet"
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "callMathHelper",
+    "stateMutability": "nonpayable",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "delegateCallMathHelper",
+    "stateMutability": "nonpayable",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "getAddress",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "getAllValues",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "bool"
+      },
+      {
+        "name": "",
+        "type": "string"
+      },
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "getBool",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "getNumber",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "getString",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [],
+    "name": "mathHelperAddress",
+    "stateMutability": "view",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "address"
+      }
+    ],
+    "name": "setAddress",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newNumber",
+        "type": "uint256"
+      },
+      {
+        "name": "newBool",
+        "type": "bool"
+      },
+      {
+        "name": "newString",
+        "type": "string"
+      },
+      {
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setAllValues",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "bool"
+      }
+    ],
+    "name": "setBool",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setMathHelperAddress",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "uint256"
+      }
+    ],
+    "name": "setNumber",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newValue",
+        "type": "string"
+      }
+    ],
+    "name": "setString",
+    "stateMutability": "nonpayable",
+    "outputs": []
+  }
+]

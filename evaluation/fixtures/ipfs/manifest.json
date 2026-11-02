@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "fixture_id": "ipfs",
+  "contract": "ipfs",
+  "summary": "Two dynamic strings, constructor initialized storage, multiple return values",
+  "source_provenance": {
+    "repository": "https://github.com/kaleido-io/kaleido-samples-gallery",
+    "commit": "ce380cef86b0eac9fc08f2f5a30f3e729877cb22",
+    "source_path": "src/contracts/ipfs.sol",
+    "compiled_artifact_path": "src/contracts/ipfs.json",
+    "license": "Apache-2.0"
+  },
+  "compilation": {
+    "pragma": "^0.4.17",
+    "exact_solc_version": null,
+    "optimizer": null,
+    "evm_version": null,
+    "metadata": null,
+    "reproducible_compilation_verified": false
+  },
+  "runtime": {
+    "kind": "deployed_runtime_bytecode",
+    "filename": "runtime.hex",
+    "byte_length": 1082,
+    "sha256": "cd6eae67b5f341693bed244c8d1b5c2fbc2a347b3168008ee0878f0e7de43e3e"
+  },
+  "abi": {
+    "filename": "abi.json",
+    "function_count": 3
+  },
+  "provenance_status": "publisher_source_and_runtime_artifact_paired; not_independently_recompiled",
+  "evaluation_warning": "Bytecode is copied exactly from the upstream published runtimeBytecode field. The upstream compiler version and flags were not published; exact source-to-bytecode recompilation is not yet verified. Do not conflate with a compiler-reproducible golden fixture."
+}
