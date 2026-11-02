@@ -158,7 +158,11 @@ def abi_selectors(abi: list[dict[str, Any]]) -> set[str]:
 
 
 def compile_candidate(
-    source: str, solc_version: str, work_dir: Path, label: str
+    source: str,
+    solc_version: str,
+    work_dir: Path,
+    label: str,
+    contract_name: str | None = None,
 ) -> dict[str, Any]:
     if work_dir.exists():
         shutil.rmtree(work_dir)
@@ -212,10 +216,26 @@ def compile_candidate(
         compile_record["error"] = "no compiled artifact with ABI and deployed bytecode"
         return compile_record
 
+    if contract_name:
+        named = [
+            (path, artifact)
+            for path, artifact in artifacts
+            if artifact.get("contractName") == contract_name or path.stem == contract_name
+        ]
+        if len(named) != 1:
+            compile_record["ok"] = False
+            compile_record["error"] = (
+                f"expected exactly one artifact for contract {contract_name!r}, "
+                f"found {len(named)} among {len(artifacts)} artifacts"
+            )
+            return compile_record
+        artifacts = named
+
     if len(artifacts) != 1:
         compile_record["ok"] = False
         compile_record["error"] = (
-            f"expected exactly one compiled contract artifact, found {len(artifacts)}"
+            f"expected exactly one compiled contract artifact, found {len(artifacts)}; "
+            "set spec.contract to select a target"
         )
         return compile_record
 
@@ -451,18 +471,45 @@ def combined_event_match(
     )
 
 
-def load_bindings(spec: dict[str, Any], reference_abi: list[dict[str, Any]]) -> dict[str, Any]:
+def select_candidate_signature(binding: dict[str, Any], candidate_label: str) -> str:
+    candidate_signatures = binding.get("candidate_signatures")
+    if candidate_signatures is not None:
+        if not isinstance(candidate_signatures, dict):
+            raise HarnessError("candidate_signatures must be an object keyed by label")
+        candidate_signature = candidate_signatures.get(candidate_label)
+        if candidate_signature is None:
+            candidate_signature = binding.get("candidate_signature")
+        if candidate_signature is None:
+            raise HarnessError(
+                f"no candidate signature for label {candidate_label!r}"
+            )
+    else:
+        candidate_signature = binding.get("candidate_signature")
+        if candidate_signature is None:
+            raise HarnessError("missing candidate_signature")
+    if not isinstance(candidate_signature, str) or not candidate_signature.strip():
+        raise HarnessError("candidate signature must be a nonempty string")
+    return candidate_signature
+
+
+def load_bindings(
+    spec: dict[str, Any],
+    reference_abi: list[dict[str, Any]],
+    candidate_label: str = "llm1",
+) -> dict[str, Any]:
     reference_selectors = abi_selectors(reference_abi)
     bindings = json.loads(json.dumps(spec["bindings"]))
     for name, binding in bindings.items():
         reference_signature = binding["reference_signature"]
-        candidate_signature = binding["candidate_signature"]
+        candidate_signature = select_candidate_signature(binding, candidate_label)
         baseline_signature = binding.get("baseline_signature", candidate_signature)
         reference_selector = cast_selector(reference_signature)
         if reference_selector not in reference_selectors:
             raise HarnessError(
                 f"reference signature not in reference ABI: {reference_signature}"
             )
+        binding["candidate_signature"] = candidate_signature
+        binding["candidate_label"] = candidate_label
         binding["reference_selector"] = reference_selector
         binding["baseline_signature"] = baseline_signature
         binding["baseline_selector"] = cast_selector(baseline_signature)
@@ -800,7 +847,9 @@ def evaluate_stage(
     result_dir: Path,
 ) -> dict[str, Any]:
     work_dir = result_dir / "work" / label
-    compile_record = compile_candidate(source, spec["solc_version"], work_dir, label)
+    compile_record = compile_candidate(
+        source, spec["solc_version"], work_dir, label, spec.get("contract")
+    )
     write_json(result_dir / f"compile-{label}.json", compile_record)
     stage: dict[str, Any] = {
         "label": label,
@@ -836,6 +885,11 @@ def main() -> int:
     parser.add_argument("--spec", required=True, type=Path)
     parser.add_argument("--baseline", required=True, type=Path)
     parser.add_argument("--candidate", required=True, type=Path)
+    parser.add_argument(
+        "--candidate-label",
+        default="llm1",
+        help="Label used to select per-candidate bindings and identify the source",
+    )
     parser.add_argument("--run-id", default=None)
     parser.add_argument("--repair", action="store_true", help="send bounded repair requests")
     parser.add_argument("--repair-rounds", type=int, default=1)
@@ -849,6 +903,8 @@ def main() -> int:
     args = parser.parse_args()
     if not 1 <= args.repair_rounds <= 5:
         raise HarnessError("--repair-rounds must be between 1 and 5")
+    if not args.candidate_label or not args.candidate_label.strip():
+        raise HarnessError("--candidate-label must be nonempty")
 
     root = repo_root()
     spec = read_json(args.spec)
@@ -869,7 +925,7 @@ def main() -> int:
     if not reference_runtime.startswith("0x"):
         reference_runtime = "0x" + reference_runtime
     reference_selectors = abi_selectors(reference_abi)
-    bindings = load_bindings(spec, reference_abi)
+    bindings = load_bindings(spec, reference_abi, args.candidate_label)
     compare_events = bool(spec.get("compare_events", False))
     withheld = set(spec.get("withheld", []))
     feedback_names = [probe["name"] for probe in spec["probes"] if probe["name"] not in withheld]
@@ -1045,7 +1101,10 @@ def main() -> int:
         ],
         "baseline_sha256": sha256_text(baseline_source),
         "llm1_sha256": sha256_text(candidate_source),
+        "candidate_label": args.candidate_label,
+        "candidate_sha256": sha256_text(candidate_source),
         "baseline_compile": stages[0]["compile"] if stages else False,
+        "candidate_compile": stages[1]["compile"] if len(stages) > 1 else False,
         "llm1_compile": stages[1]["compile"] if len(stages) > 1 else False,
         "feedback_probes": feedback_names,
         "withheld_probes": withheld_names,

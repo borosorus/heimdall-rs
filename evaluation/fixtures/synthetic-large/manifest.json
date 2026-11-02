@@ -1,0 +1,31 @@
+{
+  "abi": {
+    "filename": "abi.json",
+    "function_count": 25
+  },
+  "compilation": {
+    "compiler_version_from_bytecode_metadata": "0.8.30",
+    "exact_solc_version": "0.8.30",
+    "optimizer": false,
+    "pragma": "0.8.30",
+    "reproducible_compilation_verified": true,
+    "via_ir": false
+  },
+  "contract": "SyntheticVault",
+  "evaluation_warning": "Synthetic fixture generated and recompiled locally. It exercises the evaluation pipeline; it is not evidence of real-world generalization.",
+  "fixture_id": "synthetic-large",
+  "provenance_status": "synthetic-local",
+  "runtime": {
+    "byte_length": 7864,
+    "filename": "runtime.hex",
+    "kind": "deployed_runtime_bytecode",
+    "sha256": "8145bff7542d12e9ef4a96ee80a2ac97ec447bb89f6f73672f4c707a5e8184f9"
+  },
+  "schema_version": 1,
+  "source_provenance": {
+    "generator": "evaluation/scripts/build_synthetic_large.py",
+    "kind": "synthetic-local",
+    "license": "MIT"
+  },
+  "summary": "Synthetic large vault with interacting ledger, configuration and aggregate clusters"
+}

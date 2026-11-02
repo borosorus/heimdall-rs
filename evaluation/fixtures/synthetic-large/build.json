@@ -1,0 +1,41 @@
+{
+  "abi": {
+    "function_count": 25,
+    "sha256": "d30477001de724fa01848e4b2c48e6be9827f885e186bd67bad46a5f183d90d0"
+  },
+  "build_command": {
+    "compiler": "forge",
+    "forge": "forge",
+    "offline": false,
+    "solc": "solc"
+  },
+  "compiler": {
+    "command": "forge",
+    "forge_version": "forge Version: 1.8.3\nCommit SHA: cae51ad458f6abb64852b7709eb784352429825d\nBuild Timestamp: 2026-09-15T10:46:16.519267388Z (1789469176)\nBuild Profile: dist",
+    "kind": "forge",
+    "long_version": "0.8.30",
+    "version": "0.8.30"
+  },
+  "contract": "SyntheticVault",
+  "fixture_id": "synthetic-large",
+  "kind": "synthetic-local",
+  "runtime": {
+    "byte_length": 7864,
+    "sha256": "8145bff7542d12e9ef4a96ee80a2ac97ec447bb89f6f73672f4c707a5e8184f9"
+  },
+  "schema_version": 1,
+  "settings": {
+    "evm_version": "default",
+    "metadata": {
+      "bytecode_hash": "ipfs"
+    },
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "viaIR": false
+  },
+  "source_key": "src/SyntheticVault.sol",
+  "source_path": "evaluation/fixtures/synthetic-large/SyntheticVault.sol",
+  "source_sha256": "77b1ad98b7ad7225fd4005666bdc9e493ba0a5a2fcf15bcccafa523b916bae58"
+}

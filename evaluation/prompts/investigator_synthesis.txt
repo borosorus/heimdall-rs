@@ -1,0 +1,51 @@
+CONTEXT:
+<<CONTEXT>>
+
+Hypotheses:
+<<HYPOTHESES>>
+
+Validated oracle observations:
+<<OBSERVATIONS>>
+
+Task: synthesize complete replacement function units for this cluster. Return the full function
+unit, including its signature, modifiers, and body. Do not return body-only fragments and do not
+rewrite functions outside the cluster. Preserve declarations unless the original source already
+contains them; declaration changes are unsupported in this experiment and will be rejected.
+
+Dispatch identity is fixed: keep each function's name and parameter types exactly as given. The
+evaluation maps entrypoints to those names and parameter types, so renaming a function or changing
+its parameters makes the rewrite unmeasurable. You may change return types, visibility, mutability
+(including payable), modifiers, and bodies when observations justify it.
+
+Decode return data before choosing a return type. `return_data` is raw ABI bytes and
+`return_data_words` splits it into 32-byte words. A word that repeats as a small power of two
+(0x20, 0x40, 0x80, 0xa0, ...) is usually a dynamic-type offset, and a word equal to a following
+data length is usually a string/bytes length. If the observed word count and layout do not match
+the decompiler's declared return type, change the return type to the tuple that produces the same
+encoding, for example `returns (uint256, bool, string, address)`.
+
+Mutability must follow observation. Mark a function payable only when a send with a nonzero
+`value` succeeded. A send with value that reverted while the same call without value succeeded is
+evidence the function is not payable.
+
+Arithmetic must follow observation. If an observation shows a revert where the current source
+returns a wrapped or zero result, reproduce the revert with checked arithmetic or an explicit
+overflow check; do not keep `unchecked` when the oracle reverts on an overflowing input.
+
+The merged source must compile with solc 0.8.30. Prefer simple, correctly typed assignments over
+bit-mask emulation; for an address-typed storage slot, assign the address directly instead of
+masking a uint256.
+
+Each claim must cite only observation IDs present above. Use confidence only as a prioritization
+hint. List unresolved behavior honestly; do not claim a behavior is verified without evidence.
+
+Return JSON with exactly this shape:
+{
+  "functions": [
+    {"opaque_id": "fn_1", "source": "function ... { ... }"}
+  ],
+  "claims": [
+    {"opaque_id": "fn_1", "claim": "observed behavior", "confidence": 0.0, "evidence": ["obs_1"]}
+  ],
+  "unresolved": ["behavior that remains uncertain"]
+}

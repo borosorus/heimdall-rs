@@ -1,0 +1,166 @@
+{
+  "fixture": "modern-advanced",
+  "contract": "DecompiledContract",
+  "reference_runtime": "evaluation/fixtures/modern-advanced/runtime.hex",
+  "reference_abi": "evaluation/fixtures/modern-advanced/abi.json",
+  "solc_version": "0.8.30",
+  "bindings": {
+    "getNumber": {
+      "reference_signature": "getNumber()",
+      "baseline_signature": "getNumber()",
+      "candidate_signature": "storedValue()"
+    },
+    "getBool": {
+      "reference_signature": "getBool()",
+      "baseline_signature": "getBool()",
+      "candidate_signature": "Unresolved_12a7b914()"
+    },
+    "getString": {
+      "reference_signature": "getString()",
+      "baseline_signature": "getString()",
+      "candidate_signature": "storedData()"
+    },
+    "getAddress": {
+      "reference_signature": "getAddress()",
+      "baseline_signature": "getAddress()",
+      "candidate_signature": "storedAddress()"
+    },
+    "getAllValues": {
+      "reference_signature": "getAllValues()",
+      "baseline_signature": "getAllValues()",
+      "candidate_signature": "Unresolved_981f5499()"
+    },
+    "setNumber": {
+      "reference_signature": "setNumber(uint256)",
+      "baseline_signature": "setNumber(uint256)",
+      "candidate_signature": "Unresolved_3fb5c1cb(uint256)"
+    },
+    "setBool": {
+      "reference_signature": "setBool(bool)",
+      "baseline_signature": "setBool(bool)",
+      "candidate_signature": "Unresolved_1e26fd33(uint256)"
+    },
+    "setAddress": {
+      "reference_signature": "setAddress(address)",
+      "baseline_signature": "setAddress(address)",
+      "candidate_signature": "Unresolved_e30081a0(address)"
+    }
+  },
+  "probes": [
+    {
+      "name": "initial_scalars",
+      "steps": [
+        {"call": "getNumber"},
+        {"call": "getBool"},
+        {"call": "getString"},
+        {"call": "getAddress"},
+        {"call": "getAllValues"}
+      ]
+    },
+    {
+      "name": "set_number_read",
+      "steps": [
+        {"call": "setNumber", "args": ["123"], "send": true},
+        {"call": "getNumber"},
+        {"call": "getAllValues"}
+      ]
+    },
+    {
+      "name": "set_number_zero",
+      "steps": [
+        {"call": "setNumber", "args": ["0"], "send": true},
+        {"call": "getNumber"},
+        {"call": "getAllValues"}
+      ]
+    },
+    {
+      "name": "set_bool_true",
+      "steps": [
+        {"call": "setBool", "args": ["1"], "send": true},
+        {"call": "getBool"},
+        {"call": "getAllValues"}
+      ]
+    },
+    {
+      "name": "set_bool_false",
+      "steps": [
+        {"call": "setBool", "args": ["0"], "send": true},
+        {"call": "getBool"}
+      ]
+    },
+    {
+      "name": "set_address",
+      "steps": [
+        {"call": "setAddress", "args": ["0xb2"], "send": true},
+        {"call": "getAddress"}
+      ]
+    },
+    {
+      "name": "set_address_then_number",
+      "steps": [
+        {"call": "setAddress", "args": ["0xb2"], "send": true},
+        {"call": "setNumber", "args": ["9"], "send": true},
+        {"call": "getAddress"},
+        {"call": "getNumber"}
+      ]
+    },
+    {
+      "name": "repeated_set_number",
+      "steps": [
+        {"call": "setNumber", "args": ["1"], "send": true},
+        {"call": "setNumber", "args": ["2"], "send": true},
+        {"call": "getNumber"}
+      ]
+    },
+    {
+      "name": "value_rejected_set_number",
+      "steps": [
+        {"call": "setNumber", "args": ["5"], "value": "1", "send": true},
+        {"call": "getNumber"}
+      ]
+    },
+    {
+      "name": "truncated_set_number",
+      "steps": [
+        {"call": "setNumber", "truncated": true, "send": true},
+        {"call": "getNumber"}
+      ]
+    },
+    {
+      "name": "set_number_max",
+      "steps": [
+        {"call": "setNumber", "args": ["115792089237316195423570985008687907853269984665640564039457584007913129639935"], "send": true},
+        {"call": "getNumber"}
+      ]
+    },
+    {
+      "name": "set_bool_then_number",
+      "steps": [
+        {"call": "setBool", "args": ["1"], "send": true},
+        {"call": "setNumber", "args": ["42"], "send": true},
+        {"call": "getAllValues"}
+      ]
+    },
+    {
+      "name": "set_address_zero",
+      "steps": [
+        {"call": "setAddress", "args": ["0"], "send": true},
+        {"call": "getAddress"}
+      ]
+    },
+    {
+      "name": "set_number_then_get_all",
+      "steps": [
+        {"call": "setNumber", "args": ["77"], "send": true},
+        {"call": "getAllValues"}
+      ]
+    }
+  ],
+  "withheld": [
+    "set_number_max",
+    "set_bool_then_number",
+    "set_address_zero",
+    "set_number_then_get_all"
+  ],
+  "compare_events": false
+}

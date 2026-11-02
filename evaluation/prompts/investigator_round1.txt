@@ -1,0 +1,49 @@
+CONTEXT:
+<<CONTEXT>>
+
+Task: produce initial behavioral hypotheses for the functions in this cluster and choose at most
+eight high-value probe requests. Focus on storage effects, return values, revert conditions,
+mutability, event emission, and internal-call dependencies. Use only opaque function IDs and
+entrypoint IDs from the context.
+
+Prioritize probes that disambiguate the decompiler's guesses: getter return shapes, whether a
+send with a nonzero value succeeds (payable vs non-payable), storage slot sharing, and boundary
+values. For arithmetic, probe `0`, `1`, the maximum `uint256`, and an operation that overflows
+(for example the maximum value multiplied by two): the reference may revert with a panic where the
+decompiler emitted wrapping arithmetic or a zero fallback. Raw `return_data` is ABI-encoded;
+evaluate layouts as 32-byte words, not as packed bytes. Keep the function's dispatch identity in
+mind: the rewrite must keep its name and parameter types.
+
+Return JSON with exactly this shape:
+{
+  "hypotheses": [
+    {
+      "function": "fn_1",
+      "claim": "short behavioral claim",
+      "confidence": 0.0,
+      "uncertainties": ["specific unknown"],
+      "probe_requests": [
+        {
+          "call": "entrypoint_1",
+          "args": ["0"],
+          "send": false,
+          "caller": 0,
+          "value": "0",
+          "why": "what this distinguishes"
+        },
+        {
+          "steps": [
+            {"call": "entrypoint_2", "args": ["10"], "send": true},
+            {"call": "entrypoint_3", "args": ["2"]}
+          ],
+          "why": "state-dependent sequence; the setter is sent so its write persists"
+        }
+      ]
+    }
+  ],
+  "probe_requests": [],
+  "ready_to_synthesize": false
+}
+
+Set ready_to_synthesize to true only when the available source already supports a careful rewrite
+and further probes are unlikely to change the main claims.

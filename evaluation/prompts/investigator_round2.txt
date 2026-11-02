@@ -1,0 +1,27 @@
+CONTEXT:
+<<CONTEXT>>
+
+Previous hypotheses:
+<<HYPOTHESES>>
+
+Validated oracle observations:
+<<OBSERVATIONS>>
+
+Task: revise the hypotheses using only these observations. Identify contradictions and unresolved
+questions. Request at most eight additional high-value probes, or set ready_to_synthesize to true.
+Use only opaque function IDs and entrypoint IDs.
+
+Return JSON with exactly this shape:
+{
+  "hypotheses": [
+    {
+      "function": "fn_1",
+      "claim": "revised behavioral claim",
+      "confidence": 0.0,
+      "uncertainties": ["specific unknown"],
+      "probe_requests": []
+    }
+  ],
+  "probe_requests": [],
+  "ready_to_synthesize": false
+}

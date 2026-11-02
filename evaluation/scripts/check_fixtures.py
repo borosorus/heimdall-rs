@@ -52,7 +52,44 @@ def verify_one(directory: Path) -> tuple[str, int, str]:
         error(name, "source pragma mismatches manifest")
 
     artifact = directory / "upstream-artifact.json"
-    if artifact.exists():
+    provenance_kind = manifest.get("source_provenance", {}).get("kind")
+    if provenance_kind == "synthetic-local":
+        build_path = directory / "build.json"
+        if not build_path.exists():
+            error(name, "synthetic fixture requires build.json")
+        build = json.loads(build_path.read_text(encoding="utf-8"))
+        if build.get("kind") != "synthetic-local":
+            error(name, "build.json kind must be synthetic-local")
+        if build.get("fixture_id") != name or build.get("contract") != manifest["contract"]:
+            error(name, "build.json fixture/contract metadata mismatches manifest")
+        source_hash = hashlib.sha256(
+            source_paths[0].read_text(encoding="utf-8").encode("utf-8")
+        ).hexdigest()
+        if build.get("source_sha256") != source_hash:
+            error(name, "source hash differs from build.json")
+        if build.get("runtime", {}).get("byte_length") != len(raw):
+            error(name, "build.json runtime byte count differs")
+        if build.get("runtime", {}).get("sha256") != digest:
+            error(name, "build.json runtime SHA-256 differs")
+        abi_hash = hashlib.sha256(
+            (directory / manifest["abi"]["filename"]).read_bytes()
+        ).hexdigest()
+        if build.get("abi", {}).get("sha256") != abi_hash:
+            error(name, "build.json ABI hash differs")
+        if build.get("abi", {}).get("function_count") != fn_count:
+            error(name, "build.json ABI function count differs")
+        compilation = manifest.get("compilation", {})
+        if build.get("compiler", {}).get("version") != compilation.get("exact_solc_version"):
+            error(name, "build.json compiler differs from manifest exact_solc_version")
+        if build.get("settings", {}).get("optimizer", {}).get("enabled") != compilation.get(
+            "optimizer"
+        ):
+            error(name, "build.json optimizer setting differs from manifest")
+        if build.get("settings", {}).get("viaIR") != compilation.get("via_ir"):
+            error(name, "build.json viaIR setting differs from manifest")
+        if not compilation.get("reproducible_compilation_verified"):
+            error(name, "synthetic fixture must be marked reproducible_compilation_verified")
+    elif artifact.exists():
         published = json.loads(artifact.read_text(encoding="utf-8"))
         published_hex = published["runtimeBytecode"].removeprefix("0x")
         if published_hex.lower() != code.lower():

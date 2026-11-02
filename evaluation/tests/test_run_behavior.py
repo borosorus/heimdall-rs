@@ -80,6 +80,40 @@ class ComparisonTests(unittest.TestCase):
         self.assertFalse(run_behavior.configured_match(result, True))
 
 
+class BindingSelectionTests(unittest.TestCase):
+    def test_candidate_label_selects_matching_signature(self):
+        binding = {
+            "reference_signature": "get()",
+            "candidate_signature": "legacy()",
+            "candidate_signatures": {
+                "whole": "wholeGetter()",
+                "chunked": "chunkedGetter()",
+            },
+        }
+        self.assertEqual(
+            run_behavior.select_candidate_signature(binding, "chunked"),
+            "chunkedGetter()",
+        )
+
+    def test_candidate_label_falls_back_to_legacy_signature(self):
+        binding = {
+            "reference_signature": "get()",
+            "candidate_signature": "legacy()",
+            "candidate_signatures": {"whole": "wholeGetter()"},
+        }
+        self.assertEqual(
+            run_behavior.select_candidate_signature(binding, "missing"),
+            "legacy()",
+        )
+
+    def test_candidate_label_without_any_signature_is_rejected(self):
+        with self.assertRaises(run_behavior.HarnessError):
+            run_behavior.select_candidate_signature(
+                {"reference_signature": "get()", "candidate_signatures": {"whole": "g()"}},
+                "missing",
+            )
+
+
 class StageTests(unittest.TestCase):
     def test_compile_blocked_stage_is_not_reported_as_behavioral_failure(self):
         spec = {"probes": [{"name": "a"}, {"name": "b"}], "withheld": ["b"]}
