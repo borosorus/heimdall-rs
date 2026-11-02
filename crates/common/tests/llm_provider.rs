@@ -10,7 +10,8 @@ use std::{
 
 use heimdall_common::resources::llm::{
     AnnotatedContractResponse, LlmClient, LlmConfig, LlmError, LlmResponseFormat, LlmResponseMode,
-    DEFAULT_MODEL, OPENROUTER_API_BASE,
+    DEFAULT_CUSTOM_MAX_TOKENS, DEFAULT_CUSTOM_TIMEOUT, DEFAULT_MODEL, DEFAULT_STRUCTURED_TIMEOUT,
+    OPENROUTER_API_BASE,
 };
 use serde_json::{json, Value};
 use tokio::{
@@ -198,6 +199,8 @@ async fn custom_base_url_model_and_unauthenticated_mode() {
         MockServer::spawn(vec![MockResponse::ok(&structured_content("contract X {}"))]).await;
     let config =
         LlmConfig::custom(server.url("/v1"), None, "local-model", LlmResponseFormat::JsonSchema);
+    assert_eq!(config.timeout, DEFAULT_CUSTOM_TIMEOUT);
+    assert_eq!(config.max_tokens, Some(DEFAULT_CUSTOM_MAX_TOKENS));
     let client = LlmClient::new(config).expect("config should validate");
 
     let outcome = client
@@ -216,7 +219,50 @@ async fn custom_base_url_model_and_unauthenticated_mode() {
     assert_eq!(requests[0].body["model"], "local-model");
     assert_eq!(requests[0].body["response_format"]["type"], "json_schema");
     assert_eq!(requests[0].body["response_format"]["json_schema"]["name"], "annotated_contract");
+    assert_eq!(requests[0].body["max_tokens"], json!(DEFAULT_CUSTOM_MAX_TOKENS));
     assert!(!requests[0].headers.contains_key("authorization"));
+}
+
+#[tokio::test]
+async fn max_tokens_override_is_forwarded_and_can_be_omitted() {
+    let server = MockServer::spawn(vec![
+        MockResponse::ok(&structured_content("contract X {}")),
+        MockResponse::ok(&structured_content("contract Y {}")),
+    ])
+    .await;
+
+    let config = LlmConfig::custom(server.url("/v1"), None, "local-model", LlmResponseFormat::Text)
+        .with_max_tokens(Some(4_096));
+    LlmClient::new(config)
+        .expect("config should validate")
+        .complete_structured::<AnnotatedContractResponse>("annotate", "annotated_contract")
+        .await
+        .expect("completion should succeed");
+
+    let config = LlmConfig::custom(server.url("/v1"), None, "local-model", LlmResponseFormat::Text)
+        .with_max_tokens(None);
+    LlmClient::new(config)
+        .expect("config should validate")
+        .complete_structured::<AnnotatedContractResponse>("annotate", "annotated_contract")
+        .await
+        .expect("completion should succeed");
+
+    let requests = server.requests();
+    assert_eq!(requests.len(), 2);
+    assert_eq!(requests[0].body["max_tokens"], 4_096);
+    assert!(requests[1].body.get("max_tokens").is_none());
+}
+
+#[test]
+fn zero_max_tokens_is_rejected_before_any_request() {
+    let config = LlmConfig::custom(
+        "http://127.0.0.1:11434/v1",
+        None,
+        "local-model",
+        LlmResponseFormat::Text,
+    )
+    .with_max_tokens(Some(0));
+    assert!(matches!(LlmClient::new(config), Err(LlmError::InvalidMaxTokens)));
 }
 
 #[tokio::test]
@@ -397,6 +443,8 @@ fn legacy_openrouter_defaults_are_preserved() {
     assert_eq!(config.base_url, OPENROUTER_API_BASE);
     assert_eq!(config.model, DEFAULT_MODEL);
     assert_eq!(config.response_format, LlmResponseFormat::Auto);
+    assert_eq!(config.timeout, DEFAULT_STRUCTURED_TIMEOUT);
+    assert_eq!(config.max_tokens, None);
     assert_eq!(config.endpoint_label(), OPENROUTER_API_BASE);
 }
 

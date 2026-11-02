@@ -38,6 +38,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -82,6 +84,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -119,6 +123,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -156,6 +162,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -193,6 +201,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -247,6 +257,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -286,6 +298,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -331,6 +345,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -367,6 +383,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Latest,
         })
@@ -392,6 +410,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             default: true,
             skip_resolving: true,
@@ -442,6 +462,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Auto,
         })
@@ -480,6 +502,8 @@ mod integration_tests {
             llm_api_key: String::from(""),
             llm_response_format: None,
             llm_report: None,
+            llm_max_tokens: None,
+            llm_timeout: None,
             etherscan_api_key: String::from(""),
             hardfork: HardFork::Auto,
         })

@@ -113,6 +113,16 @@ pub struct DecompilerArgs {
     #[builder(default)]
     pub llm_report: Option<String>,
 
+    /// Maximum completion tokens per LLM request. Custom endpoints default to 32768.
+    #[clap(long, value_name = "TOKENS", default_value = None, hide_default_value = true)]
+    #[builder(default)]
+    pub llm_max_tokens: Option<u32>,
+
+    /// LLM request timeout in seconds. Custom endpoints default to 600; OpenRouter to 120.
+    #[clap(long, value_name = "SECONDS", default_value = None, hide_default_value = true)]
+    #[builder(default)]
+    pub llm_timeout: Option<u64>,
+
     /// Your Etherscan API key, used for fetching creation bytecode of self-destructed contracts.
     #[clap(long, default_value = "", hide_default_value = true)]
     pub etherscan_api_key: String,
@@ -212,6 +222,8 @@ impl DecompilerArgsBuilder {
             llm_api_key: Some(String::new()),
             llm_response_format: Some(None),
             llm_report: Some(None),
+            llm_max_tokens: Some(None),
+            llm_timeout: Some(None),
             etherscan_api_key: Some(String::new()),
             hardfork: Some(HardFork::Latest),
         }
@@ -235,6 +247,10 @@ mod tests {
             "json-object",
             "--llm-report",
             "report.json",
+            "--llm-max-tokens",
+            "32768",
+            "--llm-timeout",
+            "600",
         ])
         .unwrap();
 
@@ -242,12 +258,16 @@ mod tests {
         assert_eq!(args.llm_api_key, "secret");
         assert_eq!(args.llm_response_format, Some(LlmResponseFormat::JsonObject));
         assert_eq!(args.llm_report.as_deref(), Some("report.json"));
+        assert_eq!(args.llm_max_tokens, Some(32768));
+        assert_eq!(args.llm_timeout, Some(600));
 
         let defaults = DecompilerArgs::try_parse_from(["decompile", "0x00"]).unwrap();
         assert_eq!(defaults.llm_base_url, "");
         assert_eq!(defaults.llm_api_key, "");
         assert_eq!(defaults.llm_response_format, None);
         assert_eq!(defaults.llm_report, None);
+        assert_eq!(defaults.llm_max_tokens, None);
+        assert_eq!(defaults.llm_timeout, None);
     }
 
     #[test]

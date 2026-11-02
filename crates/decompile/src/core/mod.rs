@@ -109,7 +109,7 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
 
     let llm_config = if args.llm_postprocess {
         let response_format = args.llm_response_format.unwrap_or_default();
-        let config = if args.llm_base_url.trim().is_empty() {
+        let mut config = if args.llm_base_url.trim().is_empty() {
             let mut config =
                 LlmConfig::openrouter(args.openrouter_api_key.clone(), args.model.clone());
             config.response_format = response_format;
@@ -122,6 +122,12 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
                 response_format,
             )
         };
+        if let Some(max_tokens) = args.llm_max_tokens {
+            config = config.with_max_tokens(Some(max_tokens));
+        }
+        if let Some(timeout_seconds) = args.llm_timeout {
+            config = config.with_timeout(Duration::from_secs(timeout_seconds));
+        }
         config
             .validate()
             .map_err(|error| Error::Eyre(eyre!("invalid LLM configuration: {error}")))?;

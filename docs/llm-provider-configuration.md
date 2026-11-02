@@ -16,6 +16,8 @@ that must be measured with the evaluation harness described in
 | `--llm-api-key <KEY>` | Bearer token for the resolved endpoint. Empty means no `Authorization` header. |
 | `--model <MODEL>` (`-m`) | Model ID sent verbatim to the endpoint. Required for custom endpoints. |
 | `--llm-response-format <FORMAT>` | `auto`, `json-schema`, `json-object`, or `text`. |
+| `--llm-max-tokens <TOKENS>` | Completion-token cap. Custom endpoints default to `32768`; OpenRouter omits the field. |
+| `--llm-timeout <SECONDS>` | Per-request timeout. Custom endpoints default to `600`; OpenRouter to `120`. |
 | `--llm-report <PATH>` | Write the post-processing report to an explicit path. |
 | `--openrouter-api-key <KEY>` | Legacy OpenRouter-only override, preserved for compatibility. |
 | `--no-update-check` | Global flag that skips the startup version-check request. |
@@ -71,6 +73,29 @@ The schema name is `annotated_contract`, and the expected object is:
 
 The returned source must be nonempty. Heimdall does not send reference Solidity, source diffs, or
 evaluation-oracle information to the model.
+
+## Reasoning models and token budgets
+
+Reasoning models such as DeepSeek-style or vLLM `--reasoning-parser` deployments emit their
+chain-of-thought in a separate `reasoning` field, but those tokens still count against the
+request's completion budget. If the budget runs out before the model produces `content`, the
+endpoint reports `finish_reason: "length"`, `content` is empty or null, and Heimdall records a
+truncated-response failure while retaining the baseline source.
+
+The budget needed depends on the model and prompt, and it does not grow linearly with output
+length: a model can spend tens of thousands of tokens reasoning before converging. Custom
+endpoints therefore default to `--llm-max-tokens 32768` and `--llm-timeout 600`. If the report
+shows an incomplete response, raise both values, for example:
+
+```bash
+  --llm-max-tokens 65536 --llm-timeout 900
+```
+
+OpenRouter keeps its previous behavior: no `max_tokens` field (the provider default applies) and a
+120-second timeout. Override either value explicitly when using OpenRouter.
+
+The report records the effective `max_tokens` and `timeout_seconds` so a failed run can be
+distinguished from a configuration that was never applied.
 
 ## Local endpoint examples
 
@@ -131,6 +156,8 @@ Example report:
   "attempted_modes": ["json-schema"],
   "fallback_reason": null,
   "latency_ms": 842,
+  "max_tokens": 32768,
+  "timeout_seconds": 600,
   "error": null
 }
 ```

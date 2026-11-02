@@ -24,6 +24,14 @@ pub const OPENROUTER_API_BASE: &str = "https://openrouter.ai/api/v1";
 /// Default timeout for structured completions.
 pub const DEFAULT_STRUCTURED_TIMEOUT: Duration = Duration::from_secs(120);
 
+/// Default timeout for custom endpoints, which may run reasoning models.
+pub const DEFAULT_CUSTOM_TIMEOUT: Duration = Duration::from_secs(600);
+
+/// Default completion-token budget for custom endpoints.
+///
+/// Reasoning models can spend thousands of tokens before emitting final content.
+pub const DEFAULT_CUSTOM_MAX_TOKENS: u32 = 32_768;
+
 /// Default timeout for plain-text completions.
 pub const DEFAULT_TEXT_TIMEOUT: Duration = Duration::from_secs(90);
 
@@ -123,6 +131,8 @@ pub struct LlmConfig {
     pub response_format: LlmResponseFormat,
     /// Per-request timeout.
     pub timeout: Duration,
+    /// Optional completion-token cap. `None` omits `max_tokens` from the request.
+    pub max_tokens: Option<u32>,
 }
 
 impl fmt::Debug for LlmConfig {
@@ -133,6 +143,7 @@ impl fmt::Debug for LlmConfig {
             .field("model", &self.model)
             .field("response_format", &self.response_format)
             .field("timeout", &self.timeout)
+            .field("max_tokens", &self.max_tokens)
             .finish()
     }
 }
@@ -149,6 +160,7 @@ impl LlmConfig {
             model: if model.trim().is_empty() { DEFAULT_MODEL.to_string() } else { model },
             response_format: LlmResponseFormat::Auto,
             timeout: DEFAULT_STRUCTURED_TIMEOUT,
+            max_tokens: None,
         }
     }
 
@@ -167,7 +179,8 @@ impl LlmConfig {
             api_key: api_key.and_then(non_empty_key),
             model: model.into(),
             response_format,
-            timeout: DEFAULT_STRUCTURED_TIMEOUT,
+            timeout: DEFAULT_CUSTOM_TIMEOUT,
+            max_tokens: Some(DEFAULT_CUSTOM_MAX_TOKENS),
         }
     }
 
@@ -175,6 +188,13 @@ impl LlmConfig {
     #[must_use]
     pub fn with_timeout(mut self, timeout: Duration) -> Self {
         self.timeout = timeout;
+        self
+    }
+
+    /// Sets or clears the completion-token cap.
+    #[must_use]
+    pub fn with_max_tokens(mut self, max_tokens: Option<u32>) -> Self {
+        self.max_tokens = max_tokens;
         self
     }
 
@@ -225,6 +245,9 @@ impl LlmConfig {
         }
         if self.timeout.is_zero() {
             return Err(LlmError::InvalidTimeout);
+        }
+        if self.max_tokens == Some(0) {
+            return Err(LlmError::InvalidMaxTokens);
         }
         if url.scheme() == "http" &&
             !is_local_host(host) &&
@@ -280,6 +303,9 @@ pub enum LlmError {
     /// The configured timeout is zero.
     #[error("LLM request timeout must be greater than zero")]
     InvalidTimeout,
+    /// The configured completion-token cap is zero.
+    #[error("LLM max_tokens must be greater than zero when set")]
+    InvalidMaxTokens,
     /// A key would be sent over plaintext HTTP to a non-local host.
     #[error("refusing to send an API key over plaintext HTTP to non-local host '{host}'")]
     InsecureKeyTransport {
@@ -473,6 +499,10 @@ impl LlmClient {
             "model": self.config.model,
             "messages": [{ "role": "user", "content": prompt }],
         });
+
+        if let Some(max_tokens) = self.config.max_tokens {
+            body["max_tokens"] = json!(max_tokens);
+        }
 
         if mode == LlmResponseMode::JsonSchema {
             body["response_format"] = json!({

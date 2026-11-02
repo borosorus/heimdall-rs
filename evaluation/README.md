@@ -78,8 +78,10 @@ separately from the deterministic baseline:
   --output /tmp/heimdall-modern-simple-llm
 ```
 
-This writes the final source, `decompiled.baseline.sol`, and `llm-report.json`. See
-[`docs/llm-provider-configuration.md`](../docs/llm-provider-configuration.md) for precedence,
+This writes the final source, `decompiled.baseline.sol`, and `llm-report.json`. Custom endpoints
+default to a 32,768-token completion budget and a 600-second timeout so reasoning models can
+finish; raise `--llm-max-tokens` and `--llm-timeout` if the report records an incomplete response.
+See [`docs/llm-provider-configuration.md`](../docs/llm-provider-configuration.md) for precedence,
 supported response formats, failure behavior and other provider examples. The reference Solidity
 and ABI remain evaluation-only and are never sent to the model.
 

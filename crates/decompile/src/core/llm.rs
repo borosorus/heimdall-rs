@@ -29,6 +29,10 @@ pub struct LlmPostprocessReport {
     pub fallback_reason: Option<String>,
     /// Wall-clock latency of the successful request in milliseconds.
     pub latency_ms: u64,
+    /// Completion-token cap sent to the endpoint, if any.
+    pub max_tokens: Option<u32>,
+    /// Request timeout in seconds.
+    pub timeout_seconds: u64,
     /// Error that prevented the response from being applied, if any.
     pub error: Option<String>,
 }
@@ -46,6 +50,8 @@ impl LlmPostprocessReport {
             attempted_modes: Vec::new(),
             fallback_reason: None,
             latency_ms: 0,
+            max_tokens: None,
+            timeout_seconds: 0,
             error: None,
         }
     }
@@ -62,6 +68,8 @@ impl LlmPostprocessReport {
             attempted_modes: Vec::new(),
             fallback_reason: None,
             latency_ms: 0,
+            max_tokens: config.max_tokens,
+            timeout_seconds: config.timeout.as_secs(),
             error: None,
         }
     }
