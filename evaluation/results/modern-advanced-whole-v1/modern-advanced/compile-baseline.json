@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "a9bac78f006c4af935ff4418baa83e3a337d1b117ae7b225e656112f08c1ecb4",
+  "stderr": "Error: Compiler run failed:\nError (6933): Expected primary expression.\n   --> src/Candidate.sol:164:78:\n    |\n164 |             (bool success, bytes memory ret0) = address(store_f).Unresolved_(memory[var_c:var_c + (var_c + var_g - var_c)]); // delegatecall\n    |                                                                              ^^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 4.41ms\n"
+}

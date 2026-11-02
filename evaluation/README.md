@@ -148,6 +148,87 @@ bypasses constructor initialization; fixtures that need initialized state must e
 See [`results/README.md`](results/README.md) for the recorded experiments, controls, measurements,
 and the precise claims supported by them.
 
+## Multi-step investigator prototype (evaluation-only)
+
+[`scripts/run_investigator.py`](scripts/run_investigator.py) tests a divide-and-conquer alternative
+to the single whole-contract LLM pass. It requires a **compilable** candidate source as the starting
+point; it does not repair an uncompilable whole candidate.
+
+1. Split the candidate into complete function units with a comment/string-aware brace scanner, and
+   keep declarations untouched.
+2. Cluster functions deterministically by shared storage roots, events/errors, and internal calls
+   (at most 6 clusters, 4 functions each).
+3. For each cluster, ask the model for behavioral hypotheses and bounded probe requests. A local
+   oracle maps opaque `entrypoint_N` IDs to reference selectors, runs the reference runtime under
+   Anvil, and returns raw observations (status, calldata, return/revert data, value, sender,
+   balance, optional logs).
+4. Synthesize complete replacement function units from the observations, then merge and compile
+   them. On a compile failure the gate drops the lowest-confidence cluster and retries, preserving
+   the original functions; rejected rewrites and compiler diagnostics are recorded. In probe modes,
+   a cluster with no validated observations is left unchanged instead of being rewritten without
+   evidence; the `chunked-one-shot` control synthesizes without probes by design.
+
+The model never receives reference Solidity, reference ABI names, source diffs, or withheld probe
+results. Rewrites must keep each function's name and parameter types (the dispatch identity used by
+the behavioral harness); return types, mutability, and bodies may change. A probe request is either
+one call or a `steps` array executed in order from one fresh snapshot after the fixture `setup`;
+state-changing steps must set `send: true` to persist their writes. Budget defaults: at most
+3 HTTP attempts per cluster (format fallbacks included), 20 attempts per run, 256k completion
+tokens, 16 probes per cluster and 64 per run; each request's `max_tokens` is capped to the
+remaining budget. Ablations: `whole-investigator` (one cluster), `chunked-one-shot` (clusters
+without probes), and `chunked-investigator` (hypotheses plus probes).
+
+```bash
+python3 evaluation/scripts/run_investigator.py \
+  --source /tmp/heimdall-eval-whole/modern-advanced/decompiled.sol \
+  --spec evaluation/tests/modern-advanced.json \
+  --output-dir /tmp/heimdall-investigator/run-1 \
+  --mode chunked-investigator --candidate-label whole \
+  --llm-base-url http://127.0.0.1:8000/v1 --model your-served-model-id \
+  --max-calls 8 --max-investigation-rounds 1 --response-format auto
+```
+
+Behavior is then measured with `run_behavior.py` and a per-candidate binding label; specs can carry
+a `candidate_signatures` map keyed by label when source names differ between candidates. Outputs
+include prompts, raw requests/responses, merge compile reports, `candidate.sol`, and `metrics.json`.
+Measured runs and limitations are in [`results/README.md`](results/README.md). On
+`modern-math-helper`, the investigator raised the saved `llm1` candidate from 7/10 feedback and 4/5
+withheld to 10/10 and 5/5 at five HTTP attempts and 26,641 completion tokens. The
+`synthetic-large` fixture has an exact pinned build and integrity checks, but no measured
+investigator score: its deterministic baseline is both uncompilable and arity-inconsistent, its
+whole-contract LLM pass returned invalid source, and whole-contract repair exhausted its completion
+budget without emitting a candidate. See the synthetic-large section in the results document.
+
+### Compile-repair bootstrap (evaluation-only)
+
+[`scripts/repair_compile.py`](scripts/repair_compile.py) is an optional pre-step for candidates that
+do not compile. It compiles the input once, then sends the source and the compiler diagnostics to a
+model for at most `--max-attempts` bounded attempts. A proposal is accepted only when it:
+
+- parses as the same contract name and preserves every original function name and parameter type;
+- does not delete, rename, or add functions, and does not change parameter types (placeholder widths
+  `uint0`/`int0`/`bytes0` are normalized to `uint256`/`int256`/`bytes`);
+- compiles with the pinned `solc` version and the compiled ABI still exposes every original dispatch
+  signature.
+
+It receives only the decompiler source, the contract name, the solc version and compiler output; no
+reference Solidity, reference ABI names, or withheld probes. Outputs are `candidate.sol`,
+`baseline-compile.json`, `metrics.json`, and the raw requests/responses under `calls/`.
+
+```bash
+python3 evaluation/scripts/repair_compile.py \
+  --source /tmp/heimdall-eval-baseline/modern-advanced/decompiled.sol \
+  --spec evaluation/tests/modern-advanced.json \
+  --output-dir /tmp/heimdall-repair/run-1 \
+  --llm-base-url http://127.0.0.1:8000/v1 --model your-served-model-id \
+  --max-tokens 49152 --max-attempts 3 --max-calls 9 --response-format auto
+```
+
+Limitations: this is a whole-source rewrite, so a reasoning model can spend the entire completion
+budget on reasoning without emitting a candidate (observed at 49,152 and 131,072 tokens on
+`synthetic-large`); it also cannot recover parameters the decompiler dropped. Compile repair is a
+bootstrap convenience, not a substitute for a compilable, dispatch-valid starting candidate.
+
 ## Research limitations and next work
 
 - **Compiler settings:** the Kaleido example project says the artifacts were compiled manually. The exact legacy `solc` versions, optimization settings, source filenames and metadata settings have **not** been established or independently reproduced. The source and bytecode are published together by the project, but have not been proven to compile into byte-identical deployed bytecode. These are **seed pairs** rather than fully compiler-verified goldens. Do not claim Phase 2 reproducible compilation is complete.

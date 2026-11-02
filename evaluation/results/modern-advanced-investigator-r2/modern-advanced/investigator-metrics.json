@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "mode": "chunked-investigator",
+  "fixture": "modern-advanced",
+  "contract": "DecompiledContract",
+  "source_sha256": "09e5d7dad513b1ac5586c4d5ed0733c1630f5c14a61eead457e1424c91bafd91",
+  "candidate_sha256": "50e3a56ec6cc3a1f7beca20cab35ac46bdad0b290acdabc11ef540bcfba054d7",
+  "clusters": 3,
+  "unclustered_functions": [],
+  "functions_total": 11,
+  "functions_rewritten": 11,
+  "llm_calls": 6,
+  "completion_tokens": 70704,
+  "prompt_chars": 95195,
+  "elapsed_ms": 1933847,
+  "probe_requests": 24,
+  "observations": 24,
+  "merge": {
+    "attempts": [
+      {
+        "attempt": 0,
+        "clusters": [
+          "cluster_1",
+          "cluster_2",
+          "cluster_3"
+        ],
+        "merge": {
+          "records": {
+            "fn_1": {
+              "applied": true,
+              "old_name": "Unresolved_01ef8faa",
+              "new_name": "Unresolved_01ef8faa",
+              "text_sha256": "ccd7d1215a8bb951cef06c3c7a42d80c50a92e961c436177a301a9c7881949c1"
+            },
+            "fn_6": {
+              "applied": true,
+              "old_name": "Unresolved_575f4505",
+              "new_name": "Unresolved_575f4505",
+              "text_sha256": "39b4548e07b4e93bdc83283745cf870331c78994a76236e8bca910ccd6e42809"
+            },
+            "fn_8": {
+              "applied": true,
+              "old_name": "Unresolved_8d5d4de7",
+              "new_name": "Unresolved_8d5d4de7",
+              "text_sha256": "0c99d7a71798e9f06086b986370ca2f7025046a4a44719cc231c51c68c45adce"
+            },
+            "fn_10": {
+              "applied": true,
+              "old_name": "Unresolved_d0da9af5",
+              "new_name": "Unresolved_d0da9af5",
+              "text_sha256": "fba42b33aefd598d4bced8ca3981741b19137d0c0a8711cb19af563a97f2aafe"
+            },
+            "fn_2": {
+              "applied": true,
+              "old_name": "Unresolved_12a7b914",
+              "new_name": "Unresolved_12a7b914",
+              "text_sha256": "f61833d216dc17474f588e4d4a5e6ad7d7e89cf3262b4a02839bb33d12802b36"
+            },
+            "fn_3": {
+              "applied": true,
+              "old_name": "Unresolved_1e26fd33",
+              "new_name": "Unresolved_1e26fd33",
+              "text_sha256": "a2d5ac145a14d2e0e3fb1a5cc15d46ab15f906896530a472b67adce52edb82d2"
+            },
+            "fn_4": {
+              "applied": true,
+              "old_name": "Unresolved_349a0054",
+              "new_name": "Unresolved_349a0054",
+              "text_sha256": "567a6e0bbd61d92021e7cac298b8d880accadc82e219868bc953a9243555e979"
+            },
+            "fn_5": {
+              "applied": true,
+              "old_name": "Unresolved_3fb5c1cb",
+              "new_name": "Unresolved_3fb5c1cb",
+              "text_sha256": "d0b4c97818c9e7c676947b063118bb059c09265f7c1c71e46a8e3e3347c912ac"
+            },
+            "fn_7": {
+              "applied": true,
+              "old_name": "Unresolved_7fcaf666",
+              "new_name": "Unresolved_7fcaf666",
+              "text_sha256": "af624783c718e6761fd5d9de517bed51f849b40cbea8829361c7625d30ec9351"
+            },
+            "fn_9": {
+              "applied": true,
+              "old_name": "Unresolved_981f5499",
+              "new_name": "Unresolved_981f5499",
+              "text_sha256": "136cd7483c3802042f3cdc8c331e6c7ef7ff6f7188b13816f69f01074ac5aad8"
+            },
+            "fn_11": {
+              "applied": true,
+              "old_name": "Unresolved_e30081a0",
+              "new_name": "Unresolved_e30081a0",
+              "text_sha256": "5ae44e53f74b50e8684bbc4f56b4b17b6a163ca4987b98b100f10cbb3e756be3"
+            }
+          },
+          "error": null,
+          "applied": true
+        },
+        "compile": {
+          "ok": true,
+          "error": null
+        }
+      }
+    ],
+    "applied": true
+  },
+  "cluster_results": [
+    {
+      "cluster_id": "cluster_1",
+      "functions": [
+        "fn_1",
+        "fn_6",
+        "fn_8",
+        "fn_10"
+      ],
+      "calls": 2,
+      "probe_requests": 8,
+      "observations": [
+        "obs_1",
+        "obs_2",
+        "obs_3",
+        "obs_4",
+        "obs_5",
+        "obs_6",
+        "obs_7",
+        "obs_8"
+      ],
+      "confidence": 0.0,
+      "merge": "applied",
+      "error": null,
+      "rewritten": [
+        "fn_1",
+        "fn_10",
+        "fn_6",
+        "fn_8"
+      ],
+      "records": [
+        {
+          "mode": "json-object",
+          "latency_ms": 141315,
+          "usage": {
+            "prompt_tokens": 2694,
+            "total_tokens": 13613,
+            "completion_tokens": 10919,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 9755
+            }
+          },
+          "content_sha256": "c687f3454a2085ed275f2f00b4a8be38ba067de4adbfa06ea6ebaededfd5afce"
+        },
+        {
+          "mode": "json-schema",
+          "latency_ms": 123967,
+          "usage": {
+            "prompt_tokens": 5780,
+            "total_tokens": 16015,
+            "completion_tokens": 10235,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 9260
+            }
+          },
+          "content_sha256": "351a3985677258fd6909370a1837bd8d49c800e7b3d5041fab989e74926fcc78"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_2",
+      "functions": [
+        "fn_2",
+        "fn_3",
+        "fn_4",
+        "fn_5"
+      ],
+      "calls": 2,
+      "probe_requests": 8,
+      "observations": [
+        "obs_9",
+        "obs_10",
+        "obs_11",
+        "obs_12",
+        "obs_13",
+        "obs_14",
+        "obs_15",
+        "obs_16"
+      ],
+      "confidence": 0.7666666666666666,
+      "merge": "applied",
+      "error": null,
+      "rewritten": [
+        "fn_2",
+        "fn_3",
+        "fn_4",
+        "fn_5"
+      ],
+      "records": [
+        {
+          "mode": "json-object",
+          "latency_ms": 136238,
+          "usage": {
+            "prompt_tokens": 3692,
+            "total_tokens": 14320,
+            "completion_tokens": 10628,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 9554
+            }
+          },
+          "content_sha256": "976ed4ddbd3f1b97057b981de9cfba36036340807de6b48b02827df3b4f21020"
+        },
+        {
+          "mode": "json-object",
+          "latency_ms": 169719,
+          "usage": {
+            "prompt_tokens": 7088,
+            "total_tokens": 21196,
+            "completion_tokens": 14108,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 13222
+            }
+          },
+          "content_sha256": "d5d55733b789cc4831908400937757dc623cdadd7d770e07abfd15b1dcd38a11"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_3",
+      "functions": [
+        "fn_7",
+        "fn_9",
+        "fn_11"
+      ],
+      "calls": 2,
+      "probe_requests": 8,
+      "observations": [
+        "obs_17",
+        "obs_18",
+        "obs_19",
+        "obs_20",
+        "obs_21",
+        "obs_22",
+        "obs_23",
+        "obs_24"
+      ],
+      "confidence": 0.9,
+      "merge": "applied",
+      "error": null,
+      "rewritten": [
+        "fn_11",
+        "fn_7",
+        "fn_9"
+      ],
+      "records": [
+        {
+          "mode": "json-schema",
+          "latency_ms": 177023,
+          "usage": {
+            "prompt_tokens": 2370,
+            "total_tokens": 16609,
+            "completion_tokens": 14239,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 12618
+            }
+          },
+          "content_sha256": "0dc71242bcd0a0f8b4753e8cd847763cdb322547a12315318fc60564fa7a1757"
+        },
+        {
+          "mode": "json-schema",
+          "latency_ms": 129219,
+          "usage": {
+            "prompt_tokens": 6603,
+            "total_tokens": 17178,
+            "completion_tokens": 10575,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 9798
+            }
+          },
+          "content_sha256": "8671dcf1fe80f62dec1310ff1e95b05708eb668f8cae21bb81cbaa7d2365bad1"
+        }
+      ]
+    }
+  ]
+}

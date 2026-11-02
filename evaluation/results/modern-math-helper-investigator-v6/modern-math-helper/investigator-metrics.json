@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "mode": "chunked-investigator",
+  "fixture": "modern-math-helper",
+  "contract": "DecompiledContract",
+  "source_sha256": "f5473696159dd872e07a56f421b79c2748a69218c160cc36758ee9ce2d7fcb3b",
+  "candidate_sha256": "c044d0b3c377d6270280e958641fa33c0b5fce7ea6930eeec944f0ae703c52c1",
+  "clusters": 2,
+  "unclustered_functions": [],
+  "functions_total": 3,
+  "functions_proposed": 3,
+  "functions_rewritten": 3,
+  "functions_rejected": 0,
+  "functions_dropped": 0,
+  "llm_calls": 5,
+  "completion_tokens": 26641,
+  "prompt_chars": 55555,
+  "elapsed_ms": 345821,
+  "probe_requests": 16,
+  "observations": 16,
+  "merge": {
+    "attempts": [
+      {
+        "attempt": 0,
+        "clusters": [
+          "cluster_2",
+          "cluster_1"
+        ],
+        "merge": {
+          "records": {
+            "fn_2": {
+              "applied": true,
+              "old_name": "Unresolved_771602f7",
+              "new_name": "Unresolved_771602f7",
+              "text_sha256": "38537b87c87cab74b9d3335a209b299c1337281eea770342ea915ad4c2aa91c5"
+            },
+            "fn_1": {
+              "applied": true,
+              "old_name": "Unresolved_641579a6",
+              "new_name": "Unresolved_641579a6",
+              "text_sha256": "b91ac13d5942cf462a53e5a7b2f77f205e673645dc288f966902121e9e156e88"
+            },
+            "fn_3": {
+              "applied": true,
+              "old_name": "Unresolved_c6888fa1",
+              "new_name": "Unresolved_c6888fa1",
+              "text_sha256": "5dc517d65f38c0d6b1b83843730228e71f96eca3b6c2747cad29f5fbeecd3f69"
+            }
+          },
+          "error": null,
+          "applied": true
+        },
+        "compile": {
+          "ok": true,
+          "error": null
+        },
+        "dispatch": {
+          "expected": {
+            "fn_2": "Unresolved_771602f7(uint256)",
+            "fn_1": "Unresolved_641579a6(uint256)",
+            "fn_3": "Unresolved_c6888fa1(uint256)"
+          },
+          "missing": []
+        }
+      }
+    ],
+    "applied": true,
+    "records": {
+      "fn_2": {
+        "applied": true,
+        "old_name": "Unresolved_771602f7",
+        "new_name": "Unresolved_771602f7",
+        "text_sha256": "38537b87c87cab74b9d3335a209b299c1337281eea770342ea915ad4c2aa91c5"
+      },
+      "fn_1": {
+        "applied": true,
+        "old_name": "Unresolved_641579a6",
+        "new_name": "Unresolved_641579a6",
+        "text_sha256": "b91ac13d5942cf462a53e5a7b2f77f205e673645dc288f966902121e9e156e88"
+      },
+      "fn_3": {
+        "applied": true,
+        "old_name": "Unresolved_c6888fa1",
+        "new_name": "Unresolved_c6888fa1",
+        "text_sha256": "5dc517d65f38c0d6b1b83843730228e71f96eca3b6c2747cad29f5fbeecd3f69"
+      }
+    }
+  },
+  "cluster_results": [
+    {
+      "cluster_id": "cluster_1",
+      "functions": [
+        "fn_1",
+        "fn_3"
+      ],
+      "calls": 2,
+      "probe_requests": 8,
+      "observations": [
+        "obs_1",
+        "obs_2",
+        "obs_3",
+        "obs_4",
+        "obs_5",
+        "obs_6",
+        "obs_7",
+        "obs_8"
+      ],
+      "confidence": 0.95,
+      "merge": "applied",
+      "applied": 2,
+      "rejected": 0,
+      "error": null,
+      "proposed": [
+        "fn_1",
+        "fn_3"
+      ],
+      "records": [
+        {
+          "mode": "json-schema",
+          "latency_ms": 105035,
+          "usage": {
+            "prompt_tokens": 1932,
+            "total_tokens": 10216,
+            "completion_tokens": 8284,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 7004
+            }
+          },
+          "content_sha256": "3147be7edcfbe0f6570ff1a7d480e410bc2f218c840a954f2328f6799c1607bd"
+        },
+        {
+          "mode": "json-schema",
+          "latency_ms": 36748,
+          "usage": {
+            "prompt_tokens": 7048,
+            "total_tokens": 9552,
+            "completion_tokens": 2504,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2093
+            }
+          },
+          "content_sha256": "431471cab147e06e72359314f7f8b25d356373ab7f40ecef4598306065be4686"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_2",
+      "functions": [
+        "fn_2"
+      ],
+      "calls": 3,
+      "probe_requests": 8,
+      "observations": [
+        "obs_9",
+        "obs_10",
+        "obs_11",
+        "obs_12",
+        "obs_13",
+        "obs_14",
+        "obs_15",
+        "obs_16"
+      ],
+      "confidence": 0.5,
+      "merge": "applied",
+      "applied": 1,
+      "rejected": 0,
+      "error": "invalid response: hypothesis references an unknown function id",
+      "proposed": [
+        "fn_2"
+      ],
+      "records": [
+        {
+          "mode": "json-schema",
+          "latency_ms": 126070,
+          "usage": {
+            "prompt_tokens": 1407,
+            "total_tokens": 11938,
+            "completion_tokens": 10531,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8839
+            }
+          },
+          "content_sha256": "41401a68fe7c588e73b7f453b1b3e306caf36980999cecd4a8ead142ad584e9b"
+        },
+        {
+          "mode": "json-schema",
+          "latency_ms": 53441,
+          "usage": {
+            "prompt_tokens": 1425,
+            "total_tokens": 5282,
+            "completion_tokens": 3857,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3037
+            }
+          },
+          "content_sha256": "18eff083540cf530ded6b7408e3d757edea878a20eb63ffac41466676d25c9d5"
+        },
+        {
+          "mode": "json-schema",
+          "latency_ms": 22214,
+          "usage": {
+            "prompt_tokens": 5023,
+            "total_tokens": 6488,
+            "completion_tokens": 1465,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1249
+            }
+          },
+          "content_sha256": "3c589407628054388b8d798dc145c8492857093d76b8c59814c6bdc17f072b46"
+        }
+      ]
+    }
+  ]
+}

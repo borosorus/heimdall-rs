@@ -1,0 +1,129 @@
+{
+  "bindings": {
+    "getAddress": {
+      "available": true,
+      "baseline_selector": "0x38cc4831",
+      "baseline_signature": "getAddress()",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0x8f63640e",
+      "candidate_signature": "storedAddress()",
+      "reference_selector": "0x38cc4831",
+      "reference_signature": "getAddress()",
+      "unavailable_reason": null
+    },
+    "getAllValues": {
+      "available": true,
+      "baseline_selector": "0x981f5499",
+      "baseline_signature": "getAllValues()",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0x2ae0019f",
+      "candidate_signature": "Unresolved_981f5499()",
+      "reference_selector": "0x981f5499",
+      "reference_signature": "getAllValues()",
+      "unavailable_reason": null
+    },
+    "getBool": {
+      "available": true,
+      "baseline_selector": "0x12a7b914",
+      "baseline_signature": "getBool()",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0x530e170a",
+      "candidate_signature": "Unresolved_12a7b914()",
+      "reference_selector": "0x12a7b914",
+      "reference_signature": "getBool()",
+      "unavailable_reason": null
+    },
+    "getNumber": {
+      "available": true,
+      "baseline_selector": "0xf2c9ecd8",
+      "baseline_signature": "getNumber()",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0x6d619daa",
+      "candidate_signature": "storedValue()",
+      "reference_selector": "0xf2c9ecd8",
+      "reference_signature": "getNumber()",
+      "unavailable_reason": null
+    },
+    "getString": {
+      "available": true,
+      "baseline_selector": "0x89ea642f",
+      "baseline_signature": "getString()",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0x2a1afcd9",
+      "candidate_signature": "storedData()",
+      "reference_selector": "0x89ea642f",
+      "reference_signature": "getString()",
+      "unavailable_reason": null
+    },
+    "setAddress": {
+      "available": true,
+      "baseline_selector": "0xe30081a0",
+      "baseline_signature": "setAddress(address)",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0x7f2b93f8",
+      "candidate_signature": "Unresolved_e30081a0(address)",
+      "reference_selector": "0xe30081a0",
+      "reference_signature": "setAddress(address)",
+      "unavailable_reason": null
+    },
+    "setBool": {
+      "available": true,
+      "baseline_selector": "0x1e26fd33",
+      "baseline_signature": "setBool(bool)",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0x2cb2448b",
+      "candidate_signature": "Unresolved_1e26fd33(uint256)",
+      "reference_selector": "0x1e26fd33",
+      "reference_signature": "setBool(bool)",
+      "unavailable_reason": null
+    },
+    "setNumber": {
+      "available": true,
+      "baseline_selector": "0x3fb5c1cb",
+      "baseline_signature": "setNumber(uint256)",
+      "candidate_label": "chunked-one-shot",
+      "candidate_selector": "0xe5bccaff",
+      "candidate_signature": "Unresolved_3fb5c1cb(uint256)",
+      "reference_selector": "0x3fb5c1cb",
+      "reference_signature": "setNumber(uint256)",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x2a1afcd9",
+      "0x2ae0019f",
+      "0x2cb2448b",
+      "0x31d398a5",
+      "0x530e170a",
+      "0x596ae810",
+      "0x6d619daa",
+      "0x7f2b93f8",
+      "0x8f63640e",
+      "0x95504e9d",
+      "0xaf0b620f",
+      "0xafa0562f",
+      "0xceb79a5f",
+      "0xe5bccaff"
+    ],
+    "candidate_selector_count": 14,
+    "matched": 0,
+    "missing": [
+      "0x01ef8faa",
+      "0x12a7b914",
+      "0x1e26fd33",
+      "0x349a0054",
+      "0x38cc4831",
+      "0x3fb5c1cb",
+      "0x575f4505",
+      "0x7fcaf666",
+      "0x89ea642f",
+      "0x8d5d4de7",
+      "0x981f5499",
+      "0xd0da9af5",
+      "0xe30081a0",
+      "0xf2c9ecd8"
+    ],
+    "reference_selector_count": 14
+  }
+}

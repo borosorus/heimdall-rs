@@ -5,6 +5,218 @@ general model quality. Do not reuse a run directory; the harness rejects nonempt
 directories so saved evidence cannot be silently overwritten. Scratch `work/` directories are
 ignored.
 
+## `modern-advanced-*` — multi-step investigator prototype
+
+Evaluation-only prototype for divide-and-conquer behavioral rewrites driven by black-box probes.
+`evaluation/scripts/run_investigator.py` splits a compilable LLM candidate into complete function
+units, deterministically clusters them by shared storage/events/errors and internal calls, asks a
+model to state hypotheses and request opaque-entrypoint probes against the reference runtime, then
+rewrites one cluster at a time from raw observations. `whole-investigator` and `chunked-one-shot`
+are controls.
+
+Model `dsv41`, temperature `0`, seed `1`, 1,200-second timeout, one investigation round per
+cluster, at most 8 probes per cluster. `r1`/`r2` used a 32,768-token completion budget and an
+eight-call cap; `r3` used 49,152 tokens and a twelve-call cap after the accounting fix. Each run
+started from the same compilable whole-contract candidate
+(`modern-advanced-whole-v1/modern-advanced/llm1.sol`) and used the same spec, setup and withheld
+sets.
+
+| Run | Mode | Calls | Completion tokens | Wall time | Feedback | Withheld | Merge |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `modern-advanced-whole-v1` | existing whole pass | 1 | not reported (65,536 cap) | ~412 s | 5/10 | 2/4 | — |
+| `modern-advanced-chunked-one-shot-v1` | 3 clusters, no probes | 3 | 4,815 | ~65 s | 5/10 | 2/4 | all applied |
+| `modern-advanced-investigator-r1` | 3 clusters, probes, first prompts | 8 | 129,893 | ~1,363 s | 5/10 | 2/4 | cluster 1 dropped on compile failure |
+| `modern-advanced-investigator-r2` | same, prompts with ABI-word and mutability guidance | 9 | 169,008 | ~1,934 s | **10/10** | **4/4** | all 3 clusters compiled |
+| `modern-advanced-investigator-r3` | same prompts, fixed accounting, larger budget | 6 | 61,551 | ~847 s | **10/10** | **4/4** | all 11 units applied, compiled ABI dispatch verified |
+
+The `llm_calls` and `completion_tokens` values in the saved investigator `metrics.json` files for
+`r1` and `r2` undercount HTTP attempts: the client charged a fallback attempt only when it returned
+parseable content, so truncated `finish_reason=length` attempts were free. Recounting every saved
+`*-response.json` gives the table numbers and is preserved in
+`investigator-accounting.json`; `r2` therefore exceeded its configured eight-call limit. The
+accounting bug is fixed: every attempt is charged, requested tokens are capped to the remaining
+budget, and the per-cluster limit bounds HTTP attempts rather than logical calls. `r3` was run with
+the fixed accounting and its saved metrics are the authoritative counts.
+
+`r1` and `r2` share the same source, spec, model settings and probe budget. `r2` adds ABI-word
+observation fields and prompt guidance (return-shape decoding, payable evidence, dispatch-identity
+rule), plus merge-gate guards that reject dispatch-signature changes and record compile
+diagnostics. The gate also checks that every applied rewrite still exposes its original ABI
+signature in the compiled artifact; `r3` was launched before that check existed, and a post-hoc
+check of its compile record found all 11 signatures present. `r1` dropped one cluster because its
+rewrite used an invalid `uint256(int-literal)` address mask; the gate preserved the original
+functions and recorded the failure. `r3` repeats `r2`'s prompt set with the fixed accounting and
+applied all 11 proposed units. `r2`/`r3` fixed the three observed failure families:
+
+- setters were `payable`, so a value-bearing call succeeded where the reference reverted; rewrites
+  made them non-payable after seeing that evidence;
+- `getAllValues` returned packed bytes, while observation showed a five-word ABI layout; the rewrite
+  returned `(uint256, uint256, uint256, address, uint256)` reproducing the observed words;
+- `setNumber`/`setBool` emitted the reference-visible events again.
+
+### Measurement details and limitations
+
+- Matched means every compared field agrees: status, read return/revert data, contract balance, and
+  setup. `compare_events` is disabled, so event mismatches are reported but not gated; `r2` and
+  `r3` still show event mismatches and are not evidence of event fidelity.
+- The compiled candidates match 0/14 reference selectors. Behavioral binding is per-function: the
+  spec supplies the candidate signature and the harness calls the candidate through its own
+  selector, so interface compatibility is not claimed.
+- The `getAllValues` rewrite reproduces the observed word layout for the measured probes, which all
+  have an empty stored string. It returns a static five-word tuple rather than a true
+  `(uint256, bool, string, address)`; non-empty string tail bytes are unmeasured and not claimed.
+- `r2` and `r3` are model samples on one fixture, and the improved prompts were chosen after seeing
+  `r1` failures. They are a measured improvement over the saved runs, not a general or unbiased
+  estimate. Replays can differ even with the same seed and temperature.
+
+### Synthetic-large: why there is no investigator score
+
+`synthetic-large` has an exact pinned build, a 7,864-byte runtime, and 25 reference functions, but
+no starting candidate suitable for the investigator. Three independent blockers were observed:
+
+- The deterministic source does not compile (`uint0` parameters, storage declared as `bytes` or
+  `bytes32` where the logic needs `uint256`, undeclared diagnostics), and its ABI inference drops or
+  adds parameters: `setLimits` has one parameter instead of two, `setName` has two instead of one,
+  and `allowance`/`transferFrom` are missing parameters. A compliant repair cannot recover the
+  missing parameters because the reference ABI and source are withheld from the model.
+- The whole-contract LLM pass returned the literal string `"..."`. The response passed the old
+  nonempty check and was reported as applied. `AnnotatedContractResponse::validate` now also
+  requires a `contract` declaration, so this response is recorded as a failure and the deterministic
+  baseline is retained.
+- Two bounded whole-source compile-repair attempts consumed their entire completion budgets
+  (49,152 and 131,072 tokens) on reasoning and returned no source content. Whole-contract repair is
+  therefore not a viable bootstrap at this scale with this model; cluster-scoped work is.
+
+The investigator still requires a compilable, dispatch-valid seed. No synthetic-large score is
+claimed. The next useful step is a cluster-level repair path (or a decompiler fix for parameter
+inference), not another whole-contract prompt.
+
+### Supported claim
+
+On `modern-advanced`, starting from a compilable whole-contract candidate, a bounded three-cluster
+investigator (`r3`, fixed accounting) requested 24 raw probes and rewrote all 11 functions. It fixed
+all seven previously failing sequences (five feedback, two withheld) without feedback or withheld
+regression, at six HTTP attempts and 61,551 completion tokens in ~847 seconds. The unchanged whole
+pass and a no-probe one-shot chunking control both scored 5/10 feedback and 2/4 withheld.
+
+It does **not** establish general improvement across contracts, event fidelity, non-empty dynamic
+returns, interface compatibility, or that probes are necessary versus prompt changes alone. The
+prompt changes and the probe evidence are confounded, and the single fixture and single model
+sample remain the main limitations.
+
+### Reproduce
+
+```bash
+# 1. Compilable starting candidate: an existing Heimdall LLM pass.
+./target/release/heimdall --no-update-check decompile evaluation/fixtures/modern-advanced/runtime.hex \
+  --include-sol --skip-resolving --default \
+  --llm-postprocess --llm-base-url http://127.0.0.1:8000/v1 --model dsv41 \
+  --llm-response-format auto --llm-max-tokens 65536 --llm-timeout 1200 \
+  --output /tmp/heimdall-eval-whole/modern-advanced
+
+# 2. Investigator run (writes prompts, calls, merge compiles, metrics, candidate.sol).
+python3 evaluation/scripts/run_investigator.py \
+  --source /tmp/heimdall-eval-whole/modern-advanced/decompiled.sol \
+  --spec evaluation/tests/modern-advanced.json \
+  --output-dir /tmp/heimdall-investigator/modern-advanced-investigator-r3 \
+  --mode chunked-investigator --candidate-label whole \
+  --llm-base-url http://127.0.0.1:8000/v1 --model dsv41 \
+  --max-tokens 49152 --timeout 1200 \
+  --max-calls 12 --max-investigation-rounds 1 --response-format auto
+
+# 3. Behavioral differential against the reference runtime.
+python3 evaluation/scripts/run_behavior.py \
+  --spec evaluation/tests/modern-advanced.json \
+  --baseline /tmp/heimdall-eval-whole/modern-advanced/decompiled.baseline.sol \
+  --candidate /tmp/heimdall-investigator/modern-advanced-investigator-r3/candidate.sol \
+  --candidate-label chunked-investigator \
+  --run-id modern-advanced-investigator-r3
+```
+
+The saved run directories retain the candidate, investigator metrics, and accounting recount as
+`investigator-candidate.sol`, `investigator-metrics.json`, and `investigator-accounting.json`.
+Raw prompts and model responses are intentionally not included.
+
+## `modern-math-helper-investigator-v6` — second fixture, stateful probes
+
+Independent replication on a second fixture. Model `dsv41`, temperature `0`, seed `1`, 49,152
+completion tokens, 1,800-second timeout, one investigation round, at most 8 HTTP attempts. The
+starting candidate is the saved `behavior-multi-v2/modern-math-helper/llm1.sol`, which scores 7/10
+feedback and 4/5 withheld: its setter is `payable` and its multiplication returns `0` on overflow
+where the reference reverts with an arithmetic panic.
+
+| Stage | Feedback | Withheld | Calls | Completion tokens | Wall time |
+| --- | --- | --- | --- | --- | --- |
+| `llm1` (start) | 7/10 | 4/5 | — | — | — |
+| `investigator-v6` | **10/10** | **5/5** | 5 | 26,641 | ~346 s |
+
+The investigator formed two clusters for three functions, requested 16 probes (some multi-step), and
+applied all three rewrites. The merged source compiled and all dispatch signatures were preserved.
+It removed `payable` from the setter after a value-bearing send reverted, and changed multiplication
+to checked `value * storedValue`, which reverts on overflow. No semantic feedback or withheld
+regression was observed. The rewrite also dropped the multiplication event; `compare_events` is
+disabled and the harness does not capture logs for these read calls, so event fidelity is unmeasured
+and not claimed.
+
+The saved run predates the no-evidence synthesis guard: cluster 2 returned an invalid round-1
+response and its third unit was synthesized unchanged. A current replay skips synthesis for a
+cluster with no valid investigation response, so it may report two applied units with the same
+behavioral result.
+
+### Stateful probes and the iterations that exposed them
+
+A probe request is either one call or a `steps` array executed in order from one fresh snapshot
+after the fixture setup. The overflow case requires `setMultiplier(max)` and `multiply(2)` in one
+sequence, and the setter step must set `send: true` so its storage write persists; a static call
+does not. Earlier exploratory runs that used single calls, or multi-step probes with a static
+setter, scored 9/10 feedback and 4/5 withheld: they fixed the payable defect but never observed the
+overflow revert. Those iterations are not retained as committed runs. `v6` is the measured result;
+the safeguard is encoded in the prompt context and covered by unit tests for multi-step validation.
+
+### Measurement details
+
+- Events are not gated (`compare_events` is disabled), and the compiled candidate does not match
+  the reference selectors; binding is per-function through the candidate signature, as in the other
+  investigator runs.
+- The withheld set has five sequences and is fixture-local. It checks that the rewrite did not only
+  fit the feedback observations, but it is not an unbiased generalization test.
+- This is one model sample on a small second fixture. The prompt and probe-sequence changes were
+  made after observing earlier failures, so they are part of the method rather than an independent
+  variable. The `modern-advanced` `r3` result remains the primary evidence; this run shows the same
+  approach can remove two different defect families on another fixture.
+
+### Supported claim
+
+On `modern-math-helper`, starting from the saved 7/10 feedback and 4/5 withheld `llm1` candidate,
+the investigator removed the payable-setter and unchecked-overflow defects and reached 10/10
+feedback and 5/5 withheld at five HTTP attempts and 26,641 completion tokens, with no semantic
+regression on the measured sequences. It does not establish event fidelity, interface
+compatibility, or general improvement across contracts.
+
+### Reproduce
+
+```bash
+python3 evaluation/scripts/run_investigator.py \
+  --source evaluation/results/behavior-multi-v2/modern-math-helper/llm1.sol \
+  --spec evaluation/tests/modern-math-helper.json \
+  --output-dir /tmp/heimdall-investigator/modern-math-helper-investigator-v6 \
+  --mode chunked-investigator --candidate-label llm1 \
+  --llm-base-url http://127.0.0.1:8000/v1 --model dsv41 \
+  --max-tokens 49152 --timeout 1800 \
+  --max-calls 8 --max-investigation-rounds 1 --response-format auto
+
+python3 evaluation/scripts/run_behavior.py \
+  --spec evaluation/tests/modern-math-helper.json \
+  --baseline evaluation/results/behavior-multi-v2/modern-math-helper/baseline.sol \
+  --candidate /tmp/heimdall-investigator/modern-math-helper-investigator-v6/candidate.sol \
+  --candidate-label chunked-investigator \
+  --run-id modern-math-helper-investigator-v6
+```
+
+The saved run directory retains the investigator candidate and metrics as
+`investigator-candidate.sol` and `investigator-metrics.json`. Raw prompts and responses are not
+included.
+
 ## `behavior-multi-v2` and `behavior-multi-simple-v2` — multi-defect repair with withheld probes
 
 Model `dsv41`, temperature `0`, seed `1`, 32,768 completion tokens, 600-second timeout. Both runs

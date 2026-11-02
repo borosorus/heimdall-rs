@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "mode": "chunked-investigator",
+  "fixture": "modern-advanced",
+  "contract": "DecompiledContract",
+  "source_sha256": "09e5d7dad513b1ac5586c4d5ed0733c1630f5c14a61eead457e1424c91bafd91",
+  "candidate_sha256": "0c5487da2d452d73d96f0f7a69c9a22e621b45cdac94df21e7f3bd05850fb873",
+  "clusters": 3,
+  "unclustered_functions": [],
+  "functions_total": 11,
+  "functions_rewritten": 11,
+  "llm_calls": 6,
+  "completion_tokens": 64357,
+  "prompt_chars": 83547,
+  "elapsed_ms": 1362926,
+  "probe_requests": 24,
+  "observations": 24,
+  "merge": {
+    "attempts": [
+      {
+        "attempt": 0,
+        "clusters": [
+          "cluster_1",
+          "cluster_2",
+          "cluster_3"
+        ],
+        "merge": {
+          "records": {
+            "fn_1": {
+              "applied": true,
+              "old_name": "Unresolved_01ef8faa",
+              "new_name": "Unresolved_01ef8faa",
+              "text_sha256": "f77b9024d4807f2484ab55ebe44cbde40e57fda2482640a84148140878a0d93b"
+            },
+            "fn_6": {
+              "applied": true,
+              "old_name": "Unresolved_575f4505",
+              "new_name": "Unresolved_575f4505",
+              "text_sha256": "e7a17df3e45a20b5fee62d76db0aadcb730ab4b4acbb579228b41b1fd2e102a2"
+            },
+            "fn_8": {
+              "applied": true,
+              "old_name": "Unresolved_8d5d4de7",
+              "new_name": "Unresolved_8d5d4de7",
+              "text_sha256": "0c99d7a71798e9f06086b986370ca2f7025046a4a44719cc231c51c68c45adce"
+            },
+            "fn_10": {
+              "applied": true,
+              "old_name": "Unresolved_d0da9af5",
+              "new_name": "Unresolved_d0da9af5",
+              "text_sha256": "0cd1f11066ea70a22ce17edd848d316e4c73da28bdc9f970d56168a9a267d448"
+            },
+            "fn_2": {
+              "applied": true,
+              "old_name": "Unresolved_12a7b914",
+              "new_name": "Unresolved_12a7b914",
+              "text_sha256": "f61833d216dc17474f588e4d4a5e6ad7d7e89cf3262b4a02839bb33d12802b36"
+            },
+            "fn_3": {
+              "applied": true,
+              "old_name": "Unresolved_1e26fd33",
+              "new_name": "Unresolved_1e26fd33",
+              "text_sha256": "e68461d1128ddb0a17c65ba2c3a2ab792bb5e60227d301957596145803bdf982"
+            },
+            "fn_4": {
+              "applied": true,
+              "old_name": "Unresolved_349a0054",
+              "new_name": "Unresolved_349a0054",
+              "text_sha256": "f5d99aa21c0ab9601e18685084596c6f36f0179fd219d5ef7657899078c8e531"
+            },
+            "fn_5": {
+              "applied": true,
+              "old_name": "Unresolved_3fb5c1cb",
+              "new_name": "Unresolved_3fb5c1cb",
+              "text_sha256": "6f8a20bbbaec1db6dddf2fdb0c36a87c64586868ce1955ba899126279fd40731"
+            },
+            "fn_7": {
+              "applied": true,
+              "old_name": "Unresolved_7fcaf666",
+              "new_name": "Unresolved_7fcaf666",
+              "text_sha256": "aef9a9500855b10dd3e98dbeaad00dcfee31d6b4d985ae7e7b9bfe2886148599"
+            },
+            "fn_9": {
+              "applied": true,
+              "old_name": "Unresolved_981f5499",
+              "new_name": "Unresolved_981f5499",
+              "text_sha256": "b2e85a9583d926790d9a31c616a45d1ddf9d6e1c3956b375a4b5976a84353e3c"
+            },
+            "fn_11": {
+              "applied": true,
+              "old_name": "Unresolved_e30081a0",
+              "new_name": "Unresolved_e30081a0",
+              "text_sha256": "16b3b5384d528208f26956d60baf659d6d0be4c0ce55ac6ee20c8499bad3c533"
+            }
+          },
+          "error": null,
+          "applied": true
+        },
+        "compile": {
+          "ok": false,
+          "error": null
+        }
+      },
+      {
+        "attempt": 1,
+        "clusters": [
+          "cluster_2",
+          "cluster_3"
+        ],
+        "merge": {
+          "records": {
+            "fn_2": {
+              "applied": true,
+              "old_name": "Unresolved_12a7b914",
+              "new_name": "Unresolved_12a7b914",
+              "text_sha256": "f61833d216dc17474f588e4d4a5e6ad7d7e89cf3262b4a02839bb33d12802b36"
+            },
+            "fn_3": {
+              "applied": true,
+              "old_name": "Unresolved_1e26fd33",
+              "new_name": "Unresolved_1e26fd33",
+              "text_sha256": "e68461d1128ddb0a17c65ba2c3a2ab792bb5e60227d301957596145803bdf982"
+            },
+            "fn_4": {
+              "applied": true,
+              "old_name": "Unresolved_349a0054",
+              "new_name": "Unresolved_349a0054",
+              "text_sha256": "f5d99aa21c0ab9601e18685084596c6f36f0179fd219d5ef7657899078c8e531"
+            },
+            "fn_5": {
+              "applied": true,
+              "old_name": "Unresolved_3fb5c1cb",
+              "new_name": "Unresolved_3fb5c1cb",
+              "text_sha256": "6f8a20bbbaec1db6dddf2fdb0c36a87c64586868ce1955ba899126279fd40731"
+            },
+            "fn_7": {
+              "applied": true,
+              "old_name": "Unresolved_7fcaf666",
+              "new_name": "Unresolved_7fcaf666",
+              "text_sha256": "aef9a9500855b10dd3e98dbeaad00dcfee31d6b4d985ae7e7b9bfe2886148599"
+            },
+            "fn_9": {
+              "applied": true,
+              "old_name": "Unresolved_981f5499",
+              "new_name": "Unresolved_981f5499",
+              "text_sha256": "b2e85a9583d926790d9a31c616a45d1ddf9d6e1c3956b375a4b5976a84353e3c"
+            },
+            "fn_11": {
+              "applied": true,
+              "old_name": "Unresolved_e30081a0",
+              "new_name": "Unresolved_e30081a0",
+              "text_sha256": "16b3b5384d528208f26956d60baf659d6d0be4c0ce55ac6ee20c8499bad3c533"
+            }
+          },
+          "error": null,
+          "applied": true
+        },
+        "compile": {
+          "ok": true,
+          "error": null
+        }
+      }
+    ],
+    "applied": true
+  },
+  "cluster_results": [
+    {
+      "cluster_id": "cluster_1",
+      "functions": [
+        "fn_1",
+        "fn_6",
+        "fn_8",
+        "fn_10"
+      ],
+      "calls": 2,
+      "probe_requests": 8,
+      "observations": [
+        "obs_1",
+        "obs_2",
+        "obs_3",
+        "obs_4",
+        "obs_5",
+        "obs_6",
+        "obs_7",
+        "obs_8"
+      ],
+      "confidence": 0.0,
+      "merge": "dropped",
+      "error": "dropped after compile failure",
+      "rewritten": [
+        "fn_1",
+        "fn_10",
+        "fn_6",
+        "fn_8"
+      ],
+      "records": [
+        {
+          "mode": "json-schema",
+          "latency_ms": 135185,
+          "usage": {
+            "prompt_tokens": 2535,
+            "total_tokens": 13515,
+            "completion_tokens": 10980,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 9935
+            }
+          },
+          "content_sha256": "119852c71a293637da1b0cf18607747a388d6d072d2c12381715696bd631ec58"
+        },
+        {
+          "mode": "json-schema",
+          "latency_ms": 88211,
+          "usage": {
+            "prompt_tokens": 4989,
+            "total_tokens": 12508,
+            "completion_tokens": 7519,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 6511
+            }
+          },
+          "content_sha256": "0c22c1cf12a082af3606df9581b5e9e3607b4c5ba87ff2b207ab3c295c85d144"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_2",
+      "functions": [
+        "fn_2",
+        "fn_3",
+        "fn_4",
+        "fn_5"
+      ],
+      "calls": 2,
+      "probe_requests": 8,
+      "observations": [
+        "obs_9",
+        "obs_10",
+        "obs_11",
+        "obs_12",
+        "obs_13",
+        "obs_14",
+        "obs_15",
+        "obs_16"
+      ],
+      "confidence": 0.65,
+      "merge": "applied",
+      "error": null,
+      "rewritten": [
+        "fn_2",
+        "fn_3",
+        "fn_4",
+        "fn_5"
+      ],
+      "records": [
+        {
+          "mode": "json-schema",
+          "latency_ms": 127484,
+          "usage": {
+            "prompt_tokens": 3533,
+            "total_tokens": 13492,
+            "completion_tokens": 9959,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8777
+            }
+          },
+          "content_sha256": "4b3097e48b97c4b2a4f4eec3d8adc1ddd15a432f95a6cca92ef492d4a7b5a906"
+        },
+        {
+          "mode": "json-schema",
+          "latency_ms": 229560,
+          "usage": {
+            "prompt_tokens": 6661,
+            "total_tokens": 22294,
+            "completion_tokens": 15633,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 14757
+            }
+          },
+          "content_sha256": "e818cda4bb5e47facb9159ef92314b7288260638151bcfd8bfeb16f24780f6a5"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_3",
+      "functions": [
+        "fn_7",
+        "fn_9",
+        "fn_11"
+      ],
+      "calls": 2,
+      "probe_requests": 8,
+      "observations": [
+        "obs_17",
+        "obs_18",
+        "obs_19",
+        "obs_20",
+        "obs_21",
+        "obs_22",
+        "obs_23",
+        "obs_24"
+      ],
+      "confidence": 0.8,
+      "merge": "applied",
+      "error": null,
+      "rewritten": [
+        "fn_11",
+        "fn_7",
+        "fn_9"
+      ],
+      "records": [
+        {
+          "mode": "json-schema",
+          "latency_ms": 147067,
+          "usage": {
+            "prompt_tokens": 2211,
+            "total_tokens": 9701,
+            "completion_tokens": 7490,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 6463
+            }
+          },
+          "content_sha256": "e233cb8740c7e5545be225c4d1e60d27179e87c52102920b4a85f981f9237340"
+        },
+        {
+          "mode": "text",
+          "latency_ms": 155247,
+          "usage": {
+            "prompt_tokens": 5478,
+            "total_tokens": 18254,
+            "completion_tokens": 12776,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": {
+              "reasoning_tokens": 11760
+            }
+          },
+          "content_sha256": "66ae62b3c6be3634e61f8a2e3c8bc5a8656af82d3d25574d976184805bd8169c"
+        }
+      ]
+    }
+  ]
+}

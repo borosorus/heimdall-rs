@@ -1,0 +1,90 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "newValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_641579a6",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "unusedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_771602f7",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_c6888fa1",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "storedValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "product",
+          "type": "uint256"
+        }
+      ],
+      "name": "Event_c6d3a874",
+      "type": "event"
+    }
+  ],
+  "artifact": "out/Candidate.sol/DecompiledContract.json",
+  "deployed_bytecode": "0x608060405234801561000f575f5ffd5b506004361061004a575f3560e01c8063102ee2281461004e5780636d619daa1461006a578063dfa9ec5414610088578063fcd38d9c146100b8575b5f5ffd5b61006860048036038101906100639190610132565b6100d4565b005b6100726100d8565b60405161007f919061016c565b60405180910390f35b6100a2600480360381019061009d9190610132565b6100dd565b6040516100af919061016c565b60405180910390f35b6100d260048036038101906100cd9190610132565b6100f2565b005b5f5ffd5b5f5481565b5f5f54826100eb91906101b2565b9050919050565b805f8190555050565b5f5ffd5b5f819050919050565b610111816100ff565b811461011b575f5ffd5b50565b5f8135905061012c81610108565b92915050565b5f60208284031215610147576101466100fb565b5b5f6101548482850161011e565b91505092915050565b610166816100ff565b82525050565b5f60208201905061017f5f83018461015d565b92915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f6101bc826100ff565b91506101c7836100ff565b92508282026101d5816100ff565b915082820484148315176101ec576101eb610185565b5b509291505056fea26469706673582212201c5f2754e5dc5a51c29d5f983dc28ccd5102f304819f7a12b20506150b92bf6564736f6c634300081e0033",
+  "label": "llm1",
+  "ok": true,
+  "returncode": 0,
+  "solc_version": "0.8.30",
+  "source_sha256": "c044d0b3c377d6270280e958641fa33c0b5fce7ea6930eeec944f0ae703c52c1",
+  "stderr": "",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 6.34ms\nCompiler run successful with warnings:\nWarning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.\n  --> src/Candidate.sol:28:34:\n   |\n28 |     function Unresolved_771602f7(uint256 unusedValue) public pure {\n   |                                  ^^^^^^^^^^^^^^^^^^^\n\n"
+}
