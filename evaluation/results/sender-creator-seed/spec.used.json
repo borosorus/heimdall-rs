@@ -1,0 +1,68 @@
+{
+ "name": "sender-creator",
+ "contract": "DecompiledContract",
+ "reference_runtime": "evaluation/fixtures/sender-creator/runtime.hex",
+ "reference_abi": "evaluation/fixtures/sender-creator/abi.json",
+ "compare_events": false,
+ "withheld": [
+  "createSender_factory_ret_empty",
+  "createSender_len19_edge"
+ ],
+ "bindings": {
+  "createSender": {
+   "reference_signature": "createSender(bytes)",
+   "baseline_signature": "createSender(bytes)",
+   "candidate_signature": "Unresolved_570e1a36(uint256,uint256)",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_570e1a36(uint256,uint256)",
+    "seed-v2": "Unresolved_570e1a36(uint256,uint256)"
+   }
+  }
+ },
+ "probes": [
+  {
+   "name": "createSender_empty",
+   "steps": [
+    {
+     "call": "createSender",
+     "send": true,
+     "args_tail": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ]
+  },
+  {
+   "name": "createSender_min_20B",
+   "steps": [
+    {
+     "call": "createSender",
+     "send": true,
+     "args_tail": "0x00000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ]
+  },
+  {
+   "name": "createSender_factory_ret_empty",
+   "withheld": true,
+   "steps": [
+    {
+     "call": "createSender",
+     "send": true,
+     "args_tail": "0x0000000000000000000000000000000000000000000000000000000000000001ef00000000000000000000000000000000000000000000000000000000000000"
+    }
+   ]
+  },
+  {
+   "name": "createSender_len19_edge",
+   "withheld": true,
+   "steps": [
+    {
+     "call": "createSender",
+     "send": true,
+     "args_tail": "0x00000000000000000000000000000000000000000000000000000000000000130000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ]
+  }
+ ],
+ "fixture": "sender-creator",
+ "solc_version": "0.8.30"
+}
