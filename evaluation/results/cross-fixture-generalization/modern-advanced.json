@@ -1,0 +1,64 @@
+{
+  "callform": {
+    "getNumber": "storedValue()",
+    "getBool": "Unresolved_12a7b914()",
+    "getString": "storedData()",
+    "getAddress": "storedAddress()",
+    "getAllValues": "Unresolved_981f5499()",
+    "setNumber": "Unresolved_3fb5c1cb(uint256)",
+    "setBool": "Unresolved_1e26fd33(uint256)",
+    "setAddress": "Unresolved_e30081a0(address)"
+  },
+  "setup_ok": {
+    "ref": true,
+    "cand": true
+  },
+  "probes": {
+    "initial_scalars": {
+      "parity": true
+    },
+    "set_number_read": {
+      "parity": true
+    },
+    "set_number_zero": {
+      "parity": true
+    },
+    "set_bool_true": {
+      "parity": true
+    },
+    "set_bool_false": {
+      "parity": true
+    },
+    "set_address": {
+      "parity": true
+    },
+    "set_address_then_number": {
+      "parity": true
+    },
+    "repeated_set_number": {
+      "parity": true
+    },
+    "value_rejected_set_number": {
+      "parity": true
+    },
+    "truncated_set_number": {
+      "parity": true
+    },
+    "set_number_max": {
+      "parity": true
+    },
+    "set_bool_then_number": {
+      "parity": true
+    },
+    "set_address_zero": {
+      "parity": true
+    },
+    "set_number_then_get_all": {
+      "parity": true
+    }
+  },
+  "summary": {
+    "probes": 14,
+    "parity": 14
+  }
+}

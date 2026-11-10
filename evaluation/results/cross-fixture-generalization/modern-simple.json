@@ -1,0 +1,55 @@
+{
+  "callform": {
+    "set": "Unresolved_60fe47b1(uint256)",
+    "get": "storedValue()"
+  },
+  "setup_ok": {
+    "ref": true,
+    "cand": true
+  },
+  "probes": {
+    "initial_get": {
+      "parity": true
+    },
+    "set_zero_get": {
+      "parity": true
+    },
+    "set_123_get": {
+      "parity": true
+    },
+    "set_max_get": {
+      "parity": true
+    },
+    "set_with_value": {
+      "parity": true
+    },
+    "truncated_set": {
+      "parity": true
+    },
+    "set_from_second_caller": {
+      "parity": true
+    },
+    "repeated_writes": {
+      "parity": true
+    },
+    "set_42_get": {
+      "parity": true
+    },
+    "set_max_then_zero_get": {
+      "parity": true
+    },
+    "set_values_from_two_callers": {
+      "parity": true
+    },
+    "truncated_then_valid": {
+      "parity": true
+    },
+    "value_rejection_then_read": {
+      "parity": true
+    }
+  },
+  "summary": {
+    "probes": 13,
+    "parity": 13
+  }
+}
