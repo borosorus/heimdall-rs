@@ -555,3 +555,15 @@ the new state) - each now a bounded enumeration with the state chain verified be
 
 Zero LLM calls were spent on any accepted rewrite in this section; the repair loop's next
 legitimate target is the residual six, on a candidate that finally carries correct state.
+
+### Enumeration III: pause/allowance/withdraw chain - 9/12 + 2/4 (2026-11-11, latest)
+
+Third zero-LLM enumeration pass on the same candidate lineage (`2d8869a`): pause bit relocated to
+the top byte `isPaused` reads (set/clear masks), paused-deposit guard, `previewDeposit` on the
+inclusive-bounds net formula, real `allowance` view, `transferFrom` with caller-based allowance
+and the ERC20 transfer event (the `caller: 1` probe field pinned the spender semantics), and
+withdraw now burns supply. Harness: **9/12 feedback + 2/4 withheld** (`set_fee_max`,
+`transfer_insufficient` withheld passes). Remaining three: `approve_transfer_from`,
+`transfer_from_unapproved_spender` (both hinge on the allowance/transfer event or the
+`caller:1` sender path), and `initial_config` (limits getter ABI shape: dynamic-bytes layout vs
+the reference's static pair, plus `name()`).
