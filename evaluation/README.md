@@ -193,11 +193,13 @@ a `candidate_signatures` map keyed by label when source names differ between can
 include prompts, raw requests/responses, merge compile reports, `candidate.sol`, and `metrics.json`.
 Measured runs and limitations are in [`results/README.md`](results/README.md). On
 `modern-math-helper`, the investigator raised the saved `llm1` candidate from 7/10 feedback and 4/5
-withheld to 10/10 and 5/5 at five HTTP attempts and 26,641 completion tokens. The
-`synthetic-large` fixture has an exact pinned build and integrity checks, but no measured
-investigator score: its deterministic baseline is both uncompilable and arity-inconsistent, its
-whole-contract LLM pass returned invalid source, and whole-contract repair exhausted its completion
-budget without emitting a candidate. See the synthetic-large section in the results document.
+withheld to 10/10 and 5/5 at five HTTP attempts and 26,641 completion tokens. A merge-failure hook
+now feeds compile diagnostics back into a bounded re-synthesis of the affected units instead of
+dropping clusters, and structurally isolated units are folded into the least-loaded cluster, so
+coverage is complete. For `synthetic-large`, the deterministic baseline has been converted into a
+compiling, dispatch-complete seed by `prepare_candidate.py` plus `repair_units.py`, and the
+investigator rewrites all 22 functions on that seed; the measured behavior trajectory and its
+remaining cross-unit state defects are in the synthetic-large section of the results document.
 
 ### Compile-repair bootstrap (evaluation-only)
 

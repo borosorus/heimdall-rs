@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "4b7da185929b1b0606f91f27d4439898687a6572f738e63340f8be1cc5950f66",
+  "stderr": "Error: Compiler run failed:\nError (4907): Built-in unary operator ! cannot be applied to type uint256.\n  --> src/Candidate.sol:42:13:\n   |\n42 |         if (!arg0 | unresolved_1b3ed722 == arg0 * unresolved_1b3ed722 / arg0) {\n   |             ^^^^^\n\nError (6160): Wrong argument count for function call: 2 arguments given but expected 0.\n  --> src/Candidate.sol:43:18:\n   |\n43 |             emit Event_c6d3a874(arg0, arg0 * unresolved_1b3ed722);\n   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 3.13ms\n"
+}

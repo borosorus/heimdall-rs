@@ -1,0 +1,54 @@
+{
+  "bindings": {
+    "multiplier": {
+      "available": true,
+      "baseline_selector": "0x3b20269e",
+      "baseline_signature": "unresolved_1b3ed722()",
+      "candidate_label": "llm1",
+      "candidate_selector": "0x6d619daa",
+      "candidate_signature": "storedValue()",
+      "reference_selector": "0x1b3ed722",
+      "reference_signature": "multiplier()",
+      "unavailable_reason": null
+    },
+    "multiply": {
+      "available": true,
+      "baseline_selector": "0xdfa9ec54",
+      "baseline_signature": "Unresolved_c6888fa1(uint256)",
+      "candidate_label": "llm1",
+      "candidate_selector": "0xdfa9ec54",
+      "candidate_signature": "Unresolved_c6888fa1(uint256)",
+      "reference_selector": "0xc6888fa1",
+      "reference_signature": "multiply(uint256)",
+      "unavailable_reason": null
+    },
+    "setMultiplier": {
+      "available": true,
+      "baseline_selector": "0xfcd38d9c",
+      "baseline_signature": "Unresolved_641579a6(uint256)",
+      "candidate_label": "llm1",
+      "candidate_selector": "0xfcd38d9c",
+      "candidate_signature": "Unresolved_641579a6(uint256)",
+      "reference_selector": "0x641579a6",
+      "reference_signature": "setMultiplier(uint256)",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x102ee228",
+      "0x6d619daa",
+      "0xdfa9ec54",
+      "0xfcd38d9c"
+    ],
+    "candidate_selector_count": 4,
+    "matched": 0,
+    "missing": [
+      "0x1b3ed722",
+      "0x641579a6",
+      "0x771602f7",
+      "0xc6888fa1"
+    ],
+    "reference_selector_count": 4
+  }
+}

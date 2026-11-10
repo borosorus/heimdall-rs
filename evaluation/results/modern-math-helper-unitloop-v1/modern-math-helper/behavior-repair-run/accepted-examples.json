@@ -1,0 +1,26 @@
+[
+  {
+    "id": "run-t01a002-fn_3",
+    "origin": "run",
+    "transaction": 1,
+    "attempt": 2,
+    "opaque_id": "fn_3",
+    "name": "Unresolved_c6888fa1",
+    "dispatch": "Unresolved_c6888fa1(uint256)",
+    "source": "function Unresolved_c6888fa1(uint256 value) public returns (uint256) {\n        uint256 product = value * storedValue;\n        if (value != 0 && product / value != storedValue) {\n            assembly {\n                let ptr := mload(0x40)\n                mstore(ptr, 0x4e487b7100000000000000000000000000000000000000000000000000000000)\n                mstore(add(ptr, 0x04), 0x11)\n                revert(ptr, 0x24)\n            }\n        }\n        emit Event_c6d3a874(value, product);\n        return product;\n    }",
+    "sha256": "4e0b1e6484ff350a45557e5046773ed5dc71c25ac47667bb0d01300358c868fa",
+    "summary": "compiled; dispatch preserved; one feedback probe became matching; previously passing feedback observations preserved"
+  },
+  {
+    "id": "run-t02a003-fn_1",
+    "origin": "run",
+    "transaction": 2,
+    "attempt": 3,
+    "opaque_id": "fn_1",
+    "name": "Unresolved_641579a6",
+    "dispatch": "Unresolved_641579a6(uint256)",
+    "source": "function Unresolved_641579a6(uint256 newValue) public payable {\n    // The original calldata-length check was redundant with ABI decoding.\n    require(msg.value == 0);\n    storedValue = newValue;\n}",
+    "sha256": "4fff066ddbb34a8e27ddd1b3c244e0581a38e42c588c9758a7790ca6593cc65a",
+    "summary": "compiled; dispatch preserved; one feedback probe became matching; previously passing feedback observations preserved"
+  }
+]

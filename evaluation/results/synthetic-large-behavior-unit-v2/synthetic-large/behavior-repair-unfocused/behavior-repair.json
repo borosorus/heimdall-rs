@@ -1,0 +1,441 @@
+{
+  "schema_version": 1,
+  "tool": "repair_behavior_units",
+  "candidate_label": "seed-v2",
+  "focused_units": null,
+  "max_transactions": 8,
+  "origin_sha256": "4562a5655f731732fe7e40cfc50d242d15a5055e8da5f8a7f470abcc7745b151",
+  "selected_sha256": "4562a5655f731732fe7e40cfc50d242d15a5055e8da5f8a7f470abcc7745b151",
+  "origin_feedback_matched": 4,
+  "selected_feedback_matched": 4,
+  "selected_feedback_total": 12,
+  "selected_withheld_matched": 1,
+  "selected_withheld_total": 4,
+  "selected_feedback_failing": [
+    "initial_config",
+    "deposit_100",
+    "withdraw_50",
+    "approve_transfer_from",
+    "transfer_from_unapproved_spender",
+    "pause_blocks_deposit",
+    "unpause_allows_deposit",
+    "preview_fee"
+  ],
+  "selected_withheld_failing": [
+    "set_limits_invalid",
+    "burn_100",
+    "set_fee_max"
+  ],
+  "attempts": 35,
+  "llm_calls": 24,
+  "completion_tokens": 7020,
+  "ledger": [
+    {
+      "transaction": 1,
+      "attempt": 1,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 1,
+      "attempt": 2,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 1,
+      "attempt": 3,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 1,
+      "target": "initial_config",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 1
+    },
+    {
+      "transaction": 1,
+      "attempt": 4,
+      "target": "initial_config",
+      "mode": "joint",
+      "members": [
+        "fn_11",
+        "fn_17"
+      ],
+      "request_error": null
+    },
+    {
+      "transaction": 1,
+      "target": "initial_config",
+      "mode": "group-verdict",
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ]
+    },
+    {
+      "transaction": 2,
+      "attempt": 5,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 2,
+      "attempt": 6,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 2,
+      "attempt": 7,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 2,
+      "target": "initial_config",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 2
+    },
+    {
+      "transaction": 3,
+      "attempt": 8,
+      "target": "deposit_100",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 3,
+      "attempt": 9,
+      "target": "deposit_100",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 3,
+      "attempt": 10,
+      "target": "deposit_100",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 3,
+      "target": "deposit_100",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 1
+    },
+    {
+      "transaction": 3,
+      "attempt": 11,
+      "target": "deposit_100",
+      "mode": "joint",
+      "members": [
+        "fn_15",
+        "fn_6",
+        "fn_10"
+      ],
+      "request_error": null
+    },
+    {
+      "transaction": 3,
+      "target": "deposit_100",
+      "mode": "group-verdict",
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ]
+    },
+    {
+      "transaction": 4,
+      "attempt": 12,
+      "target": "deposit_100",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 4,
+      "attempt": 13,
+      "target": "deposit_100",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 4,
+      "attempt": 14,
+      "target": "deposit_100",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 4,
+      "target": "deposit_100",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 2
+    },
+    {
+      "transaction": 5,
+      "attempt": 15,
+      "target": "withdraw_50",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 5,
+      "attempt": 16,
+      "target": "withdraw_50",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 5,
+      "attempt": 17,
+      "target": "withdraw_50",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 5,
+      "target": "withdraw_50",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 1
+    },
+    {
+      "transaction": 5,
+      "attempt": 18,
+      "target": "withdraw_50",
+      "mode": "joint",
+      "members": [
+        "fn_15",
+        "fn_6",
+        "fn_10"
+      ],
+      "request_error": null
+    },
+    {
+      "transaction": 5,
+      "target": "withdraw_50",
+      "mode": "group-verdict",
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ]
+    },
+    {
+      "transaction": 6,
+      "attempt": 19,
+      "target": "withdraw_50",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 6,
+      "attempt": 20,
+      "target": "withdraw_50",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 6,
+      "attempt": 21,
+      "target": "withdraw_50",
+      "unit": "fn_15",
+      "name": "Unresolved_b6b55f25",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "feedback regressions: deposit_above_max",
+        "previously-exact observations changed: deposit_above_max"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 6,
+      "target": "withdraw_50",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 2
+    },
+    {
+      "transaction": 7,
+      "attempt": 22,
+      "target": "approve_transfer_from",
+      "unit": "fn_20",
+      "name": "Unresolved_dd62ed3e",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 7,
+      "attempt": 23,
+      "target": "approve_transfer_from",
+      "unit": "fn_20",
+      "name": "Unresolved_dd62ed3e",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 7,
+      "attempt": 24,
+      "target": "approve_transfer_from",
+      "unit": "fn_20",
+      "name": "Unresolved_dd62ed3e",
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 7,
+      "target": "approve_transfer_from",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 1
+    },
+    {
+      "transaction": 8,
+      "error": "call budget exhausted"
+    }
+  ],
+  "elapsed_ms": 394964
+}

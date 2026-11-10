@@ -1,0 +1,90 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "newValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_641579a6",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "unusedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_771602f7",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_c6888fa1",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "storedValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "product",
+          "type": "uint256"
+        }
+      ],
+      "name": "Event_c6d3a874",
+      "type": "event"
+    }
+  ],
+  "artifact": "out/Candidate.sol/DecompiledContract.json",
+  "deployed_bytecode": "0x60806040526004361061003e575f3560e01c8063102ee228146100425780636d619daa1461006a578063dfa9ec5414610094578063fcd38d9c146100d0575b5f5ffd5b34801561004d575f5ffd5b50610068600480360381019061006391906101e6565b6100ec565b005b348015610075575f5ffd5b5061007e6100f0565b60405161008b9190610220565b60405180910390f35b34801561009f575f5ffd5b506100ba60048036038101906100b591906101e6565b6100f5565b6040516100c79190610220565b60405180910390f35b6100ea60048036038101906100e591906101e6565b61019b565b005b5f5ffd5b5f5481565b5f5f5f54836101049190610266565b90505f831415801561012257505f54838261011f91906102d4565b14155b15610159576040517f4e487b7100000000000000000000000000000000000000000000000000000000815260116004820152602481fd5b7f4087659c23361717590786aa922d4fb3fe8c31418aa760d885676390821f7e68838260405161018a929190610304565b60405180910390a180915050919050565b5f34146101a6575f5ffd5b805f8190555050565b5f5ffd5b5f819050919050565b6101c5816101b3565b81146101cf575f5ffd5b50565b5f813590506101e0816101bc565b92915050565b5f602082840312156101fb576101fa6101af565b5b5f610208848285016101d2565b91505092915050565b61021a816101b3565b82525050565b5f6020820190506102335f830184610211565b92915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f610270826101b3565b915061027b836101b3565b9250828202610289816101b3565b915082820484148315176102a05761029f610239565b5b5092915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601260045260245ffd5b5f6102de826101b3565b91506102e9836101b3565b9250826102f9576102f86102a7565b5b828204905092915050565b5f6040820190506103175f830185610211565b6103246020830184610211565b939250505056fea264697066735822122080f9c59942da7ec5f75fae75ad737a8750bdbc20f0b3f0db85443ec1c40b2e3c64736f6c634300081e0033",
+  "label": "txn02-a003",
+  "ok": true,
+  "returncode": 0,
+  "solc_version": "0.8.30",
+  "source_sha256": "9a0f905e7b7089fcce46be9952a2ffac034aaf7c58f893047316de67a9c54ac3",
+  "stderr": "",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 7.30ms\nCompiler run successful with warnings:\nWarning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.\n  --> src/Candidate.sol:38:34:\n   |\n38 |     function Unresolved_771602f7(uint256 unusedValue) public pure {\n   |                                  ^^^^^^^^^^^^^^^^^^^\n\n"
+}

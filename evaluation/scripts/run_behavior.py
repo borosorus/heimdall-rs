@@ -419,12 +419,24 @@ def sequence_matches(reference: list[dict[str, Any]], candidate: list[dict[str, 
     )
 
 
+def setup_ok(observations: list[dict[str, Any]]) -> bool:
+    """A setup sequence is valid only when every step succeeded on-chain."""
+    return bool(observations) and all(
+        observation.get("call_ok", observation.get("ok", False)) for observation in observations
+    )
+
+
 def combined_semantic_match(
     setup_reference: list[dict[str, Any]],
     setup_candidate: list[dict[str, Any]],
     reference: list[dict[str, Any]],
     candidate: list[dict[str, Any]],
 ) -> bool:
+    # A probe whose reference setup reverts proves nothing about the candidate:
+    # both sides can fail identically from default state. Such probes are
+    # reported with semantic_match false, never as passes.
+    if setup_reference and not setup_ok(setup_reference):
+        return False
     return sequence_matches(setup_reference, setup_candidate) and sequence_matches(
         reference, candidate
     )
@@ -1029,6 +1041,14 @@ def main() -> int:
                     stages.append(repaired_stage)
                     prior_matches = current_stage["matches"]
                     new_matches = repaired_stage.get("matches", {})
+                    prior_bindings = {
+                        name: bool(entry.get("available"))
+                        for name, entry in current_stage["bindings"].items()
+                    }
+                    repaired_bindings = {
+                        name: bool(entry.get("available"))
+                        for name, entry in repaired_stage["bindings"].items()
+                    }
                     regressions = [
                         name
                         for name in feedback_names
@@ -1040,8 +1060,19 @@ def main() -> int:
                         if not prior_matches.get(name) and new_matches.get(name)
                     ]
                     target_fixed = all(new_matches.get(name) for name in targets)
+                    # A repair that drops a previously bound entrypoint shrinks
+                    # the candidate's callable surface; that is a regression even
+                    # when every remaining probe matches.
+                    lost_bindings = [
+                        name
+                        for name, bound in prior_bindings.items()
+                        if bound and not repaired_bindings.get(name)
+                    ]
                     accepted = (
-                        repaired_stage["compile"] and not regressions and bool(fixed)
+                        repaired_stage["compile"]
+                        and not regressions
+                        and not lost_bindings
+                        and bool(fixed)
                     )
                     attempts.append(
                         {
@@ -1053,6 +1084,7 @@ def main() -> int:
                             "target_fixed": target_fixed,
                             "fixed": fixed,
                             "regressions": regressions,
+                            "lost_bindings": lost_bindings,
                             "feedback_failing": repaired_stage["feedback_failing"],
                             "withheld_failing": repaired_stage["withheld_failing"],
                             "unbound_calls": repaired_stage["unbound_calls"],

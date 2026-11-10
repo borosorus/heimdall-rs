@@ -1,0 +1,14 @@
+[
+  {
+    "id": "boo-t05a013-fn_5",
+    "origin": "bootstrap:behavior-repair-run",
+    "transaction": 5,
+    "attempt": 13,
+    "opaque_id": "fn_5",
+    "name": "Unresolved_2e1a7d4d",
+    "dispatch": "Unresolved_2e1a7d4d(uint256)",
+    "source": "function Unresolved_2e1a7d4d(uint256 arg0) public {\n        require(uint8(uint256(store_f) / 0x010000000000000000000000000000000000000000) == 0, CustomError_9e87fac8());\n        require(unresolved_70a08231[msg.sender] >= arg0, CustomError_f4d678b8());\n        unresolved_70a08231[msg.sender] = unresolved_70a08231[msg.sender] - arg0;\n        emit Event_ddf252ad(msg.sender, address(0), arg0);\n    }",
+    "sha256": "b2bb604a03ab84d0d1eaed2e97d90a72af14d1f46d8d266346ab38db8a148752",
+    "summary": "compiled; dispatch preserved; one feedback probe became matching; previously passing feedback observations preserved"
+  }
+]

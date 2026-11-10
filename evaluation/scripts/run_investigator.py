@@ -34,6 +34,7 @@ CONTEXT_PATH = ROOT / "evaluation" / "prompts" / "investigator_context.txt"
 ROUND1_PATH = ROOT / "evaluation" / "prompts" / "investigator_round1.txt"
 ROUND2_PATH = ROOT / "evaluation" / "prompts" / "investigator_round2.txt"
 SYNTHESIS_PATH = ROOT / "evaluation" / "prompts" / "investigator_synthesis.txt"
+MERGE_REPAIR_PATH = ROOT / "evaluation" / "prompts" / "investigator_merge_repair.txt"
 
 
 def _load_run_behavior():
@@ -484,6 +485,16 @@ def cluster_functions(
         ]
         clusters.append(Cluster(f"cluster_{cluster_number}", cluster_units, context_units))
     unclustered = [functions[index] for index in range(len(functions)) if index not in selected_ids]
+    # Coverage first: a leftover unit (no shared storage/events/calls with anything)
+    # still needs a synthesis pass, so fold it into the least-loaded cluster,
+    # deterministically by (size, cluster_id).
+    for unit in list(unclustered):
+        candidates = [cluster for cluster in clusters if len(cluster.functions) < max_functions]
+        if not candidates:
+            break
+        target = min(candidates, key=lambda cluster: (len(cluster.functions), cluster.cluster_id))
+        target.functions.append(unit)
+        unclustered.remove(unit)
     return clusters, unclustered
 
 
@@ -1065,6 +1076,50 @@ def abi_words(return_data: str | None, limit: int = 16) -> list[str] | None:
     return words[:limit]
 
 
+def state_writes(unit_text: str, storage: set[str]) -> set[str]:
+    """State variables assigned anywhere in the unit (``=``, compound, ``++``).
+
+    The base identifier of the assignment target must be a declared state
+    variable; ``==`` comparisons and plain declarations are not writes.
+    """
+    masked = _mask_strings_and_comments(unit_text, 0, len(unit_text))
+    writes: set[str] = set()
+    # The target is the identifier immediately before the operator: a member or
+    # index suffix may follow, but no other token may sit between (otherwise
+    # ``if (ok) supply = 1`` credits ``ok`` and ``supply + local++`` credits both).
+    for match in re.finditer(
+        r"\b([A-Za-z_]\w*)(?:\.[A-Za-z_]\w*|\[[^\]]*\])*\s*(?:=(?!=)|\+=|-=|\*=|/=|\|=&|&=|\^=|<<=|>>=|\+\+|--)",
+        masked,
+    ):
+        base = re.match(r"[A-Za-z_]\w*", match.group(1)).group(0)
+        if base in storage:
+            writes.add(base)
+    return writes
+
+
+def footprint_report(seed: ParsedSource, candidate: ParsedSource) -> dict[str, dict[str, list[str]]]:
+    """Per-function state-write differences between the seed and a merge.
+
+    A rewrite that writes a variable the seed never wrote, or stops writing
+    one the seed wrote, has changed cross-unit state behavior; that defect
+    class produced the recorded getter/setter and supply mismatches.
+    """
+    seed_symbols = _contract_symbols(seed)[0]
+    seed_writes = {unit.name: state_writes(unit.text, seed_symbols) for unit in seed.functions}
+    candidate_symbols = _contract_symbols(candidate)[0]
+    report: dict[str, dict[str, list[str]]] = {}
+    for unit in candidate.functions:
+        expected = seed_writes.get(unit.name)
+        if expected is None:
+            continue
+        actual = state_writes(unit.text, candidate_symbols)
+        added = sorted(actual - expected)
+        missing = sorted(expected - actual)
+        if added or missing:
+            report[unit.name] = {"added_writes": added, "missing_writes": missing}
+    return dict(sorted(report.items()))
+
+
 def _prompt_context(
     parsed: ParsedSource,
     cluster: Cluster,
@@ -1080,6 +1135,7 @@ def _prompt_context(
                 "header": unit.header,
                 "source": unit.text,
                 "dependency_hints": unit.dependencies,
+                "state_writes": sorted(state_writes(unit.text, _contract_symbols(parsed)[0])),
             }
             for unit in cluster.functions
         ],
@@ -1103,6 +1159,10 @@ def _prompt_context(
             "layouts, dynamic-type offsets and length words.",
             "Rewrites must keep each function's name and parameter types; return types, "
             "mutability and bodies may change.",
+            "state_writes lists the storage variables the decompiled function assigns; a "
+            "rewrite must still write every one of them (other functions read them and the "
+            "seed's pairing is bytecode evidence). Extra state writes are allowed only when "
+            "the observations support them",
             "Only mark a function payable when a send with nonzero value succeeded.",
             "Return only JSON matching the requested schema.",
         ],
@@ -1125,6 +1185,7 @@ class InvestigatorConfig:
     max_probes_per_cluster: int = 16
     max_total_probes: int = 64
     max_steps: int = 12
+    max_merge_repairs: int = 3
 
 
 @dataclass
@@ -1162,10 +1223,124 @@ class Investigator:
         self.evidence: list[dict[str, Any]] = []
         self.total_probes = 0
         self._cluster_call_start = 0
+        self._merge_repairs_used = 0
+        self._merge_repair_attempted: set[str] = set()
+        self._merge_repair_seq = 0
         self.system = _read_prompt(CONTEXT_PATH)
         self.round1 = _read_prompt(ROUND1_PATH)
         self.round2 = _read_prompt(ROUND2_PATH)
         self.synthesis = _read_prompt(SYNTHESIS_PATH)
+        self.merge_repair_prompt = _read_prompt(MERGE_REPAIR_PATH)
+
+    def merge_repair_hook(self, config: InvestigatorConfig):
+        """Gate hook: re-synthesize compile-broken units from merge diagnostics."""
+
+        def hook(merged: str, compile_record: dict[str, Any], attempt: int) -> dict[str, str] | None:
+            if self._merge_repairs_used >= config.max_merge_repairs:
+                return None
+            try:
+                merged_parsed = parse_contract(merged, self.parsed.contract_name)
+            except ParseError:
+                return None
+            lines = set()
+            for match in re.findall(r"--> src/[A-Za-z0-9_.-]+\.sol:(\d+):", (compile_record.get("stderr") or "")):
+                lines.add(int(match))
+            if not lines:
+                return None
+            units_by_name = {unit.name: unit for unit in self.parsed.functions}
+            cluster_of: dict[str, ClusterResult] = {}
+            for result in getattr(self, "results", []):
+                for unit_id in result.rewrites:
+                    cluster_of[unit_id] = result
+            merged_units = {}
+            for unit in merged_parsed.functions:
+                start_line = merged[: unit.start].count("\n") + 1
+                end_line = merged[: unit.end].count("\n") + 1
+                if lines & set(range(start_line, end_line + 1)):
+                    merged_units[unit.name] = unit
+            targets: dict[str, tuple] = {}  # cluster_id -> (result, units)
+            for name, unit in merged_units.items():
+                original = units_by_name.get(name)
+                if original is None:
+                    continue
+                result = cluster_of.get(original.opaque_id)
+                if result is None:
+                    continue
+                targets.setdefault(result.cluster_id, (result, []))[1].append(original)
+            diagnostics = compile_record.get("stderr") or ""
+            repaired: dict[str, str] = {}
+            # One bounded call per broken unit: multi-unit repairs asked the
+            # model to fix several functions correctly in one response and
+            # repeatedly failed to converge on the recorded run.
+            for cluster_id, (result, originals) in sorted(targets.items()):
+                for original in originals:
+                    if self._merge_repairs_used >= config.max_merge_repairs:
+                        break
+                    if original.opaque_id in self._merge_repair_attempted:
+                        continue
+                    if not self.client.budget.can_call():
+                        break
+                    unit_block = (
+                        f"### {original.opaque_id} ({original.name})\n\n"
+                        + self._merged_text(merged, original)
+                    )
+                    prompt = (
+                        self.merge_repair_prompt
+                        + "\n\nDiagnostics:\n"
+                        + diagnostics[:4000]
+                        + "\n\nUnits to fix:\n\n"
+                        + unit_block
+                    )
+                    self._merge_repairs_used += 1
+                    self._merge_repair_attempted.add(original.opaque_id)
+                    self._merge_repair_seq += 1
+                    probe_result = ClusterResult(cluster_id, [])
+                    self._cluster_call_start = self.client.budget.calls
+                    data = self._call_json(
+                        prompt,
+                        "investigator_merge_repair",
+                        {
+                            "type": "object",
+                            "properties": {
+                                "functions": {"type": "array"},
+                                "claims": {"type": "array"},
+                                "unresolved": {"type": "array"},
+                            },
+                            "required": ["functions", "claims", "unresolved"],
+                            "additionalProperties": False,
+                        },
+                        lambda data, ids={original.opaque_id}: (
+                            _check_merge_repair_response(data, ids, self.parsed, merged)
+                        ),
+                        f"merge-repair-{self._merge_repair_seq:03d}-{attempt}-{original.opaque_id}",
+                        probe_result,
+                        max_cluster_calls=1,
+                    )
+                    for record in probe_result.records:
+                        result.records.append(record)
+                    if data is None:
+                        continue
+                    for item in data.get("functions", []):
+                        unit_id = item.get("opaque_id")
+                        source = item.get("source")
+                        if unit_id == original.opaque_id and isinstance(source, str):
+                            repaired[unit_id] = source
+            return repaired or None
+
+        return hook
+
+    @staticmethod
+    def _merged_text(merged: str, original) -> str:
+        """Current text of ``original``'s unit inside the merged source."""
+        try:
+            target = None
+            for unit in parse_contract(merged, None).functions:
+                if unit.name == original.name:
+                    target = unit
+                    break
+            return target.text.strip() if target is not None else original.text.strip()
+        except ParseError:
+            return original.text.strip()
 
     def _call_json(
         self,
@@ -1455,6 +1630,125 @@ def _mark_accepted(
             result.merge = "applied"
 
 
+def _check_merge_repair_response(
+    data: dict[str, Any], allowed_ids: set[str], parsed: ParsedSource, merged: str
+) -> None:
+    """Validate a merge-repair response: known ids, parseable, signature-preserving."""
+    items = data.get("functions")
+    if not isinstance(items, list) or not items:
+        raise ValueError("response has no functions")
+    by_id = {unit.opaque_id: unit for unit in parsed.functions}
+    merged_names = set()
+    try:
+        merged_names = {unit.name for unit in parse_contract(merged, None).functions}
+    except ParseError:
+        pass
+    for item in items:
+        if not isinstance(item, dict):
+            raise ValueError("functions entries must be objects")
+        unit_id = item.get("opaque_id")
+        source = item.get("source")
+        if unit_id not in allowed_ids:
+            raise ValueError(f"rewrite for unknown unit {unit_id!r}")
+        if not isinstance(source, str) or not source.strip():
+            raise ValueError(f"rewrite for {unit_id} is empty")
+        try:
+            rewrite = parse_single_function(source)
+        except ParseError as error:
+            raise ValueError(f"rewrite for {unit_id} does not parse: {error}") from error
+        original = by_id.get(unit_id)
+        if original is not None:
+            if rewrite.name != original.name:
+                raise ValueError(f"rewrite for {unit_id} renamed the function")
+            if dispatch_signature(rewrite.header) != dispatch_signature(original.header):
+                raise ValueError(f"rewrite for {unit_id} changed the dispatch signature")
+        if original is not None and rewrite.name not in merged_names:
+            raise ValueError(f"rewrite for {unit_id} is not part of the merged contract")
+
+
+def _solo_merge_filter(
+    source: str,
+    parsed: ParsedSource,
+    results: list[ClusterResult],
+    spec: dict[str, Any] | None,
+    output_dir: Path,
+    repair_hook: Any = None,
+) -> list[dict[str, Any]]:
+    """Validate each cluster's rewrites against the seed in isolation.
+
+    The all-or-nothing gate turns one broken unit into dropped coverage for
+    its whole cluster and entangles diagnostics from unrelated clusters.
+    Compiling each cluster's rewrites alone gives per-cluster accept/drop
+    with unambiguous diagnostics, and one bounded repair round in that
+    solo context before the cluster is sacrificed. The union gate still
+    runs afterwards: independently-compiling clusters can still conflict.
+    """
+    reports: list[dict[str, Any]] = []
+    if spec is None:
+        return reports
+    for result in [r for r in results if r.rewrites]:
+        solo_merged, solo_merge_record = merge_rewrites(parsed, dict(result.rewrites))
+        if not solo_merge_record["applied"]:
+            result.merge = "solo_rejected"
+            result.error = "solo merge rejected: " + "; ".join(
+                str(entry.get("error"))
+                for entry in solo_merge_record["records"].values()
+                if entry.get("error")
+            )[:200]
+            reports.append(
+                {
+                    "cluster": result.cluster_id,
+                    "units": sorted(result.rewrites),
+                    "solo_compiled": False,
+                    "solo_repair": False,
+                    "error": result.error,
+                }
+            )
+            continue
+        solo_record = rb.compile_candidate(
+            solo_merged,
+            spec["solc_version"],
+            output_dir / "work" / f"solo-{result.cluster_id}",
+            f"solo-{result.cluster_id}",
+            spec.get("contract"),
+        )
+        repaired = False
+        if not solo_record.get("ok") and repair_hook is not None:
+            hook_result = repair_hook(solo_merged, solo_record, 0)
+            if hook_result:
+                fresh = {
+                    unit_id: text
+                    for unit_id, text in hook_result.items()
+                    if unit_id in result.rewrites
+                }
+                if fresh:
+                    result.rewrites.update(fresh)
+                    repaired = True
+                    solo_merged, solo_merge_record = merge_rewrites(parsed, dict(result.rewrites))
+                    if solo_merge_record["applied"]:
+                        solo_record = rb.compile_candidate(
+                            solo_merged,
+                            spec["solc_version"],
+                            output_dir / "work" / f"solo-{result.cluster_id}-repair",
+                            f"solo-{result.cluster_id}-repair",
+                            spec.get("contract"),
+                        )
+        kept = bool(solo_record.get("ok"))
+        result.merge = "solo_applied" if kept else "solo_dropped"
+        if not kept:
+            result.error = "solo merge does not compile after repair"
+        reports.append(
+            {
+                "cluster": result.cluster_id,
+                "units": sorted(result.rewrites),
+                "solo_compiled": kept,
+                "solo_repair": repaired,
+                "error": None if kept else "solo merge does not compile",
+            }
+        )
+    return reports
+
+
 def _merge_with_gate(
     source: str,
     parsed: ParsedSource,
@@ -1462,10 +1756,13 @@ def _merge_with_gate(
     spec: dict[str, Any] | None,
     output_dir: Path,
     max_attempts: int = 3,
+    repair_hook: Any = None,
 ) -> tuple[str, dict[str, Any]]:
     attempts: list[dict[str, Any]] = []
     active = [result for result in results if result.rewrites]
     active.sort(key=lambda result: result.confidence)
+    full_record: dict[str, Any] | None = None
+    repaired_once: set[str] = set()
     for attempt in range(max_attempts + 1):
         rewrites: dict[str, str] = {}
         for result in active:
@@ -1492,9 +1789,10 @@ def _merge_with_gate(
             break
         if spec is not None and merge_record["applied"]:
             work_dir = output_dir / "work" / f"merge-{attempt}"
-            record = rb.compile_candidate(
+            full_record = rb.compile_candidate(
                 merged, spec["solc_version"], work_dir, f"merge-{attempt}", spec.get("contract")
             )
+            record = full_record
             (output_dir / f"compile-merge-{attempt}.json").write_text(
                 json.dumps(record, indent=2), encoding="utf-8"
             )
@@ -1537,6 +1835,34 @@ def _merge_with_gate(
                 "records": merge_record["records"],
             }
         attempts.append(attempt_record)
+        if repair_hook is not None and merged.strip():
+            # Feed the merge failure back into a bounded re-synthesis of the
+            # affected clusters before sacrificing their coverage. Units whose
+            # repair already failed once are not retried: the next pass drops
+            # instead of spinning.
+            hook_record = full_record or {
+                "stderr": (attempt_record.get("compile") or {}).get("error") or ""
+            }
+            replacements = repair_hook(merged, hook_record, attempt)
+            fresh = {
+                unit_id: text for unit_id, text in (replacements or {}).items()
+                if unit_id not in repaired_once
+            }
+            if fresh:
+                repaired_once |= set(fresh)
+                touched: list[str] = []
+                for unit_id, rewritten in fresh.items():
+                    for result in active:
+                        if unit_id in result.rewrites:
+                            result.rewrites[unit_id] = rewritten
+                            touched.append(result.cluster_id)
+                            break
+                if touched:
+                    attempt_record["merge_repair"] = {
+                        "units": sorted(fresh),
+                        "clusters": sorted(set(touched)),
+                    }
+                    continue
         if not active:
             break
         dropped = active.pop(0)
@@ -1617,20 +1943,45 @@ def run_investigator(
             candidate_label,
         )
         oracle = ReferenceOracle(spec, bindings)
+    investigator: Investigator | None = None
     try:
         investigator = Investigator(parsed, client, oracle, config, output_dir)
         entrypoints = oracle.public_entrypoints() if oracle else []
         results = [
             investigator.investigate_cluster(cluster, entrypoints) for cluster in clusters
         ]
+        investigator.results = results
     finally:
         if oracle is not None:
             oracle.close()
 
-    merged, merge_report = _merge_with_gate(source, parsed, results, spec, output_dir)
+    hook = investigator.merge_repair_hook(config) if investigator is not None else None
+    solo_report = _solo_merge_filter(source, parsed, results, spec, output_dir, repair_hook=hook)
+    survivors = [
+        result
+        for result in results
+        if result.rewrites and result.merge in (None, "pending", "solo_applied")
+    ]
+    if not survivors:
+        # Every cluster failed solo: let the union gate record the attempts
+        # anyway instead of publishing an unmodified candidate silently.
+        survivors = [result for result in results if result.rewrites]
+    merged, merge_report = _merge_with_gate(
+        source,
+        parsed,
+        survivors,
+        spec,
+        output_dir,
+        repair_hook=hook,
+    )
     if not merged.strip():
         merged = source
     (output_dir / "candidate.sol").write_text(merged, encoding="utf-8")
+    try:
+        merged_parsed = parse_contract(merged, parsed.contract_name)
+        state_migrations = footprint_report(parsed, merged_parsed)
+    except ParseError:
+        state_migrations = {}
     proposed = sum(len(result.rewrites) for result in results)
     accepted = sum(result.applied for result in results)
     dropped = sum(
@@ -1647,6 +1998,7 @@ def run_investigator(
         "candidate_sha256": hashlib.sha256(merged.encode("utf-8")).hexdigest(),
         "clusters": len(clusters),
         "unclustered_functions": [unit.opaque_id for unit in unclustered],
+        "state_write_migrations": state_migrations,
         "functions_total": len(parsed.functions),
         "functions_proposed": proposed,
         "functions_rewritten": accepted,
@@ -1659,6 +2011,7 @@ def run_investigator(
         "probe_requests": sum(result.probe_requests for result in results),
         "observations": len(investigator.evidence),
         "merge": merge_report,
+        "solo_merge": solo_report,
         "cluster_results": [
             {
                 "cluster_id": result.cluster_id,
@@ -1724,6 +2077,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--max-total-probes", type=int, default=64)
     parser.add_argument("--max-calls", type=int, default=20)
     parser.add_argument("--max-completion-tokens", type=int, default=256_000)
+    parser.add_argument("--max-merge-repairs", type=int, default=3)
     return parser.parse_args()
 
 
@@ -1746,6 +2100,7 @@ def main() -> int:
         max_probes_per_round=args.max_probes_per_round,
         max_probes_per_cluster=args.max_probes_per_cluster,
         max_total_probes=args.max_total_probes,
+        max_merge_repairs=args.max_merge_repairs,
     )
     budget = Budget(args.max_calls, args.max_completion_tokens)
     client = ChatClient(

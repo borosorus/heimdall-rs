@@ -1,0 +1,9 @@
+{
+  "label": "repair-1",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "4c1b1580fd68a4b8fdce96f9b5eb8b417de90b0bd5bb82b5833b7e570e6e2e0c",
+  "stderr": "Error: Compiler run failed:\nError (7407): Type uint256 is not implicitly convertible to expected type address.\n   --> src/Candidate.sol:208:36:\n    |\n208 |         return storage_map_b[arg0][arg1];\n    |                                    ^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 7.75ms\n"
+}

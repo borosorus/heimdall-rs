@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "tool": "repair_behavior_units",
+  "candidate_label": "llm1",
+  "focused_units": null,
+  "max_transactions": 8,
+  "origin_sha256": "f5473696159dd872e07a56f421b79c2748a69218c160cc36758ee9ce2d7fcb3b",
+  "selected_sha256": "9a0f905e7b7089fcce46be9952a2ffac034aaf7c58f893047316de67a9c54ac3",
+  "origin_feedback_matched": 7,
+  "selected_feedback_matched": 10,
+  "selected_feedback_total": 10,
+  "selected_withheld_matched": 5,
+  "selected_withheld_total": 5,
+  "selected_feedback_failing": [],
+  "selected_withheld_failing": [],
+  "attempts": 3,
+  "llm_calls": 3,
+  "completion_tokens": 689,
+  "ledger": [
+    {
+      "transaction": 1,
+      "attempt": 1,
+      "target": "multiply_overflow",
+      "unit": "fn_3",
+      "name": "Unresolved_c6888fa1",
+      "examples": [],
+      "request_error": null,
+      "compiled": false,
+      "abi_loss": null,
+      "error": "compile failed"
+    },
+    {
+      "transaction": 1,
+      "attempt": 2,
+      "target": "multiply_overflow",
+      "unit": "fn_3",
+      "name": "Unresolved_c6888fa1",
+      "examples": [],
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": true,
+      "pending": false,
+      "verdict": []
+    },
+    {
+      "transaction": 2,
+      "attempt": 3,
+      "target": "set_multiplier_with_value",
+      "unit": "fn_1",
+      "name": "Unresolved_641579a6",
+      "examples": [],
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": true,
+      "pending": false,
+      "verdict": []
+    }
+  ],
+  "elapsed_ms": 46264,
+  "accepted_examples": [
+    {
+      "id": "run-t01a002-fn_3",
+      "origin": "run",
+      "transaction": 1,
+      "attempt": 2,
+      "opaque_id": "fn_3",
+      "name": "Unresolved_c6888fa1",
+      "sha256": "4e0b1e6484ff350a45557e5046773ed5dc71c25ac47667bb0d01300358c868fa"
+    },
+    {
+      "id": "run-t02a003-fn_1",
+      "origin": "run",
+      "transaction": 2,
+      "attempt": 3,
+      "opaque_id": "fn_1",
+      "name": "Unresolved_641579a6",
+      "sha256": "4fff066ddbb34a8e27ddd1b3c244e0581a38e42c588c9758a7790ca6593cc65a"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "tool": "repair_behavior_units",
+  "candidate_label": "seed-v2",
+  "origin_sha256": "ff1e6291117c75646be93823faf7873e9043e4a6abe6296e023621d4792f53f5",
+  "selected_sha256": "bf6abd12e374fe8c95ffbcd2534d73b761d32a33d16a5d8eb12152fcd2834dc5",
+  "origin_feedback_matched": 3,
+  "selected_feedback_matched": 3,
+  "selected_feedback_total": 12,
+  "selected_withheld_matched": 1,
+  "selected_withheld_total": 4,
+  "selected_feedback_failing": [
+    "initial_config",
+    "deposit_100",
+    "withdraw_50",
+    "withdraw_too_much",
+    "approve_transfer_from",
+    "transfer_from_unapproved_spender",
+    "pause_blocks_deposit",
+    "unpause_allows_deposit",
+    "preview_fee"
+  ],
+  "selected_withheld_failing": [
+    "set_limits_invalid",
+    "burn_100",
+    "set_fee_max"
+  ],
+  "attempts": 6,
+  "llm_calls": 5,
+  "completion_tokens": 827,
+  "ledger": [
+    {
+      "transaction": 1,
+      "attempt": 1,
+      "target": "initial_config",
+      "unit": "fn_17",
+      "name": "Unresolved_c4590d3f",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": true,
+      "verdict": [
+        "target divergence 7 -> 6"
+      ]
+    },
+    {
+      "transaction": 2,
+      "attempt": 2,
+      "target": "initial_config",
+      "unit": "fn_7",
+      "name": "Unresolved_40c10f19",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": true,
+      "verdict": [
+        "target divergence 6 -> 5"
+      ]
+    },
+    {
+      "transaction": 3,
+      "attempt": 3,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 3,
+      "attempt": 4,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 3,
+      "attempt": 5,
+      "target": "initial_config",
+      "unit": "fn_11",
+      "name": "Unresolved_860aefcf",
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 3,
+      "error": "no admissible edit; keeping last accepted source"
+    }
+  ],
+  "elapsed_ms": 104011
+}

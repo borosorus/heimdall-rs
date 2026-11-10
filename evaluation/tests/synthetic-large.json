@@ -9,261 +9,691 @@
     "initialize": {
       "reference_signature": "initialize(address)",
       "baseline_signature": "initialize(address)",
-      "candidate_signature": "initialize(address)"
+      "candidate_signature": "initialize(address)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_c4d66de8(address)",
+        "inv-r1": "Unresolved_c4d66de8(address)",
+        "seed-v2": "Unresolved_c4d66de8(address)"
+      }
     },
     "setLimits": {
       "reference_signature": "setLimits(uint256,uint256)",
       "baseline_signature": "setLimits(uint256,uint256)",
-      "candidate_signature": "setLimits(uint256,uint256)"
+      "candidate_signature": "setLimits(uint256,uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_c4590d3f(uint256)",
+        "inv-r1": "Unresolved_c4590d3f(uint256)",
+        "seed-v2": "Unresolved_c4590d3f(uint256)"
+      }
     },
     "setFee": {
       "reference_signature": "setFee(uint256)",
       "baseline_signature": "setFee(uint256)",
-      "candidate_signature": "setFee(uint256)"
+      "candidate_signature": "setFee(uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_69fe0e2d(uint256)",
+        "inv-r1": "Unresolved_69fe0e2d(uint256)",
+        "seed-v2": "Unresolved_69fe0e2d(uint256)"
+      }
     },
     "setName": {
       "reference_signature": "setName(string)",
       "baseline_signature": "setName(string)",
-      "candidate_signature": "setName(string)"
+      "candidate_signature": "setName(string)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_c47f0027(uint256)",
+        "inv-r1": "Unresolved_c47f0027(uint256)",
+        "seed-v2": "Unresolved_c47f0027(uint256)"
+      }
     },
     "mint": {
       "reference_signature": "mint(address,uint256)",
       "baseline_signature": "mint(address,uint256)",
-      "candidate_signature": "mint(address,uint256)"
+      "candidate_signature": "mint(address,uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_40c10f19(address,uint256)",
+        "inv-r1": "Unresolved_40c10f19(address,uint256)",
+        "seed-v2": "Unresolved_40c10f19(address,uint256)"
+      }
     },
     "owner": {
       "reference_signature": "owner()",
       "baseline_signature": "owner()",
-      "candidate_signature": "owner()"
+      "candidate_signature": "owner()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_8da5cb5b()",
+        "inv-r1": "Unresolved_8da5cb5b()",
+        "seed-v2": "Unresolved_8da5cb5b()"
+      }
     },
     "transferOwnership": {
       "reference_signature": "transferOwnership(address)",
       "baseline_signature": "transferOwnership(address)",
-      "candidate_signature": "transferOwnership(address)"
+      "candidate_signature": "transferOwnership(address)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_f2fde38b(address)",
+        "inv-r1": "Unresolved_f2fde38b(address)",
+        "seed-v2": "Unresolved_f2fde38b(address)"
+      }
     },
     "pause": {
       "reference_signature": "pause()",
       "baseline_signature": "pause()",
-      "candidate_signature": "pause()"
+      "candidate_signature": "pause()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_8456cb59()",
+        "inv-r1": "Unresolved_8456cb59()",
+        "seed-v2": "Unresolved_8456cb59()"
+      }
     },
     "unpause": {
       "reference_signature": "unpause()",
       "baseline_signature": "unpause()",
-      "candidate_signature": "unpause()"
+      "candidate_signature": "unpause()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_3f4ba83a()",
+        "inv-r1": "Unresolved_3f4ba83a()",
+        "seed-v2": "Unresolved_3f4ba83a()"
+      }
     },
     "isPaused": {
       "reference_signature": "isPaused()",
       "baseline_signature": "isPaused()",
-      "candidate_signature": "isPaused()"
+      "candidate_signature": "isPaused()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_b187bd26()",
+        "inv-r1": "Unresolved_b187bd26()",
+        "seed-v2": "Unresolved_b187bd26()"
+      }
     },
     "fee": {
       "reference_signature": "fee()",
       "baseline_signature": "fee()",
-      "candidate_signature": "fee()"
+      "candidate_signature": "fee()",
+      "candidate_signatures": {
+        "seed-v1": "unresolved_ddca3f43()",
+        "inv-r1": "unresolved_ddca3f43()",
+        "seed-v2": "unresolved_ddca3f43()"
+      }
     },
     "limits": {
       "reference_signature": "limits()",
       "baseline_signature": "limits()",
-      "candidate_signature": "limits()"
+      "candidate_signature": "limits()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_860aefcf()",
+        "inv-r1": "Unresolved_860aefcf()",
+        "seed-v2": "Unresolved_860aefcf()"
+      }
     },
     "name": {
       "reference_signature": "name()",
       "baseline_signature": "name()",
-      "candidate_signature": "name()"
+      "candidate_signature": "name()",
+      "candidate_signatures": {
+        "seed-v1": "unresolved_06fdde03()",
+        "inv-r1": "unresolved_06fdde03()",
+        "seed-v2": "unresolved_06fdde03()"
+      }
     },
     "balanceOf": {
       "reference_signature": "balanceOf(address)",
       "baseline_signature": "balanceOf(address)",
-      "candidate_signature": "balanceOf(address)"
+      "candidate_signature": "balanceOf(address)",
+      "candidate_signatures": {
+        "seed-v1": "unresolved_70a08231(address)",
+        "inv-r1": "unresolved_70a08231(address)",
+        "seed-v2": "unresolved_70a08231(address)"
+      }
     },
     "allowance": {
       "reference_signature": "allowance(address,address)",
       "baseline_signature": "allowance(address,address)",
-      "candidate_signature": "allowance(address,address)"
+      "candidate_signature": "allowance(address,address)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_dd62ed3e(address,uint256)",
+        "inv-r1": "Unresolved_dd62ed3e(address,uint256)",
+        "seed-v2": "Unresolved_dd62ed3e(address,uint256)"
+      }
     },
     "approve": {
       "reference_signature": "approve(address,uint256)",
       "baseline_signature": "approve(address,uint256)",
-      "candidate_signature": "approve(address,uint256)"
+      "candidate_signature": "approve(address,uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_095ea7b3(address,uint256)",
+        "inv-r1": "Unresolved_095ea7b3(address,uint256)",
+        "seed-v2": "Unresolved_095ea7b3(address,uint256)"
+      }
     },
     "deposit": {
       "reference_signature": "deposit(uint256)",
       "baseline_signature": "deposit(uint256)",
-      "candidate_signature": "deposit(uint256)"
+      "candidate_signature": "deposit(uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_b6b55f25(uint256)",
+        "inv-r1": "Unresolved_b6b55f25(uint256)",
+        "seed-v2": "Unresolved_b6b55f25(uint256)"
+      }
     },
     "withdraw": {
       "reference_signature": "withdraw(uint256)",
       "baseline_signature": "withdraw(uint256)",
-      "candidate_signature": "withdraw(uint256)"
+      "candidate_signature": "withdraw(uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_2e1a7d4d(uint256)",
+        "inv-r1": "Unresolved_2e1a7d4d(uint256)",
+        "seed-v2": "Unresolved_2e1a7d4d(uint256)"
+      }
     },
     "transfer": {
       "reference_signature": "transfer(address,uint256)",
       "baseline_signature": "transfer(address,uint256)",
-      "candidate_signature": "transfer(address,uint256)"
+      "candidate_signature": "transfer(address,uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_a9059cbb(address,uint256)",
+        "inv-r1": "Unresolved_a9059cbb(address,uint256)",
+        "seed-v2": "Unresolved_a9059cbb(address,uint256)"
+      }
     },
     "transferFrom": {
       "reference_signature": "transferFrom(address,address,uint256)",
       "baseline_signature": "transferFrom(address,address,uint256)",
-      "candidate_signature": "transferFrom(address,address,uint256)"
+      "candidate_signature": "transferFrom(address,address,uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_23b872dd(address,uint256,uint256)",
+        "inv-r1": "Unresolved_23b872dd(address,uint256,uint256)",
+        "seed-v2": "Unresolved_23b872dd(address,uint256,uint256)"
+      }
     },
     "burn": {
       "reference_signature": "burn(uint256)",
       "baseline_signature": "burn(uint256)",
-      "candidate_signature": "burn(uint256)"
+      "candidate_signature": "burn(uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_42966c68(uint256)",
+        "inv-r1": "Unresolved_42966c68(uint256)",
+        "seed-v2": "Unresolved_42966c68(uint256)"
+      }
     },
     "getStats": {
       "reference_signature": "getStats(address)",
       "baseline_signature": "getStats(address)",
-      "candidate_signature": "getStats(address)"
+      "candidate_signature": "getStats(address)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_c23f85d6(address)",
+        "inv-r1": "Unresolved_c23f85d6(address)",
+        "seed-v2": "Unresolved_c23f85d6(address)"
+      }
     },
     "previewDeposit": {
       "reference_signature": "previewDeposit(uint256)",
       "baseline_signature": "previewDeposit(uint256)",
-      "candidate_signature": "previewDeposit(uint256)"
+      "candidate_signature": "previewDeposit(uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_ef8b30f7(uint256)",
+        "inv-r1": "Unresolved_ef8b30f7(uint256)",
+        "seed-v2": "Unresolved_ef8b30f7(uint256)"
+      }
     },
     "isWithinLimits": {
       "reference_signature": "isWithinLimits(uint256)",
       "baseline_signature": "isWithinLimits(uint256)",
-      "candidate_signature": "isWithinLimits(uint256)"
+      "candidate_signature": "isWithinLimits(uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_0b663fe2(uint256)",
+        "inv-r1": "Unresolved_0b663fe2(uint256)",
+        "seed-v2": "Unresolved_0b663fe2(uint256)"
+      }
     },
     "totalSupply": {
       "reference_signature": "totalSupply()",
       "baseline_signature": "totalSupply()",
-      "candidate_signature": "totalSupply()"
+      "candidate_signature": "totalSupply()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_18160ddd()",
+        "inv-r1": "Unresolved_18160ddd()",
+        "seed-v2": "Unresolved_18160ddd()"
+      }
     }
   },
   "setup": [
-    {"call": "initialize", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"], "send": true},
-    {"call": "setLimits", "args": ["1", "1000000"], "send": true},
-    {"call": "setFee", "args": ["100"], "send": true},
-    {"call": "setName", "args_tail": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057661756c74000000000000000000000000000000000000000000000000000000", "send": true},
-    {"call": "mint", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "1000"], "send": true}
+    {
+      "call": "initialize",
+      "args": [
+        "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+      ],
+      "send": true
+    },
+    {
+      "call": "setLimits",
+      "args": [
+        "1",
+        "1000000"
+      ],
+      "send": true
+    },
+    {
+      "call": "setFee",
+      "args": [
+        "100"
+      ],
+      "send": true
+    },
+    {
+      "call": "setName",
+      "args_tail": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057661756c74000000000000000000000000000000000000000000000000000000",
+      "send": true
+    },
+    {
+      "call": "mint",
+      "args": [
+        "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "1000"
+      ],
+      "send": true
+    }
   ],
   "probes": [
     {
       "name": "initial_config",
       "steps": [
-        {"call": "owner"},
-        {"call": "isPaused"},
-        {"call": "fee"},
-        {"call": "limits"},
-        {"call": "name"},
-        {"call": "totalSupply"},
-        {"call": "getStats", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]},
-        {"call": "isWithinLimits", "args": ["100"]}
+        {
+          "call": "owner"
+        },
+        {
+          "call": "isPaused"
+        },
+        {
+          "call": "fee"
+        },
+        {
+          "call": "limits"
+        },
+        {
+          "call": "name"
+        },
+        {
+          "call": "totalSupply"
+        },
+        {
+          "call": "getStats",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        },
+        {
+          "call": "isWithinLimits",
+          "args": [
+            "100"
+          ]
+        }
       ]
     },
     {
       "name": "deposit_100",
       "steps": [
-        {"call": "deposit", "args": ["100"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]},
-        {"call": "totalSupply"},
-        {"call": "getStats", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]}
+        {
+          "call": "deposit",
+          "args": [
+            "100"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        },
+        {
+          "call": "totalSupply"
+        },
+        {
+          "call": "getStats",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        }
       ]
     },
     {
       "name": "deposit_below_min",
       "steps": [
-        {"call": "deposit", "args": ["0"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]}
+        {
+          "call": "deposit",
+          "args": [
+            "0"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        }
       ]
     },
     {
       "name": "deposit_above_max",
       "steps": [
-        {"call": "deposit", "args": ["1000001"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]}
+        {
+          "call": "deposit",
+          "args": [
+            "1000001"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        }
       ]
     },
     {
       "name": "withdraw_50",
       "steps": [
-        {"call": "deposit", "args": ["100"], "send": true},
-        {"call": "withdraw", "args": ["50"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]},
-        {"call": "totalSupply"}
+        {
+          "call": "deposit",
+          "args": [
+            "100"
+          ],
+          "send": true
+        },
+        {
+          "call": "withdraw",
+          "args": [
+            "50"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        },
+        {
+          "call": "totalSupply"
+        }
       ]
     },
     {
       "name": "withdraw_too_much",
       "steps": [
-        {"call": "withdraw", "args": ["1000"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]}
+        {
+          "call": "withdraw",
+          "args": [
+            "1000"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        }
       ]
     },
     {
       "name": "transfer_100",
       "steps": [
-        {"call": "transfer", "args": ["0x00000000000000000000000000000000000000b2", "100"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]},
-        {"call": "balanceOf", "args": ["0x00000000000000000000000000000000000000b2"]}
+        {
+          "call": "transfer",
+          "args": [
+            "0x00000000000000000000000000000000000000b2",
+            "100"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0x00000000000000000000000000000000000000b2"
+          ]
+        }
       ]
     },
     {
       "name": "approve_transfer_from",
       "steps": [
-        {"call": "approve", "args": ["0x00000000000000000000000000000000000000b3", "50"], "send": true},
-        {"call": "transferFrom", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0x00000000000000000000000000000000000000b3", "30"], "caller": 1, "send": true},
-        {"call": "allowance", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0x00000000000000000000000000000000000000b3"]},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]},
-        {"call": "balanceOf", "args": ["0x00000000000000000000000000000000000000b3"]}
+        {
+          "call": "approve",
+          "args": [
+            "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+            "50"
+          ],
+          "send": true
+        },
+        {
+          "call": "transferFrom",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "0x00000000000000000000000000000000000000b3",
+            "30"
+          ],
+          "caller": 1,
+          "send": true
+        },
+        {
+          "call": "allowance",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+          ]
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0x00000000000000000000000000000000000000b3"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "transfer_from_unapproved_spender",
+      "steps": [
+        {
+          "call": "approve",
+          "args": [
+            "0x00000000000000000000000000000000000000b3",
+            "50"
+          ],
+          "send": true
+        },
+        {
+          "call": "transferFrom",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "0x00000000000000000000000000000000000000b3",
+            "30"
+          ],
+          "caller": 1,
+          "send": true
+        },
+        {
+          "call": "allowance",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "0x00000000000000000000000000000000000000b3"
+          ]
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0x00000000000000000000000000000000000000b3"
+          ]
+        }
       ]
     },
     {
       "name": "pause_blocks_deposit",
       "steps": [
-        {"call": "pause", "send": true},
-        {"call": "deposit", "args": ["100"], "send": true},
-        {"call": "isPaused"},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]}
+        {
+          "call": "pause",
+          "send": true
+        },
+        {
+          "call": "deposit",
+          "args": [
+            "100"
+          ],
+          "send": true
+        },
+        {
+          "call": "isPaused"
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        }
       ]
     },
     {
       "name": "unpause_allows_deposit",
       "steps": [
-        {"call": "pause", "send": true},
-        {"call": "unpause", "send": true},
-        {"call": "deposit", "args": ["100"], "send": true},
-        {"call": "isPaused"},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]}
+        {
+          "call": "pause",
+          "send": true
+        },
+        {
+          "call": "unpause",
+          "send": true
+        },
+        {
+          "call": "deposit",
+          "args": [
+            "100"
+          ],
+          "send": true
+        },
+        {
+          "call": "isPaused"
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        }
       ]
     },
     {
       "name": "preview_fee",
       "steps": [
-        {"call": "previewDeposit", "args": ["100"]},
-        {"call": "isWithinLimits", "args": ["100"]}
+        {
+          "call": "previewDeposit",
+          "args": [
+            "100"
+          ]
+        },
+        {
+          "call": "isWithinLimits",
+          "args": [
+            "100"
+          ]
+        }
       ]
     },
     {
       "name": "set_limits_invalid",
       "steps": [
-        {"call": "setLimits", "args": ["10", "5"], "send": true},
-        {"call": "limits"}
+        {
+          "call": "setLimits",
+          "args": [
+            "10",
+            "5"
+          ],
+          "send": true
+        },
+        {
+          "call": "limits"
+        }
       ]
     },
     {
       "name": "transfer_insufficient",
       "steps": [
-        {"call": "transfer", "args": ["0x00000000000000000000000000000000000000b2", "5000"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]}
+        {
+          "call": "transfer",
+          "args": [
+            "0x00000000000000000000000000000000000000b2",
+            "5000"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        }
       ]
     },
     {
       "name": "burn_100",
       "steps": [
-        {"call": "burn", "args": ["100"], "send": true},
-        {"call": "balanceOf", "args": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]},
-        {"call": "totalSupply"}
+        {
+          "call": "burn",
+          "args": [
+            "100"
+          ],
+          "send": true
+        },
+        {
+          "call": "balanceOf",
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ]
+        },
+        {
+          "call": "totalSupply"
+        }
       ]
     },
     {
       "name": "set_fee_max",
       "steps": [
-        {"call": "setFee", "args": ["10000"], "send": true},
-        {"call": "fee"},
-        {"call": "previewDeposit", "args": ["100"]}
+        {
+          "call": "setFee",
+          "args": [
+            "10000"
+          ],
+          "send": true
+        },
+        {
+          "call": "fee"
+        },
+        {
+          "call": "previewDeposit",
+          "args": [
+            "100"
+          ]
+        }
       ]
     }
   ],

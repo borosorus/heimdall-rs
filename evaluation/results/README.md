@@ -394,3 +394,381 @@ python3 evaluation/scripts/run_behavior.py \
 
 Sampling and server behavior can still differ even with the same seed and temperature. Treat a
 replay as a new result, not as proof that the saved run reproduces bit-for-bit.
+
+## synthetic-large: the first full large-contract pipeline run (2026-11-09)
+
+End-to-end record for the 25-function, 7,864-byte `synthetic-large` fixture, one model
+(`GLM-5.3-Flash` via the local OpenAI-compatible endpoint), one sample per stage. Every stage is
+bounded and its artifacts are committed under `synthetic-large-*`.
+
+| Stage | Mechanism | Outcome |
+| --- | --- | --- |
+| Deterministic baseline | `heimdall 0.9.2 --include-sol --skip-resolving --default` | uncompilable; 1 visible error (`uint0`), 21 hidden behind it |
+| Seed preparation (`prepare_candidate.py`, 0 model calls) | placeholder rewrite, undeclared error/event declarations, usage-derived event retyping, `var_*` declarations, guard-derived arity alignment | 8 residual type errors in 3 units, 0 unproven edits; 3 arity corrections with per-edit evidence (`23b872dd` 1→3, `c47f0027` 2→1, `dd62ed3e` 1→2) |
+| Unit repair (`repair_units.py`, ~30 calls, <10k completion tokens) | diagnostics→unit mapping, signature-frozen rewrites, monotone acceptance | compiling 25-function seed, all 25 dispatch signatures present (`synthetic-large-seed-v1`) |
+| Seed behavior (`run_behavior.py`) | differential probes | 0/11 feedback, 0/4 withheld; bodies are decompiler-faithful (`revert()` tails, missing returns) |
+| Investigator + merge-repair (`run_investigator.py`, 20 calls) | cluster hypotheses + 64 probes, merge-failure re-synthesis | 22/22 units rewritten, merged candidate compiles; transfer/balance path matches the reference exactly |
+| Investigator-candidate behavior | differential probes | 0/11 feedback, 0/4 withheld; residual defects are cross-unit state inconsistencies (setFee/`fee()` variable mismatch, mint skips `totalSupply`, short-string assembly slot) |
+| Harness behavior repair (1 round, whole-source) | observation-diff repair | rewrite did not compile; rejected, no regression (`synthetic-large-inv-r3-repair`) |
+| Control: `chunked-one-shot`, no probes (6 calls) | same seed, clusters, no observations | 22/22 rewritten, compiles, 0/11 and 0/4 (`synthetic-large-onehot-v1`) |
+
+### What this run establishes
+
+- The blocked goal from the previous session is cleared: an uncompilable 272-line baseline is now
+  converted into a compiling, dispatch-complete 25-function candidate by a bounded, fully recorded
+  pipeline (`prepare_candidate.py` → `repair_units.py`), with per-edit evidence and no reference
+  Solidity, ABI names, or withheld observations in any prompt.
+- Merge-failure feedback raises applied rewrites from 9/22 to 22/22 at the cost of one extra call,
+  without dropping cluster coverage.
+- At this scale the probe-informed and one-shot synthesizes are behaviorally comparable (both 0/11
+  after the same seed); the recorded probe advantage on 3-function fixtures does not yet extend to
+  a 22-function contract in one shot.
+
+### What this run does NOT establish
+
+- No behavioral-fidelity claim for `synthetic-large`: 0/11 equals the seed, so the pipeline's
+  behavioral gain on this fixture is unproven. The observed failure mode is concrete and saved:
+  per-unit rewrites are locally correct but cross-unit state consistency (which variable a getter
+  reads vs a setter writes) is not enforced by any stage.
+- The harness's whole-source behavior repair does not compile at this size; a unit-scoped behavior
+  repair fed by per-probe observation diffs is the identified next mechanism, not a tested one.
+- One model, one seed per stage; no event gating (`compare_events` false); baseline stage is
+  compile-blocked, so no baseline comparison exists for this fixture.
+
+### Reproduce
+
+```bash
+python3 evaluation/scripts/prepare_candidate.py \
+  --source evaluation/results/synthetic-large-baseline-v1/synthetic-large/baseline.sol \
+  --output-dir /tmp/prep --spec evaluation/tests/synthetic-large.json
+python3 evaluation/scripts/repair_units.py \
+  --source /tmp/prep/prepared.sol --spec evaluation/tests/synthetic-large.json \
+  --output-dir /tmp/repair --llm-base-url http://127.0.0.1:8000/v1 --model GLM-5.3-Flash \
+  --max-tokens 49152 --max-calls 6 --max-rounds 6
+python3 evaluation/scripts/run_investigator.py \
+  --source /tmp/repair/candidate.sol --spec evaluation/tests/synthetic-large.json \
+  --output-dir /tmp/inv --mode chunked-investigator --candidate-label seed-v1 \
+  --llm-base-url http://127.0.0.1:8000/v1 --model GLM-5.3-Flash --max-tokens 49152 \
+  --max-calls 30 --max-merge-repairs 6
+python3 evaluation/scripts/run_behavior.py \
+  --spec evaluation/tests/synthetic-large.json \
+  --baseline evaluation/results/synthetic-large-baseline-v1/synthetic-large/baseline.sol \
+  --candidate /tmp/inv/candidate.sol --candidate-label inv-r1 --run-id replay
+```
+
+The committed per-stage artifacts (prep evidence, unit-repair ledger, investigator metrics, probe
+results, merge compile records) are the primary evidence; a replay is a new sample, not a
+bit-for-bit reproduction.
+
+### Follow-up: state-write footprint gate and A/B (2026-11-09, same day)
+
+`state_writes`/`footprint_report` compare per-function storage writes between the seed and a merge;
+the synthesis context now lists each function's seed-derived writes with an at-least rule, and run
+metrics carry `state_write_migrations`.
+
+| Arm (seed 5, same budgets) | rewrites | missing-write migrations | behavior |
+| --- | --- | --- | --- |
+| r5 investigator (pre-gate) | 22/22 | 2 units (`initialize`, `transferOwnership` lose `store_f`) | 0/11, 0/4 |
+| A/B one-shot (footprint-aware prompt) | 21/22 | 0 | 0/11, 0/4 |
+| A/B investigator (footprint-aware prompt) | 15/22 | 0 | 0/11, 0/4 |
+
+The prompt rule eliminated the missing-write class in both arms, but behavior stayed 0/11: the
+binding constraint moved. Per-step diffs locate it in the seed itself - the decompiler emits two
+views of storage slot 0 (`address store_h` and `bytes32 store_f`, both commented `slot 0x00`);
+recompiled they become distinct slots, so `initialize` records the owner through `store_f` while
+`owner()` reads `store_h` and returns zero. Candidate-space repair cannot merge two compiled slots;
+the fix belongs in slot-aware variable grouping (prefer the single variable whose declared slot
+matches, or rewrite the paired accessor), to be measured by the same A/B. Cross-unit consistency
+remains the unsolved constraint; the whole-source behavior repair path still fails to compile at
+this size.
+
+Artifacts: `synthetic-large-ab-onehot`, `synthetic-large-ab-inv` (probe results and metrics with
+`state_write_migrations`).
+
+### Follow-up: slot unification A/B and merge-gate hardening (2026-11-09, later)
+
+Seed-v2 (slot views unified) changes the measured picture on `synthetic-large`:
+
+| Candidate (label `seed-v2`) | rewrites | behavior |
+| --- | --- | --- |
+| seed-v2 itself (LLM-repaired seed plus deterministic slot unification; no investigator calls) | – | `owner`, `isPaused`, `fee` byte-exact; rest blocked by seed stubs |
+| one-shot investigator on seed-v2 | 18/22 | 0/11, 0/4; `owner/isPaused/fee/totalSupply` exact |
+| investigator on seed-v2, take 1 | merge collapsed (gate spun on repairs, 0 applied) | measured the seed |
+| investigator on seed-v2, take 2 (gate fixed) | 18/22, `cluster_2` dropped after one repair round | 0/11, 0/4; 3 getters exact, transfer/mint path still seed bodies |
+
+Gate hardening (committed with these runs): a unit whose merge-repair already failed once is not
+retried - the next pass drops the cluster instead of spinning; repairs are one call per unit
+(multi-unit repairs repeatedly failed to converge). Take 1's collapse is retained as
+`synthetic-large-inv-v2-full` evidence; the Codex review's confirmed defects (placeholder
+boundary, visibility drop, write-extractor prefixes, repair acceptance by line shift, packed-slot
+assumptions, dynamic-arity over-trigger) are fixed with regression tests; the committed seed-v2
+regenerates byte-identically under the guards.
+
+State of the claim: on this fixture the pipeline now reliably produces compiling, partially
+behavior-correct candidates, but 0/11 stands - the dropped-cluster lottery decides which units
+improve.
+
+Follow-up (same day): per-cluster solo merge is built and measured (`synthetic-large-inv-v2-solo`).
+Each cluster is compiled against the seed in isolation with one bounded repair round in that solo
+context; only survivors enter the union gate. 5/6 clusters pass solo untouched, cluster_2 fails,
+is repaired once, still fails and is dropped with a per-cluster record, and the union compiles on
+the first attempt (22 calls versus 26). Behavior is unchanged (0/11; three getters exact): the
+binding constraint is now synthesis quality for the dropped cluster, which is the unit-scoped
+behavior-repair target - still not built. The investigator metrics and candidate sources for the
+solo and gate-hardened runs are committed alongside their behavioral artifacts
+(`investigator-metrics.json` / `investigator-candidate.sol` per run directory), closing the
+evidence gap noted in review; the seed-v2 control label above is corrected to credit the LLM
+repair stage that produced its input.
+
+Review pass (same day) also fixed, with the harness: repair acceptance now requires the
+previously bound entrypoints to remain available and treats a probe whose reference setup
+reverts as invalid rather than passable; unit repair rolls back on locationless compile
+failures, masks comments when checking visibility, and verifies the final compiled ABI keeps
+every original signature; merge-repair units are attempted once across solo and union phases
+with unique artifact labels. The `approve_transfer_from` probe approved a spender that never
+called `transferFrom`; it now approves the actual caller and the former sequence is kept as
+`transfer_from_unapproved_spender`, so the feedback set is 12 probes from here on
+(`synthetic-large-specfix-check` records the re-measured reference).
+
+### Behavior-unit repair: first proven behavioral improvement (2026-11-09, latest)
+
+`repair_behavior_units.py` closes the loop the planner specified: failing-probe observation ->
+owning unit -> single-unit rewrite -> full re-probe, with transactional acceptance (whole-probe
+win, or strict divergence decrease committed as pending; regressions, lost bindings, changed
+formerly-exact observations, ABI loss and locationless compile failures all roll back; every
+rejection reason recorded; retry prompts carry the compile diagnostics or verdict).
+
+Campaign record on synthetic-large, input = the solo-gate candidate (0/12 feedback, 0/4 withheld):
+
+| Run | change | outcome |
+| --- | --- | --- |
+| run1/2 | null-observation prompts (renderer double-view bug) | no-op rewrites, 0/12 |
+| run3-6 | pending-commit bug, then roster-less prompts | setLimits fixed (7->6 divergence); mint rewrites invented identifiers (`paused()`, `unresolved_70a08231`) and failed to compile |
+| run7 (final) | entrypoint roster + state-variable list in prompt, real observation values | **3/12 feedback, 1/4 withheld at 5 calls / 827 completion tokens** |
+
+Independent harness verification (`synthetic-large-behavior-unit-v1`, seed-v2 label, identical
+probes): `deposit_below_min`, `deposit_above_max` and the complete stateful `transfer_100`
+sequence pass; withheld `transfer_insufficient` passes and was never shown to the model.
+
+Supported claim: this saved candidate matches more predefined observations than the seed-v2
+control on identical probes (3/12 vs 0/12 feedback, 1/4 vs 0/4 withheld), including one withheld
+probe, at single-sample scale. Not claimed: robustness across seeds/models, the remaining 9
+feedback probes (initial_config reads, deposit_100, withdraw/pause paths, approve path), event
+fidelity, and any comparison against the deterministic baseline (compile-blocked, no score).
+
+The decisive prompt ingredients, in measured order: real observation values (the double-view bug
+masked every divergence), the callable-name roster with candidate signatures (ended invented
+identifiers), and compile diagnostics in retries. Next lever when resuming: raise
+max-attempts-per-unit for body-invention units (mint needed its second attempt), then point the
+same loop at the remaining failing probes' first divergences.
+
+### Loop hardening and the fn_11 plateau (2026-11-09, latest)
+
+Campaigns 8-9 attacked the remaining 9 failing probes from the 3/12 state. Run8 (old loop, 24-call
+budget) starved: four attempts on one unit, full stop, 3/12 unchanged. The planner-prescribed
+fixes landed in `152d04e`: stalled-target rotation, atomic <=3-unit group repair with whole-group
+rollback, bidirectional writer/reader context, observation summarization, origin-metric snapshot.
+
+Campaign 9 (11 calls) exercised every new path; the score held at 3/12 + 1/4. The residual is now
+precisely localized: rewrites of `Unresolved_860aefcf` (solo, and grouped with its related unit)
+leave the target probe's divergence unchanged - the loop is sound, the rewrite quality for that
+unit is the binding constraint. Next attack, in order: inspect that unit's body against the
+persisting divergence (suspected: the name/short-string slot pair or a getter reading a
+never-written var), then a seed-guard-derived body sketch in the prompt for it, then the
+pause/approve probe groups.
+
+Honest standing claim unchanged: 3/12 + 1/4 verified on identical probes vs the 0/12 + 0/4
+seed-v2 control; everything else is diagnostic progress, not behavioral fact.
+
+
+### Campaigns 10-14: the limits value-flow blocker (2026-11-09, latest)
+
+Five further loop/prompt upgrades (return-shape hint, state map, sibling-visible group edits,
+calldata-coverage table; commits e19effb..262f093 and the coverage commit) were each measured from
+the 3/12 state; the aggregate held at 3/12 + 1/4 throughout. Byte-exact residual, verified on
+Anvil: the candidate `limits()` now returns the right SHAPE (flat uint pair; the shape hint works)
+but the wrong second value (100, the fee) where the reference holds 100000 - and no candidate unit
+stores 100000 anywhere, because the candidate `setLimits` signature declares one parameter while
+the reference call carries two. The value is present in the observed calldata and reachable as the
+msg.data suffix; six prompt variants have not yet produced a rewrite that captures it.
+
+Standing blocker, precisely: one cross-unit inference (setter must capture its surplus calldata
+word; getter/predicate/stats read the storage it fills). The loop, acceptance and evidence
+machinery are sound and tested (133 tests); the plateau is a synthesis-quality limit of the
+one-unit-per-call prompt family on this aliasing-heavy seed. Candidate next mechanisms, unranked
+and unbuilt: a deliberately seeded hand-verified pair as a measured ablation (isolates model vs
+mechanism), a two-unit joint prompt (both units in one response), or decompiler-comment-derived
+per-unit logic sketches in the prompt.
+
+Honest claim unchanged: 3/12 + 1/4 verified vs 0/12 + 0/4; the transfer/deposit path works
+end-to-end; everything past it is diagnostic.
+
+
+Campaign 15 (seventh prompt variant: explicit counter-placement rule over the state map) also held
+3/12 + 1/4; a group attempt failed compilation and rolled back cleanly. The prompt-variant series
+is closed: seven mechanisms, each individually tested, none moved the aggregate past 3/12. The
+plateau is attributed to single-unit synthesis quality on the aliasing-heavy limits/name pair
+(candidate setLimits sees one of two calldata words; the surplus-word capture requires a rewrite
+quality the served model did not produce in any variant). Next session should start from the
+recorded levers: hand-verified-pair ablation, two-unit joint response, or decompiler-comment
+logic sketches - and the standing 3/12 + 1/4 verified result.
+
+
+### Iteration round 2: joint mode and the corrected battle map (2026-11-09, latest)
+
+Two of the three recorded levers landed. Joint multi-unit response (one call rewrites all coupled
+units consistently; partial valid subsets accepted) replaced the per-member group loop
+(`2ddba7a`); campaign 16 exercised it - the limits pair again redesigned only the getter, 3/12
+held. The hand-verified-pair ablation was superseded by a better finding: a cast-based replay
+(`hh-mintdbg`, committed) proved the shared-setup mint failures were artifacts of stale
+intermediate loop states. The authoritative per-step map on the current origin:
+
+- initial_config: the five reads (limits shape now correct; values/name/supply/stats/predicate)
+- deposit revert-stub gates deposit_100, withdraw_50, unpause_allows_deposit
+- withdraw revert-stub gates withdraw_50/withdraw_too_much
+- approve path: approve and transferFrom succeed; allowance/balance post-states diverge
+- pause pair: isPaused read diverges; preview_fee: previewDeposit + isWithinLimits
+
+The remaining blockers are concrete unit rewrites (two stubs, a handful of state-read mismatches)
+under a proven acceptance/verification loop - no mechanism work outstanding. The third recorded
+lever (decompiler-comment logic sketches) and a deposit/withdraw-focused campaign are the natural
+next moves; the standing verified result is 3/12 + 1/4 vs 0/12 + 0/4.
+
+
+### Campaign 17: focused repair breaks the plateau - 4/12 + 1/4 (2026-11-09, latest)
+
+Two scheduler defects fixed first (`d8c36b9`, `22684a3`; suite now 145 tests): the stalled-target
+rotation cleared `no_progress` before any count reached 2, so rotation never engaged (the run8
+starvation root cause), and a new `--only` focus filter initially could not reach a focused writer
+whose divergence surfaced in a related reader outside the focus (review-found; fixed by resolving
+focused related units as repair targets under the unchanged acceptance gate).
+
+Campaign 17 then ran the recorded lever: `--only Unresolved_b6b55f25,Unresolved_2e1a7d4d` (the
+deposit and withdraw revert-stubs) against the v1 seed, 24-call budget. Consumed 22 calls, 29
+attempts, 5 transactions, 7,295 completion tokens (~7 min). Exactly one rewrite was accepted
+(txn05, target `withdraw_too_much`, unit `fn_5` = `Unresolved_2e1a7d4d`): the `view` revert-stub
+became a real withdrawal - debit `unresolved_70a08231[msg.sender]` by the amount and emit the
+Transfer-to-zero event - dropping `view`, which is outside the dispatch identity the validator
+preserves. All prior passes held; no withheld change.
+
+Independently verified (`synthetic-large-behavior-unit-v2`, harness `run_behavior.py`, candidate
+sha256 `4562a565...`, identical bytes to the loop's selection): **feedback 4/12, withheld 1/4,
+candidate compiles** vs the 0/12 + 0/4 seed control. Newly passing: `deposit_above_max` and
+`withdraw_too_much`. Still failing (8): approve_transfer_from, deposit_100, initial_config,
+pause_blocks_deposit, preview_fee, transfer_from_unapproved_spender, unpause_allows_deposit,
+withdraw_50. The deposit stub attempts compiled but produced no admissible edit; `withdraw_50`
+needs both stubs correct in one probe, so the natural next campaign is a joint deposit+withdraw
+rewrite under the now-working rotation, or an unfocused run.
+
+Scope honesty: single fixture, feedback-guided focused search; not a claim about unfocused or
+multi-fixture performance. Repair evidence in
+`synthetic-large-behavior-unit-v2/synthetic-large/behavior-repair-run/` (ledger, prompts,
+responses, per-attempt probe results).
+
+Campaign 18 (deposit solo, 24 calls from the v2 seed): null result, 4/12 + 1/4 unchanged - the
+deposit stub resisted 24 solo attempts (8 compile failures, 8 deferred transactions, no admissible
+edit). The audit also exposed a real defect: the joint lane never fired in campaigns 17-18 because
+the focus filter was applied to joint members, collapsing a single-unit focus to the anchor alone
+(fixed in `e7ba0b9`; membership graph-driven again). Evidence:
+`behavior-repair-deposit-solo/`.
+
+Campaign 19 (deposit solo+joint, 24 calls, post-fix): null result, 4/12 + 1/4 unchanged. The joint
+lane now fires and works mechanically (3 coordinated attempts, all compiled and verdict-gated); the
+rejections are substantive. Failure anatomy across all three deposit campaigns: every candidate
+deposit rewrite either leaves the target divergence unchanged or regresses `deposit_above_max`,
+whose current pass is accidental - the always-reverting stub matches the expected above-max revert.
+A correct deposit must succeed on valid amounts while enforcing the max bound, and the bound's
+value is the same aliased-constant inference (`store_c.length` vs the true limit word) that stalled
+the limits pair. Attribution: three full-budget campaigns (~70 attempts, solo and joint families)
+converge on synthesis quality for alias-heavy guard constants in the served model, not on loop,
+acceptance, or prompt mechanics. Per the stop rule, no further prompt/loop variants on this unit
+family. Next quality levers (unstarted, recorded for the next session): deterministic
+guard-constant recovery in `prepare_candidate.py` (bytecode-derived constant propagation into
+placeholder bounds), or evidence batching (multiple failing-probe observations per call), or a
+second fixture to test generalization. Evidence: `behavior-repair-deposit-joint/`.
+
+Campaign 20 (unfocused control, 24 calls from the v2 seed, all machinery fixed): null result,
+4/12 + 1/4 unchanged, no accepted rewrite in 35 attempts (joint fired 3x). Rotation behaved
+correctly but a full pass over 8 failing probes consumes the whole transaction budget, so only the
+first four spec-order probes were ever attempted - later campaigns need `--max-transactions >=
+failing-count` or budget-per-target accounting. The control confirms the campaign-17 gain is
+attributable to the focused search, not ambient machinery, and that the aggregate is bound by the
+same synthesis-quality attribution above. Evidence: `behavior-repair-unfocused/`. Campaign series
+closed at five; the recorded next levers are deterministic-prep work, not loop variants.
+
+Stop-rule exception, preregistered before execution (`e936e0e`): one bounded sibling-conditioning
+experiment transfers campaign 17's accepted withdrawal rewrite - absent from every saved request
+in campaigns 18-20 - as a candidate-derived worked example (`--accepted-rewrite-context` with
+`--accepted-example-run` bootstrap; provenance gate on seed bytes and dispatch identity; strictly
+accepted rewrites only; 2-example/4KB caps). This is a new conditioning input, not evidence
+against the synthesis-quality attribution. Budget: 12 calls, deposit focus only. Promotion:
+>=5/12 feedback including a genuinely passing valid-deposit sequence, no withheld loss,
+harness-verified per-probe. Kill: at 12 calls this lever closes regardless of outcome; no
+further sibling-conditioning variants without a separately preregistered mechanism.
+
+Campaign 21 (sibling-conditioned, executed per the preregistration): null result, 4/12 + 1/4
+unchanged at exactly 12 calls - lever closed per the kill rule. The mechanism itself is verified
+end to end (provenance gate accepted the v2 seed; the campaign-17 withdraw rewrite rendered in
+every repair prompt between target and observations; `accepted-examples.json` audit artifact
+written; per-request example ids in the ledger), but zero in-run acceptances followed: all
+rejections repeat the established signature (`deposit_above_max` regression or unchanged target
+divergence), now with the worked example in prompt. Conclusion: the binding constraint is not
+example availability; the deposit rewrite requires the aliased bound/pause interplay the served
+model does not synthesize under any tested conditioning. Evidence:
+`behavior-repair-sibling-conditioned/`. Remaining recorded levers, unchanged: deterministic
+guard-constant recovery in `prepare_candidate.py`, evidence batching, second-fixture
+generalization.
+
+### Seed-v3: deterministic packed-scalar recovery - A/B null, diagnostic gain (2026-11-10, latest)
+
+New zero-LLM prep stage `packed-scalars` (`7de6149`; suite 162): a slot-commented `bytes` var whose
+single writer is `abi.encodePacked(<one uint param>)` and whose every other occurrence is a guarded
+`.length` comparison or a direct packed argument is retyped `uint256`, stored bare, and its length
+reads dropped - with conservative per-occurrence classification and single-shot splicing. On the
+frozen 4/12 candidate it recovers exactly the two limit slots (`store_c`, `store_d`), compiled.
+
+A/B, all arms harness- or ledger-verified (`synthetic-large-seed-v3/`): seed-v3 alone scores
+**4/12 + 1/4 with a byte-identical passing set to v2** (score-neutral, strictly-safe base); the
+bounded deposit campaign on it (24 calls / 24 transactions, conditioning off) ended **4/12 + 1/4,
+zero accepted rewrites** - promotion criteria missed, kill rule applied to the score claim. The
+heuristic ships as tooling, not as a proven behavioral win.
+
+The diagnostic picture did move: on v2 the dominant solo rejection was `target divergence
+unchanged`; on v3 it is `deposit_above_max regression / previously-exact observations changed` -
+rewrites now alter deposit behavior in the right direction but none yet preserves the accidental
+above-max pass while adding the success path. The remaining deposit blocker is exactly one body
+passing below-min, valid, and above-max together. Standing verified result unchanged: 4/12 + 1/4.
+
+Preregistered probes, recorded before execution (`9ff565d` and follow-on):
+
+1. Constraint evidence (`9ff565d`): solo repair prompts now carry capped sanitized rows from
+sibling feedback probes - preserve-exactly pairs from passing probes touching the rewritten unit,
+first-divergence rows from other failing probes - because the verdict graded observations the
+prompt never showed. Campaign 23 (seed-v3, deposit focus, 24 calls / 24 transactions) is the
+bounded test. Promotion: >=5/12 feedback including a genuinely passing valid-deposit sequence,
+withheld >=1/4, harness-verified per-probe. Kill: one campaign; a null closes this mechanism too.
+2. Cross-fixture generalization: the behavior-unit loop has only ever run on synthetic-large. One
+bounded run (12 calls, unfocused, max-transactions 8) on `modern-math-helper` from the recorded
+7/10 + 4/5 `behavior-multi-v2` candidate. Success: loop completes with >=1 accepted rewrite and no
+regression below 7/10 (>=8/10 = strong transfer); regression or machinery failure = defect to fix
+and record. This probe tests the loop, not the fixture.
+
+Generalization probe result (2026-11-11, latest): **strong transfer, verified**. One unfocused
+12-call-budget run on `modern-math-helper` from the recorded 7/10 + 4/5 `behavior-multi-v2`
+candidate closed at **10/10 feedback + 5/5 withheld in 3 calls / 2 accepted rewrites / 0
+rollbacks** (`Unresolved_c6888fa1` for multiply_overflow, `Unresolved_641579a6` for
+set_multiplier_with_value; the third failing probe `multiply_after_rejected_value` passed as a
+side effect). Independently harness-verified (`modern-math-helper-unitloop-v1/`, loop ledger +
+`verify/` metrics: 10/10 + 5/5, compiled). First demonstration that the unit-repair loop, its
+verdict gate, and the new constraint evidence transfer beyond the fixture they were built on -
+and the largest single-run gain recorded (3 probes, withheld included, at 3 calls).
+
+Constraint-evidence probe result (2026-11-11): null on synthetic-large - campaign 23 (seed-v3,
+deposit focus, 24/24) closed 4/12 + 1/4 with zero accepted rewrites; kill rule applied. The
+mechanism demonstrably fired (constraint rows rendered in 21/24 prompts) and the rejection
+anatomy is unchanged from the pre-evidence runs (above-max regression dominant), so on this
+fixture the missing ingredient is not observation visibility either; the one-body-passing-all-
+three-regimes synthesis remains the precise blocker. The same mechanism is part of the verified
+math-helper result above (both acceptances ran with constraint evidence in prompt), so it stands
+as shipped tooling with a fixture-scoped null, not a dead end. Evidence:
+`synthetic-large-seed-v3/synthetic-large/behavior-repair-constraints/`.

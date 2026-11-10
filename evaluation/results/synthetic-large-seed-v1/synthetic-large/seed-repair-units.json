@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "tool": "repair_units",
+  "source_sha256": "8100024bee2a644aaba04dd3064287d0dccd5d3bad74c45f9f9f60330a26df59",
+  "candidate_sha256": "3e248ed74bab15ab5495db1454cfad582c419f0d8a28760a899933390defaba3",
+  "compiled": true,
+  "accepted_units": [
+    "fn_18"
+  ],
+  "attempts": [
+    {
+      "round": 1,
+      "unit": "fn_18",
+      "name": "Unresolved_c47f0027",
+      "call_mode": "json-schema",
+      "latency_ms": 10003,
+      "request_error": null,
+      "notes": "Hoisted msg.data into a local `bytes calldata data` before the assembly blocks, since inline assembly cannot reference msg.data directly in Solidity 0.8.30. Both mload expressions now use `data` instead; the calldata pointer arithmetic (add(data, 0x24) + arg0) is unchanged, matching the original byte-offset intent (0x20 header + 0x04 selector + arg0). No other logic was altered.",
+      "function_sha256": "09deb5bf0c1efdab7104677c00ba5d1ba0bb9bb667d2740c674b6434999726f4",
+      "accepted": true,
+      "compiled": false
+    },
+    {
+      "round": 2,
+      "unit": "fn_18",
+      "name": "Unresolved_c47f0027",
+      "call_mode": "json-schema",
+      "latency_ms": 10734,
+      "request_error": null,
+      "notes": "Hoisted calldata access out of inline assembly: `data` is a `bytes calldata` local, so `mload(add(data, ...))` is invalid (error 1397). Replaced each with `calldatacopy(0x00, add(add(data.offset, 0x20), arg0), 0x20)` followed by `mload(0x00)`, preserving the original word load at `data + 0x24 + arg0` (0x20 into the payload plus arg0). All other logic, storage updates, and the event are unchanged.",
+      "function_sha256": "1d586a109a2bea96f5bfd6e43f62eada992c6324edd6d8c9211f12481353ddc4",
+      "accepted": true,
+      "compiled": true
+    }
+  ],
+  "llm_calls": 2,
+  "completion_tokens": 1372,
+  "final_compile": {
+    "ok": true,
+    "returncode": 0
+  }
+}

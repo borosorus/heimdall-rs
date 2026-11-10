@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "tool": "prepare_candidate",
+  "llm_calls": 0,
+  "source_sha256": "99cd971f1182ef025bbe25d20e3d12bddff5e14abfbec95468c64354c3bc2677",
+  "candidate_sha256": "1ad459dbcaba9f6d1c29a45994d40663e904608cd2cd9d1194f224fd00488fbc",
+  "edited": true,
+  "edit_count": 18,
+  "finding_count": 0,
+  "edits": [
+    {
+      "kind": "placeholder-type",
+      "detail": "uint0 -> uint256",
+      "evidence": "function Unresolved_c47f0027(uint256 arg0, uint0 arg1) p"
+    },
+    {
+      "kind": "event-arity-retype",
+      "detail": "Event_47374573: () -> (uint256, uint256)",
+      "evidence": "usage-site arity and argument types"
+    },
+    {
+      "kind": "event-arity-retype",
+      "detail": "Event_6bbc5748: () -> (uint256)",
+      "evidence": "usage-site arity and argument types"
+    },
+    {
+      "kind": "event-arity-retype",
+      "detail": "Event_8be0079c: () -> (address, address)",
+      "evidence": "usage-site arity and argument types"
+    },
+    {
+      "kind": "event-arity-retype",
+      "detail": "Event_8c5be1e5: () -> (address, address, uint256)",
+      "evidence": "usage-site arity and argument types"
+    },
+    {
+      "kind": "event-arity-retype",
+      "detail": "Event_908408e3: () -> (address)",
+      "evidence": "usage-site arity and argument types"
+    },
+    {
+      "kind": "event-arity-retype",
+      "detail": "Event_d83d5281: () -> (uint256)",
+      "evidence": "usage-site arity and argument types"
+    },
+    {
+      "kind": "event-arity-retype",
+      "detail": "Event_ddf252ad: () -> (address, address, uint256)",
+      "evidence": "usage-site arity and argument types"
+    },
+    {
+      "kind": "undeclared-error",
+      "detail": "error CustomError_0dc149f0()",
+      "evidence": "referenced before declaration"
+    },
+    {
+      "kind": "undeclared-error",
+      "detail": "error CustomError_30cd7471()",
+      "evidence": "referenced before declaration"
+    },
+    {
+      "kind": "undeclared-error",
+      "detail": "error CustomError_3261c792()",
+      "evidence": "referenced before declaration"
+    },
+    {
+      "kind": "undeclared-error",
+      "detail": "error CustomError_9e87fac8()",
+      "evidence": "referenced before declaration"
+    },
+    {
+      "kind": "undeclared-error",
+      "detail": "error CustomError_d92e233d()",
+      "evidence": "referenced before declaration"
+    },
+    {
+      "kind": "undeclared-error",
+      "detail": "error CustomError_f4d678b8()",
+      "evidence": "referenced before declaration"
+    },
+    {
+      "kind": "undefined-var",
+      "detail": "uint256 var_c",
+      "evidence": "used before any declaration"
+    },
+    {
+      "kind": "arity-extend",
+      "detail": "Unresolved_23b872dd: 1 -> 3 parameter(s)",
+      "evidence": "calldata-head guard proves additional head word(s); uint256 assumed"
+    },
+    {
+      "kind": "arity-trim",
+      "detail": "Unresolved_c47f0027: 2 -> 1 parameter(s)",
+      "evidence": "calldata-head guard; removed parameters unreferenced in body; pruned matching @param docs"
+    },
+    {
+      "kind": "arity-extend",
+      "detail": "Unresolved_dd62ed3e: 1 -> 2 parameter(s)",
+      "evidence": "calldata-head guard proves additional head word(s); uint256 assumed"
+    }
+  ],
+  "findings": [],
+  "stages": [
+    {
+      "stage": "placeholders",
+      "description": "placeholder width tokens",
+      "edits": 1
+    },
+    {
+      "stage": "declarations",
+      "description": "error/event declarations",
+      "edits": 13
+    },
+    {
+      "stage": "vars",
+      "description": "undefined var_* state",
+      "edits": 1
+    },
+    {
+      "stage": "arity",
+      "description": "calldata-head arity alignment",
+      "edits": 3
+    }
+  ],
+  "final_compiled": false,
+  "final_compile": {
+    "label": "tier4-arity",
+    "solc_version": "0.8.30",
+    "returncode": 1,
+    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 6.50ms\n",
+    "stderr": "Error: Compiler run failed:\nError (2271): Built-in binary operator < cannot be applied to types uint256 and bytes storage ref.\n  --> src/Candidate.sol:62:13:\n   |\n62 |         if (arg0 < store_c) {\n   |             ^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator >= cannot be applied to types uint256 and bytes storage ref.\n  --> src/Candidate.sol:63:20:\n   |\n63 |             return arg0 >= store_c;\n   |                    ^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator <= cannot be applied to types uint256 and bytes storage ref.\n  --> src/Candidate.sol:65:20:\n   |\n65 |             return arg0 <= store_d;\n   |                    ^^^^^^^^^^^^^^^\n\nError (6359): Return argument type bytes32 is not implicitly convertible to expected type (type of first return variable) uint256.\n  --> src/Candidate.sol:72:16:\n   |\n72 |         return store_e;\n   |                ^^^^^^^\n\nError (2271): Built-in binary operator / cannot be applied to types bytes32 and int_const 1461...(41 digits omitted)...2976.\n  --> src/Candidate.sol:88:28:\n   |\n88 |             require(!uint8(store_f / 0x010000000000000000000000000000000000000000), CustomError_9e87fac8());\n   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (9640): Explicit type conversion not allowed from \"bytes32\" to \"uint8\".\n  --> src/Candidate.sol:88:22:\n   |\n88 |             require(!uint8(store_f / 0x010000000000000000000000000000000000000000), CustomError_9e87fac8());\n   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (4907): Built-in unary operator ! cannot be applied to type uint8.\n  --> src/Candidate.sol:88:21:\n   |\n88 |             require(!uint8(store_f / 0x010000000000000000000000000000000000000000), CustomError_9e87fac8());\n   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (9322): No matching declaration found after argument-dependent lookup.\n  --> src/Candidate.sol:88:13:\n   |\n88 |             require(!uint8(store_f / 0x010000000000000000000000000000000000000000), CustomError_9e87fac8());\n   |             ^^^^^^^\nNote: Candidate: function require(bool)\nNote: Candidate: function require(bool, string memory)\nNote: Candidate: function require(bool, error)\n",
+    "source_sha256": "1ad459dbcaba9f6d1c29a45994d40663e904608cd2cd9d1194f224fd00488fbc",
+    "ok": false
+  },
+  "tier_compiles": [
+    {
+      "stage": "placeholders",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "declarations",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "vars",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "arity",
+      "ok": false,
+      "returncode": 1
+    }
+  ]
+}

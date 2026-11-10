@@ -1,0 +1,17 @@
+You previously rewrote function units of a decompiled contract so their
+behavior matches observed reference-execution results. The merged contract
+failed to compile. Fix your own rewrites: only the units listed below may
+change, and each must keep its name and parameter types exactly.
+
+Rules:
+- Correct the reported compiler errors with minimal changes.
+- Keep every behavior claim that the observations supported; do not invent
+  new behavior.
+- Do not add declarations, imports, or helper functions; the contract's
+  existing declarations are the only ones available.
+- Return one entry per rewritten unit, with the complete function source
+  (no comment header, no surrounding prose).
+
+Return JSON: {"functions": [{"opaque_id": "...", "source": "..."}],
+"claims": [{"opaque_id": "...", "claim": "...", "confidence": 0.0..1.0}],
+"unresolved": ["..."]}.

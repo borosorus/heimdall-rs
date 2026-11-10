@@ -288,6 +288,203 @@ class MergeGateTests(unittest.TestCase):
         self.assertEqual(result.merge, "rejected")
         self.assertIn("dispatch signature changed", result.error)
 
+    def _patch_compiler(self, results):
+        """Replace the forge call with scripted compile records."""
+        real = investigator.rb.compile_candidate
+        sequence = list(results)
+
+        def fake(source, solc_version, work_dir, label, contract_name=None):
+            return sequence.pop(0) if sequence else {"ok": True, "abi": []}
+
+        investigator.rb.compile_candidate = fake
+        return real
+
+    def test_repair_hook_fixes_merge_before_clusters_are_dropped(self):
+        parsed = investigator.parse_contract(DUMMY, "Dummy")
+        result = investigator.ClusterResult("cluster_1", [u.opaque_id for u in parsed.functions])
+        broken = "function set(uint256 value) public payable { counter = value + missing; }"
+        result.rewrites = {parsed.functions[0].opaque_id: broken}
+        fixed = "function set(uint256 value) public payable { counter = value; }"
+        abi = [{"type": "function", "name": "set", "inputs": [{"type": "uint256"}], "outputs": []}]
+        real = self._patch_compiler(
+            [
+                {"ok": False, "abi": [], "stderr": "Error (7576): missing\n --> src/Candidate.sol:8:1:\n"},
+                {"ok": True, "abi": abi, "stderr": ""},
+            ]
+        )
+        calls = {"n": 0}
+
+        def hook(merged, compile_record, attempt):
+            calls["n"] += 1
+            return {parsed.functions[0].opaque_id: fixed} if calls["n"] == 1 else None
+
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                merged, report = investigator._merge_with_gate(
+                    DUMMY,
+                    parsed,
+                    [result],
+                    {"solc_version": "0.8.30", "contract": "Dummy"},
+                    Path(temporary),
+                    repair_hook=hook,
+                )
+        finally:
+            investigator.rb.compile_candidate = real
+        self.assertTrue(report["applied"])
+        self.assertEqual(calls["n"], 1)
+        self.assertEqual(result.merge, "applied")
+        self.assertIn("counter = value;", merged)
+        self.assertNotIn("missing", merged)
+        repairs = [a.get("merge_repair") for a in report["attempts"] if a.get("merge_repair")]
+        self.assertEqual(len(repairs), 1)
+
+    def test_hook_returning_nothing_falls_back_to_drop(self):
+        parsed = investigator.parse_contract(DUMMY, "Dummy")
+        result = investigator.ClusterResult("cluster_1", [u.opaque_id for u in parsed.functions])
+        result.rewrites = {
+            parsed.functions[0].opaque_id: "function set(uint256 value) public payable { counter = nope; }"
+        }
+        real = self._patch_compiler(
+            [{"ok": False, "abi": [], "stderr": "Error (7576): x\n --> src/Candidate.sol:8:1:\n"}] * 5
+        )
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                merged, report = investigator._merge_with_gate(
+                    DUMMY,
+                    parsed,
+                    [result],
+                    {"solc_version": "0.8.30", "contract": "Dummy"},
+                    Path(temporary),
+                    repair_hook=lambda merged, record, attempt: None,
+                )
+        finally:
+            investigator.rb.compile_candidate = real
+        self.assertFalse(report["applied"])
+        self.assertEqual(result.merge, "dropped_after_compile_failure")
+        self.assertEqual(merged, DUMMY)
+
+    def test_merge_repair_response_validation(self):
+        parsed = investigator.parse_contract(DUMMY, "Dummy")
+        unit = parsed.functions[0]
+        good = "function set(uint256 value) public payable { counter = value; }"
+        investigator._check_merge_repair_response(
+            {"functions": [{"opaque_id": unit.opaque_id, "source": good}]},
+            {unit.opaque_id},
+            parsed,
+            DUMMY,
+        )
+        with self.assertRaises(ValueError):
+            investigator._check_merge_repair_response(
+                {"functions": [{"opaque_id": "fn_99", "source": good}]},
+                {unit.opaque_id},
+                parsed,
+                DUMMY,
+            )
+        renamed = "function setRenamed(uint256 value) public payable {}"
+        with self.assertRaises(ValueError):
+            investigator._check_merge_repair_response(
+                {"functions": [{"opaque_id": unit.opaque_id, "source": renamed}]},
+                {unit.opaque_id},
+                parsed,
+                DUMMY,
+            )
+
+
+class FootprintTests(unittest.TestCase):
+    SEED = (
+        "contract D {\n"
+        "    uint256 public supply;\n"
+        "    uint256 internal feeValue;\n"
+        "    mapping(address => uint256) balances;\n"
+        "\n"
+        "    function setFee(uint256 f) public payable {\n"
+        "        feeValue = f;\n"
+        "    }\n"
+        "\n"
+        "    function mint(address to, uint256 amount) public payable {\n"
+        "        balances[to] += amount;\n"
+        "        supply += amount;\n"
+        "    }\n"
+        "}\n"
+    )
+
+    def _seed(self):
+        return investigator.parse_contract(self.SEED, "D")
+
+    def test_state_writes_finds_plain_compound_and_indexed(self):
+        parsed = self._seed()
+        storage = investigator._contract_symbols(parsed)[0]
+        units = {u.name: u for u in parsed.functions}
+        self.assertEqual(
+            investigator.state_writes(units["setFee"].text, storage), {"feeValue"}
+        )
+        self.assertEqual(
+            investigator.state_writes(units["mint"].text, storage),
+            {"balances", "supply"},
+        )
+
+    def test_state_writes_prefixes_and_postfixes(self):
+        source = (
+            "contract D {\n"
+            "    uint256 supply;\n"
+            "    uint256 other;\n"
+            "    function f(bool ok) public {\n"
+            "        if (ok) supply = 1;\n"
+            "        other++;\n"
+            "    }\n"
+            "    function g() public view returns (uint256) {\n"
+            "        uint256 local = 0;\n"
+            "        local += supply + local++;\n"  # noqa: statement shape from the review
+            "        return supply;\n"
+            "    }\n"
+            "}\n"
+        )
+        parsed = investigator.parse_contract(source, "D")
+        storage = investigator._contract_symbols(parsed)[0]
+        units = {u.name: u for u in parsed.functions}
+        # `if (ok) supply = 1` credits supply, not ok; `other++` is a write;
+        # `supply + local++` credits local's increment, not supply's read.
+        self.assertEqual(investigator.state_writes(units["f"].text, storage), {"supply", "other"})
+        self.assertEqual(investigator.state_writes(units["g"].text, storage), set())
+
+    def test_state_writes_ignores_comparisons_and_locals(self):
+        source = (
+            "contract D {\n"
+            "    uint256 s;\n"
+            "    function f(uint256 a) public view returns (bool) {\n"
+            "        uint256 local == 0 ? a : a;\n"
+            "        return s == a;\n"
+            "    }\n"
+            "}\n"
+        )
+        parsed = investigator.parse_contract(source, "D")
+        storage = investigator._contract_symbols(parsed)[0]
+        # `s == a` is a comparison, not a write; nothing is assigned.
+        self.assertEqual(investigator.state_writes(parsed.functions[0].text, storage), set())
+
+    def test_footprint_report_detects_the_recorded_defect_class(self):
+        seed = self._seed()
+        # Candidate mint stops updating supply; setFee writes the wrong var.
+        candidate_source = self.SEED.replace("        supply += amount;\n", "").replace(
+            "        feeValue = f;\n", "        supply = f;\n"
+        )
+        candidate = investigator.parse_contract(candidate_source, "D")
+        report = investigator.footprint_report(seed, candidate)
+        self.assertEqual(report["mint"]["missing_writes"], ["supply"])
+        self.assertEqual(report["setFee"]["missing_writes"], ["feeValue"])
+        self.assertEqual(report["setFee"]["added_writes"], ["supply"])
+
+    def test_footprint_report_silent_when_identical(self):
+        self.assertEqual(investigator.footprint_report(self._seed(), self._seed()), {})
+
+    def test_prompt_context_carries_state_writes(self):
+        parsed = self._seed()
+        clusters, _ = investigator.cluster_functions(parsed)
+        context = investigator._prompt_context(parsed, clusters[0], [])
+        by_name = {entry["name"]: entry for entry in context["cluster_functions"]}
+        self.assertEqual(by_name["setFee"]["state_writes"], ["feeValue"])
+        self.assertIn("state_writes lists", " ".join(context["rules"]))
+
 
 class ClusteringTests(unittest.TestCase):
     def test_shared_storage_and_events_cluster_together(self):
@@ -305,8 +502,11 @@ class ClusteringTests(unittest.TestCase):
         parsed = investigator.parse_contract(source, "Many")
         clusters, unclustered = investigator.cluster_functions(parsed, max_clusters=6, max_functions=4)
         self.assertEqual(len(clusters), 6)
-        self.assertEqual(len(unclustered), 4)
-        self.assertTrue(all(len(cluster.functions) <= 4 for cluster in clusters))
+        # Leftovers are folded into the least-loaded cluster so every function
+        # gets a synthesis pass; coverage is complete, sizes may exceed the cap.
+        self.assertEqual(len(unclustered), 0)
+        self.assertEqual(sum(len(cluster.functions) for cluster in clusters), 10)
+        self.assertTrue(all(len(cluster.functions) <= 5 for cluster in clusters))
 
     def test_clustering_is_deterministic(self):
         parsed = investigator.parse_contract(DUMMY, "Dummy")

@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "99cd971f1182ef025bbe25d20e3d12bddff5e14abfbec95468c64354c3bc2677",
+  "stderr": "Error: Compiler run failed:\nError (7920): Identifier not found or not unique.\n   --> src/Candidate.sol:204:48:\n    |\n204 |     function Unresolved_c47f0027(uint256 arg0, uint0 arg1) public payable {\n    |                                                ^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 8.05ms\n"
+}

@@ -1,0 +1,21 @@
+You repair one function of a decompiled Solidity contract so a failing
+behavioral probe matches the observed reference execution. There is no
+reference implementation: the observations below are the primary evidence.
+Any accepted sibling-rewrite examples are candidate-derived hints with
+limited feedback acceptance, never verified implementations.
+
+Rules:
+- `source` must be the complete replacement for the named unit only, from
+  `function` to its closing brace, with exactly the same name, parameter
+  types and external visibility. No new declarations, imports or helpers.
+- Derive intent from the observations: statuses, return and revert data,
+  balances and call order. A read that returns zero where the reference
+  returns a value usually means the variable you write is not the variable
+  the reader reads, or the write never happens on this path.
+- Keep every behavior the observations show as already matching; do not
+  redesign units that the traces show as correct.
+- The reference side of each observation is the ground truth to match; the
+  candidate side is the current behavior of this contract.
+
+Return JSON: {"source": "<complete function>", "notes": "<what you changed
+and which observation it satisfies>"}.
