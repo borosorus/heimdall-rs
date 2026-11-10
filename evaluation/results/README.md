@@ -525,3 +525,33 @@ Recorded next enumeration (deterministic, no LLM): writer variants for `Unresolv
 read the second word as a `msg.data` suffix (`uint256(bytes32(msg.data[0x24:0x44]))` family),
 verified by the same regime machinery with per-side setup applied; the deposit enumeration then
 re-runs on the repaired state. Only after both, the LLM loop re-enters for whatever remains.
+
+### Enumeration synthesis II: full state chain - 6/12 + 1/4 (2026-11-11, latest)
+
+Extending the enumerator from the deposit body to the whole state chain, all zero-LLM, each step
+accepted only on measured observation parity against the live reference:
+
+- setter `Unresolved_c4590d3f`: `store_d = uint256(bytes32(msg.data[0x24:0x44]))` (surplus
+  calldata word captured; `var_c` write dropped - supply comes from mints, verified);
+  candidate-selector calls carry the full reference arg encoding so the surplus word exists.
+- mint `Unresolved_40c10f19`: `balances +=; supply +=` (was `=`).
+- `getStats` retyped `(uint256,uint256,uint256,uint256)` returning `(balance, supply, fee, 0)`
+  (fee = `unresolved_ddca3f43`; the old `(bool, ddca, supply, 0)` composition was wrong on every
+  word but the last).
+- deposit: bounds guard + net credit `arg0 - arg0*fee/10000` to balance and supply (divisor
+  enumerated; 10000 first hit; the fee-aware credit was invisible in empty-state probes and fell
+  out of seeded parity).
+
+Splice discipline note: naive text-range replacement silently ate a sibling function
+(`setName`) and cost one harness round; final source spliced via `investigator.parse_contract`
+unit spans - the loop's own mechanism.
+
+Harness (`synthetic-large-enum-final/harness-verify`, candidate `15b9aea6...`): **6/12 feedback
++ 1/4 withheld, compiled** - double the standing 4/12. Passing: deposit_100, deposit_above_max,
+deposit_below_min, transfer_100, unpause_allows_deposit, withdraw_too_much. Remaining six:
+approve pair (spender/allowance aliases), initial_config (limits getter ABI shape - dynamic
+bytes vs static pair), pause_blocks_deposit, preview_fee, withdraw_50 (needs withdraw body on
+the new state) - each now a bounded enumeration with the state chain verified beneath it.
+
+Zero LLM calls were spent on any accepted rewrite in this section; the repair loop's next
+legitimate target is the residual six, on a candidate that finally carries correct state.
