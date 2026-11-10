@@ -1,0 +1,131 @@
+{
+  "baseline_compile": true,
+  "baseline_sha256": "a39a0dddb727cb3e13b5c42d1edcf74fc67542c92e73723e685d297fd543eaaa",
+  "blocked_probes": 0,
+  "bound_reference_selectors": [
+    "0x570e1a36"
+  ],
+  "candidate_compile": true,
+  "candidate_label": "seed-v2",
+  "candidate_sha256": "a39a0dddb727cb3e13b5c42d1edcf74fc67542c92e73723e685d297fd543eaaa",
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "executed_probes": 4,
+  "feedback_probes": [
+    "createSender_empty",
+    "createSender_min_20B"
+  ],
+  "fixture": "sender-creator",
+  "llm1_compile": true,
+  "llm1_sha256": "a39a0dddb727cb3e13b5c42d1edcf74fc67542c92e73723e685d297fd543eaaa",
+  "max_tokens": null,
+  "model": null,
+  "planned_probes": 4,
+  "repair_attempts": [],
+  "repair_error": null,
+  "run_id": "sender-seed-check2",
+  "schema_version": 2,
+  "seed": null,
+  "selected": "llm1",
+  "selected_feedback_failing": [],
+  "selected_feedback_matched": 2,
+  "selected_feedback_total": 2,
+  "selected_reason": "no repair requested",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 2,
+  "selected_withheld_total": 2,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.30",
+  "stages": [
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 4,
+      "feedback_failing": [
+        "createSender_empty",
+        "createSender_min_20B"
+      ],
+      "feedback_matched": 0,
+      "feedback_total": 2,
+      "interface": {
+        "candidate_only": [
+          "0xfb8c812a"
+        ],
+        "candidate_selector_count": 1,
+        "matched": 0,
+        "missing": [
+          "0x570e1a36"
+        ],
+        "reference_selector_count": 1
+      },
+      "label": "baseline",
+      "semantic_failing": [
+        "createSender_empty",
+        "createSender_min_20B",
+        "createSender_factory_ret_empty",
+        "createSender_len19_edge"
+      ],
+      "setup_steps": 0,
+      "source_sha256": "a39a0dddb727cb3e13b5c42d1edcf74fc67542c92e73723e685d297fd543eaaa",
+      "unbound_calls": [
+        "createSender"
+      ],
+      "unbound_probes": [
+        "createSender_empty",
+        "createSender_factory_ret_empty",
+        "createSender_len19_edge",
+        "createSender_min_20B"
+      ],
+      "withheld_failing": [
+        "createSender_factory_ret_empty",
+        "createSender_len19_edge"
+      ],
+      "withheld_matched": 0,
+      "withheld_total": 2
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 4,
+      "feedback_failing": [],
+      "feedback_matched": 2,
+      "feedback_total": 2,
+      "interface": {
+        "candidate_only": [
+          "0xfb8c812a"
+        ],
+        "candidate_selector_count": 1,
+        "matched": 0,
+        "missing": [
+          "0x570e1a36"
+        ],
+        "reference_selector_count": 1
+      },
+      "label": "llm1",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "a39a0dddb727cb3e13b5c42d1edcf74fc67542c92e73723e685d297fd543eaaa",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 2,
+      "withheld_total": 2
+    }
+  ],
+  "temperature": null,
+  "timeout_seconds": null,
+  "unbound_reference_selectors": [],
+  "withheld_probes": [
+    "createSender_factory_ret_empty",
+    "createSender_len19_edge"
+  ]
+}

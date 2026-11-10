@@ -1,0 +1,37 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "arg0",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "arg1",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unresolved_570e1a36",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "artifact": "out/Candidate.sol/DecompiledContract.json",
+  "deployed_bytecode": "0x60806040526004361061001d575f3560e01c8063fb8c812a14610021575b5f5ffd5b61003b60048036038101906100369190610434565b610051565b6040516100489190610481565b60405180910390f35b5f60207ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc5f36905061008391906104c7565b101561008d575f5ffd5b67ffffffffffffffff8311156100a1575f5ffd5b5f3690506023846100b291906104c7565b106100bb575f5ffd5b67ffffffffffffffff5f368560046100d391906104c7565b8181106100e3576100e26104fa565b5b9050013560f81c60f81b60f81c60ff1611156100fd575f5ffd5b5f36905060245f3686600461011291906104c7565b818110610122576101216104fa565b5b9050013560f81c60f81b60f81c60ff168561013d91906104c7565b61014791906104c7565b1115610151575f5ffd5b5f3684600461016091906104c7565b8181106101705761016f6104fa565b5b9050013560f81c60f81b60f81c60ff166014111561018c575f5ffd5b67ffffffffffffffff7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec5f368660046101c591906104c7565b8181106101d5576101d46104fa565b5b9050013560f81c60f81b60f81c60ff166101ef91906104c7565b1115801561033c575067ffffffffffffffff7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0603f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0600b5f3689600461025691906104c7565b818110610266576102656104fa565b5b9050013560f81c60f81b60f81c60ff1661028091906104c7565b1661028b91906104c7565b16608061029891906104c7565b118061033a575060807fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0603f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0600b5f368960046102f691906104c7565b818110610306576103056104fa565b5b9050013560f81c60f81b60f81c60ff1661032091906104c7565b1661032b91906104c7565b16608061033891906104c7565b105b155b156103f6575f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec5f3686600461037291906104c7565b818110610382576103816104fa565b5b9050013560f81c60f81b60f81c60ff1661039c91906104c7565b90505f60019050806103b2575f925050506103f7565b74010000000000000000000000000000000000000000634e487b716103d79190610527565b73ffffffffffffffffffffffffffffffffffffffff16925050506103f7565b5b92915050565b5f5ffd5b5f819050919050565b61041381610401565b811461041d575f5ffd5b50565b5f8135905061042e8161040a565b92915050565b5f5f6040838503121561044a576104496103fd565b5b5f61045785828601610420565b925050602061046885828601610420565b9150509250929050565b61047b81610401565b82525050565b5f6020820190506104945f830184610472565b92915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f6104d182610401565b91506104dc83610401565b92508282019050808211156104f4576104f361049a565b5b92915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52603260045260245ffd5b5f61053182610401565b915061053c83610401565b925082820261054a81610401565b915082820484148315176105615761056061049a565b5b509291505056fea26469706673582212201615e6a65b55987ada721d2663eea88803caa145a8406409ef06da0e6b6ca3ab64736f6c634300081e0033",
+  "label": "baseline",
+  "ok": true,
+  "returncode": 0,
+  "solc_version": "0.8.30",
+  "source_sha256": "a39a0dddb727cb3e13b5c42d1edcf74fc67542c92e73723e685d297fd543eaaa",
+  "stderr": "",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 7.89ms\nCompiler run successful with warnings:\nWarning (6321): Unnamed return variable can remain unassigned. Add an explicit return with value to all non-reverting code paths or name the variable.\n  --> src/Candidate.sol:23:86:\n   |\n23 |     function Unresolved_570e1a36(uint256 arg0, uint256 arg1) public payable returns (uint256) {\n   |                                                                                      ^^^^^^^\n\nWarning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.\n  --> src/Candidate.sol:23:48:\n   |\n23 |     function Unresolved_570e1a36(uint256 arg0, uint256 arg1) public payable returns (uint256) {\n   |                                                ^^^^^^^^^^^^\n\nWarning (2072): Unused local variable.\n  --> src/Candidate.sol:31:13:\n   |\n31 |             uint256 var_d = uint256(uint8(msg.data[0x04 + arg0])) + 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec;\n   |             ^^^^^^^^^^^^^\n\n"
+}
