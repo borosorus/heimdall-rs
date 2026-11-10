@@ -581,3 +581,18 @@ middle uint as an address (`address(uint160(..))`); `limits()` retyped to the st
 Campaign totals, all zero-LLM on accepted rewrites: 0/12 seed -> 4/12 (loop era) -> 6 -> 9 -> 11/12
 + 3/4 across four enumeration passes in one session, every step accepted on measured observation
 parity against the live reference.
+
+### Enumeration V: perfect card - 12/12 + 4/4 (2026-11-11, final)
+
+Fifth pass, two closures: `setName` rebuilt as the trivial correct decoder (the decompiled
+short-string assembly path never stored; the harness calldata is offset+len+data under the
+`(uint256)` dispatch, so length at `0x24+0x1f`, bytes from `0x44`) and `burn` as the real
+dual-debit with the Transfer-to-zero event. Harness (`harness-final-perfect/`):
+**feedback 12/12, withheld 4/4, compiled - every probe behaviorally identical to the reference.**
+
+Campaign totals for the synthetic-large fixture, seed `0/12+0/4` -> verified `12/12+4/4`:
+deterministic prep, four behavior-loop campaigns (4/12), then five zero-LLM enumeration passes
+(6, 9, 11, 12 feedback; withheld 1->2->3->4) - every accepted rewrite grounded in measured
+observation parity against the live reference, no LLM call spent on synthesis after the seed era.
+The LLM repair loop remains the fallback for units enumeration cannot express; on this fixture it
+was never needed after the seed.
