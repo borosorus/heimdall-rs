@@ -596,3 +596,14 @@ deterministic prep, four behavior-loop campaigns (4/12), then five zero-LLM enum
 observation parity against the live reference, no LLM call spent on synthesis after the seed era.
 The LLM repair loop remains the fallback for units enumeration cannot express; on this fixture it
 was never needed after the seed.
+
+### Generalization probe I: cross-fixture machinery check (2026-11-11)
+
+`cross_fixture_check.py` (`f124a87`): the observation/parity layer - spec-driven probes, candidate
+callform resolution (binding files, name-embedded selectors, public-var getters, structural
+fallbacks), truncated/value/caller step forms, bool/address encoding - runs unmodified on foreign
+fixtures. Result on the two external fixtures with recorded candidates: modern-simple **13/13**
+parity, modern-advanced **14/14** (`cross-fixture-generalization/`). Both candidates were already
+probe-perfect from earlier eras, so this validates mechanics, not repair headroom; the honest
+generalization statement is: the layer that feeds enumeration and the loop is fixture-agnostic on
+external bytecode; full-pipeline enumeration on fresh fixtures remains the open test.
