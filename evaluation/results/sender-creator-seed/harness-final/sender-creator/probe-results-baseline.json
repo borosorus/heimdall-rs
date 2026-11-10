@@ -1,0 +1,162 @@
+{
+  "createSender_empty": {
+    "candidate": [
+      {
+        "call": "createSender",
+        "call_ok": false,
+        "calldata": null,
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "unbound": true,
+        "unbound_reason": "baseline selector 0x570e1a36 is not in the compiled ABI",
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "createSender",
+        "call_ok": false,
+        "calldata": "0x570e1a3600000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "createSender_eoa_factory": {
+    "candidate": [
+      {
+        "call": "createSender",
+        "call_ok": false,
+        "calldata": null,
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "unbound": true,
+        "unbound_reason": "baseline selector 0x570e1a36 is not in the compiled ABI",
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "createSender",
+        "call_ok": true,
+        "calldata": "0x570e1a360000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000000000000000000000000070997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "createSender_len19": {
+    "candidate": [
+      {
+        "call": "createSender",
+        "call_ok": false,
+        "calldata": null,
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "unbound": true,
+        "unbound_reason": "baseline selector 0x570e1a36 is not in the compiled ABI",
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "createSender",
+        "call_ok": false,
+        "calldata": "0x570e1a36000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000130000000000000000000000000000000000000000000000000000000000000000",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "createSender_len21": {
+    "candidate": [
+      {
+        "call": "createSender",
+        "call_ok": false,
+        "calldata": null,
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "unbound": true,
+        "unbound_reason": "baseline selector 0x570e1a36 is not in the compiled ABI",
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "createSender",
+        "call_ok": true,
+        "calldata": "0x570e1a36000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000150000000000000000000000000000000000000000000000000000000000000000",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  }
+}

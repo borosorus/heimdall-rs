@@ -1,0 +1,30 @@
+{
+  "bindings": {
+    "createSender": {
+      "available": true,
+      "baseline_selector": "0x570e1a36",
+      "baseline_signature": "createSender(bytes)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0xfb8c812a",
+      "candidate_signature": "Unresolved_570e1a36(uint256,uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_570e1a36(uint256,uint256)",
+        "seed-v2": "Unresolved_570e1a36(uint256,uint256)"
+      },
+      "reference_selector": "0x570e1a36",
+      "reference_signature": "createSender(bytes)",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0xfb8c812a"
+    ],
+    "candidate_selector_count": 1,
+    "matched": 0,
+    "missing": [
+      "0x570e1a36"
+    ],
+    "reference_selector_count": 1
+  }
+}

@@ -53,15 +53,20 @@ def decl_sigs(source):
     return out
 
 
-def resolve_all(source, spec_bindings):
-    """reference name -> candidate callform, via the standard fallbacks."""
+def resolve_all(source, spec_bindings, abi=None):
+    """reference name -> candidate callform; ABI-validated, explicit first."""
     decl = decl_sigs(source)
-    lower = {n.lower(): s for n, s in decl.items()}
+    abi_sigs = set()
+    for entry in abi or []:
+        if entry.get("type") != "function":
+            continue
+        types = ",".join(i.get("type", "") for i in entry.get("inputs", []))
+        abi_sigs.add(f"{entry['name']}({types})")
     resolved = {}
     for refname, binding in spec_bindings.items():
         refsig = binding["reference_signature"]
         want = binding.get("candidate_signatures", {}).get("seed-v2") or binding.get("candidate_signature")
-        if want and want in decl:
+        if want and (want in decl or want in abi_sigs):
             resolved[refname] = want
             continue
         sel = subprocess.run(["cast", "sig", refsig], capture_output=True, text=True, timeout=30).stdout.strip().lower()
@@ -70,11 +75,9 @@ def resolve_all(source, spec_bindings):
             if prefix + token in decl:
                 resolved[refname] = decl[prefix + token]
                 break
-            if prefix + token in lower:  # public var getter
-                resolved[refname] = lower[prefix + token]
-                break
         else:
-            resolved[refname] = refsig
+            matches = [sig for sig in list(decl.values()) + list(abi_sigs) if _sel(sig) == sel]
+            resolved[refname] = matches[0] if len(matches) == 1 else refsig
     return resolved
 
 
@@ -94,39 +97,37 @@ def calldata(sig, args):
     return out.stdout.strip()
 
 
-def encode_raw(sig, tail):
-    sel = subprocess.run(["cast", "sig", sig], capture_output=True, text=True, timeout=30, check=True).stdout.strip()
-    return sel + tail[2:].lower()
+def encode_step(sig, step):
+    """Single encoding path: delegate to the harness's own encode_step."""
+    return behavior.encode_step(_sel(sig), dict(step))
+
+
+def _sel(sig):
+    return subprocess.run(["cast", "sig", sig], capture_output=True, text=True, timeout=30, check=True).stdout.strip()
 
 
 def run_side(rpc, addr, callform, spec, side):
-    """setup + every probe; returns per-probe step tuples."""
-    snap = rpc.call("evm_snapshot")
-    try:
-        setup_ok = True
-        for step in spec.get("setup", []):
-            data = encode_raw(callform[step["call"]], step["args_tail"]) if "args_tail" in step else calldata(callform[step["call"]], step.get("args"))
-            r = behavior.call_step(rpc, addr, data, CALLER, 0, step.get("send", False))
-            setup_ok = setup_ok and r["ok"]
-        probes = {}
-        for probe in spec["probes"]:
+    """Per-probe isolated: fresh snapshot + setup before every probe (harness semantics)."""
+    probes = {}
+    setup_ok = True
+    for probe in spec["probes"]:
+        snap = rpc.call("evm_snapshot")
+        try:
+            for step in spec.get("setup", []):
+                data = encode_step(callform[step["call"]], step)
+                sender = ACCOUNT1 if step.get("caller") == 1 else CALLER
+                r = behavior.call_step(rpc, addr, data, sender, int(step.get("value") or 0), step.get("send", False))
+                setup_ok = setup_ok and r["ok"]
             steps = []
             for step in probe["steps"]:
-                sender = CALLER
-                if "caller" in step:
-                    sender = ACCOUNT1 if step["caller"] == 1 else CALLER
-                if step.get("truncated"):
-                    sig0 = callform[step["call"]]
-                    sel0 = subprocess.run(["cast", "sig", sig0], capture_output=True, text=True, timeout=30, check=True).stdout.strip()
-                    data = sel0 + "00" * 2  # truncated arguments: two bytes only
-                else:
-                    data = encode_raw(callform[step["call"]], step["args_tail"]) if "args_tail" in step else calldata(callform[step["call"]], step.get("args"))
+                sender = ACCOUNT1 if step.get("caller") == 1 else CALLER
+                data = encode_step(callform[step["call"]], step)
                 r = behavior.call_step(rpc, addr, data, sender, int(step.get("value") or 0), step.get("send", False))
                 steps.append((r["ok"], (r["return_data"] or "").lower(), (r["revert_data"] or "").lower(), r.get("contract_balance")))
             probes[probe["name"]] = steps
-        return {"setup_ok": setup_ok, "probes": probes}
-    finally:
-        rpc.call("evm_revert", [snap])
+        finally:
+            rpc.call("evm_revert", [snap])
+    return {"setup_ok": setup_ok, "probes": probes}
 
 
 def main():
@@ -149,7 +150,7 @@ def main():
     if not refhex.startswith("0x"):
         refhex = "0x" + refhex
 
-    callform = resolve_all(source, spec["bindings"])
+    callform = resolve_all(source, spec["bindings"], rec.get("abi"))
     if args.bindings and args.bindings.exists():
         saved = json.loads(args.bindings.read_text(encoding="utf-8")).get("bindings", {})
         for refname, entry in saved.items():
@@ -166,9 +167,7 @@ def main():
         perfect = 0
         for name in R["probes"]:
             rs, ks = R["probes"][name], K["probes"][name]
-            eq = len(rs) == len(ks) and all(
-                a[0] == b[0] and a[1] == b[1] and a[2] == b[2] for a, b in zip(rs, ks)
-            )
+            eq = len(rs) == len(ks) and all(a == b for a, b in zip(rs, ks))
             evidence["probes"][name] = {"parity": eq}
             if not eq:
                 for i, (a, b) in enumerate(zip(rs, ks)):
