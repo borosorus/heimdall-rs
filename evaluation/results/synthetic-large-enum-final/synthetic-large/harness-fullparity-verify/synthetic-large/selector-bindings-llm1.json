@@ -1,0 +1,462 @@
+{
+  "bindings": {
+    "allowance": {
+      "available": true,
+      "baseline_selector": "0xdd62ed3e",
+      "baseline_signature": "allowance(address,address)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0xdd44a46d",
+      "candidate_signature": "Unresolved_dd62ed3e(address,uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_dd62ed3e(address,uint256)",
+        "seed-v1": "Unresolved_dd62ed3e(address,uint256)",
+        "seed-v2": "Unresolved_dd62ed3e(address,uint256)"
+      },
+      "reference_selector": "0xdd62ed3e",
+      "reference_signature": "allowance(address,address)",
+      "unavailable_reason": null
+    },
+    "approve": {
+      "available": true,
+      "baseline_selector": "0x095ea7b3",
+      "baseline_signature": "approve(address,uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0xb572494f",
+      "candidate_signature": "Unresolved_095ea7b3(address,uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_095ea7b3(address,uint256)",
+        "seed-v1": "Unresolved_095ea7b3(address,uint256)",
+        "seed-v2": "Unresolved_095ea7b3(address,uint256)"
+      },
+      "reference_selector": "0x095ea7b3",
+      "reference_signature": "approve(address,uint256)",
+      "unavailable_reason": null
+    },
+    "balanceOf": {
+      "available": true,
+      "baseline_selector": "0x70a08231",
+      "baseline_signature": "balanceOf(address)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0xb16e5ae8",
+      "candidate_signature": "unresolved_70a08231(address)",
+      "candidate_signatures": {
+        "inv-r1": "unresolved_70a08231(address)",
+        "seed-v1": "unresolved_70a08231(address)",
+        "seed-v2": "unresolved_70a08231(address)"
+      },
+      "reference_selector": "0x70a08231",
+      "reference_signature": "balanceOf(address)",
+      "unavailable_reason": null
+    },
+    "burn": {
+      "available": true,
+      "baseline_selector": "0x42966c68",
+      "baseline_signature": "burn(uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x331cc5d3",
+      "candidate_signature": "Unresolved_42966c68(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_42966c68(uint256)",
+        "seed-v1": "Unresolved_42966c68(uint256)",
+        "seed-v2": "Unresolved_42966c68(uint256)"
+      },
+      "reference_selector": "0x42966c68",
+      "reference_signature": "burn(uint256)",
+      "unavailable_reason": null
+    },
+    "deposit": {
+      "available": true,
+      "baseline_selector": "0xb6b55f25",
+      "baseline_signature": "deposit(uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x1af2760b",
+      "candidate_signature": "Unresolved_b6b55f25(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_b6b55f25(uint256)",
+        "seed-v1": "Unresolved_b6b55f25(uint256)",
+        "seed-v2": "Unresolved_b6b55f25(uint256)"
+      },
+      "reference_selector": "0xb6b55f25",
+      "reference_signature": "deposit(uint256)",
+      "unavailable_reason": null
+    },
+    "fee": {
+      "available": true,
+      "baseline_selector": "0xddca3f43",
+      "baseline_signature": "fee()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x9bb827bf",
+      "candidate_signature": "unresolved_ddca3f43()",
+      "candidate_signatures": {
+        "inv-r1": "unresolved_ddca3f43()",
+        "seed-v1": "unresolved_ddca3f43()",
+        "seed-v2": "unresolved_ddca3f43()"
+      },
+      "reference_selector": "0xddca3f43",
+      "reference_signature": "fee()",
+      "unavailable_reason": null
+    },
+    "getStats": {
+      "available": true,
+      "baseline_selector": "0xc23f85d6",
+      "baseline_signature": "getStats(address)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x24b4dc87",
+      "candidate_signature": "Unresolved_c23f85d6(address)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_c23f85d6(address)",
+        "seed-v1": "Unresolved_c23f85d6(address)",
+        "seed-v2": "Unresolved_c23f85d6(address)"
+      },
+      "reference_selector": "0xc23f85d6",
+      "reference_signature": "getStats(address)",
+      "unavailable_reason": null
+    },
+    "initialize": {
+      "available": true,
+      "baseline_selector": "0xc4d66de8",
+      "baseline_signature": "initialize(address)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x50ce36ce",
+      "candidate_signature": "Unresolved_c4d66de8(address)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_c4d66de8(address)",
+        "seed-v1": "Unresolved_c4d66de8(address)",
+        "seed-v2": "Unresolved_c4d66de8(address)"
+      },
+      "reference_selector": "0xc4d66de8",
+      "reference_signature": "initialize(address)",
+      "unavailable_reason": null
+    },
+    "isPaused": {
+      "available": true,
+      "baseline_selector": "0xb187bd26",
+      "baseline_signature": "isPaused()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x84cd7991",
+      "candidate_signature": "Unresolved_b187bd26()",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_b187bd26()",
+        "seed-v1": "Unresolved_b187bd26()",
+        "seed-v2": "Unresolved_b187bd26()"
+      },
+      "reference_selector": "0xb187bd26",
+      "reference_signature": "isPaused()",
+      "unavailable_reason": null
+    },
+    "isWithinLimits": {
+      "available": true,
+      "baseline_selector": "0x0b663fe2",
+      "baseline_signature": "isWithinLimits(uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x3389e6c9",
+      "candidate_signature": "Unresolved_0b663fe2(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_0b663fe2(uint256)",
+        "seed-v1": "Unresolved_0b663fe2(uint256)",
+        "seed-v2": "Unresolved_0b663fe2(uint256)"
+      },
+      "reference_selector": "0x0b663fe2",
+      "reference_signature": "isWithinLimits(uint256)",
+      "unavailable_reason": null
+    },
+    "limits": {
+      "available": true,
+      "baseline_selector": "0x860aefcf",
+      "baseline_signature": "limits()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x854920e8",
+      "candidate_signature": "Unresolved_860aefcf()",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_860aefcf()",
+        "seed-v1": "Unresolved_860aefcf()",
+        "seed-v2": "Unresolved_860aefcf()"
+      },
+      "reference_selector": "0x860aefcf",
+      "reference_signature": "limits()",
+      "unavailable_reason": null
+    },
+    "mint": {
+      "available": true,
+      "baseline_selector": "0x40c10f19",
+      "baseline_signature": "mint(address,uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x3cc01048",
+      "candidate_signature": "Unresolved_40c10f19(address,uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_40c10f19(address,uint256)",
+        "seed-v1": "Unresolved_40c10f19(address,uint256)",
+        "seed-v2": "Unresolved_40c10f19(address,uint256)"
+      },
+      "reference_selector": "0x40c10f19",
+      "reference_signature": "mint(address,uint256)",
+      "unavailable_reason": null
+    },
+    "name": {
+      "available": true,
+      "baseline_selector": "0x06fdde03",
+      "baseline_signature": "name()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x2beb6f15",
+      "candidate_signature": "unresolved_06fdde03()",
+      "candidate_signatures": {
+        "inv-r1": "unresolved_06fdde03()",
+        "seed-v1": "unresolved_06fdde03()",
+        "seed-v2": "unresolved_06fdde03()"
+      },
+      "reference_selector": "0x06fdde03",
+      "reference_signature": "name()",
+      "unavailable_reason": null
+    },
+    "owner": {
+      "available": true,
+      "baseline_selector": "0x8da5cb5b",
+      "baseline_signature": "owner()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x454748b9",
+      "candidate_signature": "Unresolved_8da5cb5b()",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_8da5cb5b()",
+        "seed-v1": "Unresolved_8da5cb5b()",
+        "seed-v2": "Unresolved_8da5cb5b()"
+      },
+      "reference_selector": "0x8da5cb5b",
+      "reference_signature": "owner()",
+      "unavailable_reason": null
+    },
+    "pause": {
+      "available": true,
+      "baseline_selector": "0x8456cb59",
+      "baseline_signature": "pause()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x659712bb",
+      "candidate_signature": "Unresolved_8456cb59()",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_8456cb59()",
+        "seed-v1": "Unresolved_8456cb59()",
+        "seed-v2": "Unresolved_8456cb59()"
+      },
+      "reference_selector": "0x8456cb59",
+      "reference_signature": "pause()",
+      "unavailable_reason": null
+    },
+    "previewDeposit": {
+      "available": true,
+      "baseline_selector": "0xef8b30f7",
+      "baseline_signature": "previewDeposit(uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x11956413",
+      "candidate_signature": "Unresolved_ef8b30f7(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_ef8b30f7(uint256)",
+        "seed-v1": "Unresolved_ef8b30f7(uint256)",
+        "seed-v2": "Unresolved_ef8b30f7(uint256)"
+      },
+      "reference_selector": "0xef8b30f7",
+      "reference_signature": "previewDeposit(uint256)",
+      "unavailable_reason": null
+    },
+    "setFee": {
+      "available": true,
+      "baseline_selector": "0x69fe0e2d",
+      "baseline_signature": "setFee(uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x372ecc45",
+      "candidate_signature": "Unresolved_69fe0e2d(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_69fe0e2d(uint256)",
+        "seed-v1": "Unresolved_69fe0e2d(uint256)",
+        "seed-v2": "Unresolved_69fe0e2d(uint256)"
+      },
+      "reference_selector": "0x69fe0e2d",
+      "reference_signature": "setFee(uint256)",
+      "unavailable_reason": null
+    },
+    "setLimits": {
+      "available": true,
+      "baseline_selector": "0xc4590d3f",
+      "baseline_signature": "setLimits(uint256,uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x2ae57093",
+      "candidate_signature": "Unresolved_c4590d3f(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_c4590d3f(uint256)",
+        "seed-v1": "Unresolved_c4590d3f(uint256)",
+        "seed-v2": "Unresolved_c4590d3f(uint256)"
+      },
+      "reference_selector": "0xc4590d3f",
+      "reference_signature": "setLimits(uint256,uint256)",
+      "unavailable_reason": null
+    },
+    "setName": {
+      "available": false,
+      "baseline_selector": "0xc47f0027",
+      "baseline_signature": "setName(string)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x60c5f624",
+      "candidate_signature": "Unresolved_c47f0027(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_c47f0027(uint256)",
+        "seed-v1": "Unresolved_c47f0027(uint256)",
+        "seed-v2": "Unresolved_c47f0027(uint256)"
+      },
+      "reference_selector": "0xc47f0027",
+      "reference_signature": "setName(string)",
+      "unavailable_reason": "candidate selector 0x60c5f624 is not in the compiled ABI"
+    },
+    "totalSupply": {
+      "available": true,
+      "baseline_selector": "0x18160ddd",
+      "baseline_signature": "totalSupply()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x1b22fbd4",
+      "candidate_signature": "Unresolved_18160ddd()",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_18160ddd()",
+        "seed-v1": "Unresolved_18160ddd()",
+        "seed-v2": "Unresolved_18160ddd()"
+      },
+      "reference_selector": "0x18160ddd",
+      "reference_signature": "totalSupply()",
+      "unavailable_reason": null
+    },
+    "transfer": {
+      "available": true,
+      "baseline_selector": "0xa9059cbb",
+      "baseline_signature": "transfer(address,uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x28041d6b",
+      "candidate_signature": "Unresolved_a9059cbb(address,uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_a9059cbb(address,uint256)",
+        "seed-v1": "Unresolved_a9059cbb(address,uint256)",
+        "seed-v2": "Unresolved_a9059cbb(address,uint256)"
+      },
+      "reference_selector": "0xa9059cbb",
+      "reference_signature": "transfer(address,uint256)",
+      "unavailable_reason": null
+    },
+    "transferFrom": {
+      "available": true,
+      "baseline_selector": "0x23b872dd",
+      "baseline_signature": "transferFrom(address,address,uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x8979026a",
+      "candidate_signature": "Unresolved_23b872dd(address,uint256,uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_23b872dd(address,uint256,uint256)",
+        "seed-v1": "Unresolved_23b872dd(address,uint256,uint256)",
+        "seed-v2": "Unresolved_23b872dd(address,uint256,uint256)"
+      },
+      "reference_selector": "0x23b872dd",
+      "reference_signature": "transferFrom(address,address,uint256)",
+      "unavailable_reason": null
+    },
+    "transferOwnership": {
+      "available": true,
+      "baseline_selector": "0xf2fde38b",
+      "baseline_signature": "transferOwnership(address)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x702b53e4",
+      "candidate_signature": "Unresolved_f2fde38b(address)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_f2fde38b(address)",
+        "seed-v1": "Unresolved_f2fde38b(address)",
+        "seed-v2": "Unresolved_f2fde38b(address)"
+      },
+      "reference_selector": "0xf2fde38b",
+      "reference_signature": "transferOwnership(address)",
+      "unavailable_reason": null
+    },
+    "unpause": {
+      "available": true,
+      "baseline_selector": "0x3f4ba83a",
+      "baseline_signature": "unpause()",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0x10f905eb",
+      "candidate_signature": "Unresolved_3f4ba83a()",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_3f4ba83a()",
+        "seed-v1": "Unresolved_3f4ba83a()",
+        "seed-v2": "Unresolved_3f4ba83a()"
+      },
+      "reference_selector": "0x3f4ba83a",
+      "reference_signature": "unpause()",
+      "unavailable_reason": null
+    },
+    "withdraw": {
+      "available": true,
+      "baseline_selector": "0x2e1a7d4d",
+      "baseline_signature": "withdraw(uint256)",
+      "candidate_label": "seed-v2",
+      "candidate_selector": "0xb6fd490f",
+      "candidate_signature": "Unresolved_2e1a7d4d(uint256)",
+      "candidate_signatures": {
+        "inv-r1": "Unresolved_2e1a7d4d(uint256)",
+        "seed-v1": "Unresolved_2e1a7d4d(uint256)",
+        "seed-v2": "Unresolved_2e1a7d4d(uint256)"
+      },
+      "reference_selector": "0x2e1a7d4d",
+      "reference_signature": "withdraw(uint256)",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x10f905eb",
+      "0x11956413",
+      "0x1af2760b",
+      "0x1b22fbd4",
+      "0x24b4dc87",
+      "0x28041d6b",
+      "0x2ae57093",
+      "0x2beb6f15",
+      "0x331cc5d3",
+      "0x3389e6c9",
+      "0x372ecc45",
+      "0x3cc01048",
+      "0x454748b9",
+      "0x50ce36ce",
+      "0x659712bb",
+      "0x702b53e4",
+      "0x84cd7991",
+      "0x854920e8",
+      "0x8979026a",
+      "0x9bb827bf",
+      "0xb16e5ae8",
+      "0xb572494f",
+      "0xb6fd490f",
+      "0xdd44a46d"
+    ],
+    "candidate_selector_count": 24,
+    "matched": 0,
+    "missing": [
+      "0x06fdde03",
+      "0x095ea7b3",
+      "0x0b663fe2",
+      "0x18160ddd",
+      "0x23b872dd",
+      "0x2e1a7d4d",
+      "0x3f4ba83a",
+      "0x40c10f19",
+      "0x42966c68",
+      "0x69fe0e2d",
+      "0x70a08231",
+      "0x8456cb59",
+      "0x860aefcf",
+      "0x8da5cb5b",
+      "0xa9059cbb",
+      "0xb187bd26",
+      "0xb6b55f25",
+      "0xc23f85d6",
+      "0xc4590d3f",
+      "0xc47f0027",
+      "0xc4d66de8",
+      "0xdd62ed3e",
+      "0xddca3f43",
+      "0xef8b30f7",
+      "0xf2fde38b"
+    ],
+    "reference_selector_count": 25
+  }
+}
