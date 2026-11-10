@@ -607,3 +607,18 @@ parity, modern-advanced **14/14** (`cross-fixture-generalization/`). Both candid
 probe-perfect from earlier eras, so this validates mechanics, not repair headroom; the honest
 generalization statement is: the layer that feeds enumeration and the loop is fixture-agnostic on
 external bytecode; full-pipeline enumeration on fresh fixtures remains the open test.
+
+### Tier-2 generalization, interim (2026-11-11)
+
+sender-creator: full pipeline green - spec (2 fb + 2 withheld, `args_tail` dyn-bytes encoding),
+deterministic seed repairs over the heimdall decompilation (bytes1 widening, implicit `success`,
+address casts, elided-transfer neutralization), seed self-check **2/2 + 2/2** on Anvil
+(`sender-creator-seed/`). The seed-repair class is exactly what `prepare_candidate` must learn.
+
+modern-errors: decompile does not terminate in 900s (rc=124; path explosion from the `while(true)`
+gas loop under `--include-sol --skip-resolving`) - a real deterministic-baseline limitation,
+recorded as such; its 13-probe error-path spec is staged (`tests/modern-errors.json`) pending a
+decompile strategy (per-function window or non-include-sol variant).
+
+Generalization scorecard: parity machinery verified on 2 external fixtures; full pipeline
+(compile-seed + harness) green on 1 new external fixture; 1 decompile-timeout finding.
