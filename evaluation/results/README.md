@@ -510,3 +510,18 @@ Harness verdict on the synthesized deposit (`enum-synthesis/harness-verify`): co
 the sibling readers (`totalSupply`/`var_c`, `getStats` composition) - the machinery extends as-is,
 still zero-LLM until bodies exist for repair. Standing results unchanged: synthetic 4/12+1/4,
 math-helper 10/10+5/5.
+
+### Writer-first chain, numerically closed (2026-11-11, latest)
+
+The harness applies the spec's global setup (`initialize; setLimits(1,1000000); setFee; setName;
+mint`) per side. The candidate setter (`Unresolved_c4590d3f`, one declared param) truncates that
+call to `setLimits(1)`: candidate state lands `(store_c=1, store_d=1)` vs reference
+`(1, 1000000)` - verified in `enum-synthesis/harness-verify` probe records (candidate deposit
+calldata `0x1af2760b...64`, ok=False at step0 while reference ok=True). Consequence: no deposit
+guard can pass 100 and revert 1000001 against `store_d=1`; the regime-exact deposit body from the
+enumeration is necessary but cannot score until the setter captures the surplus calldata word.
+
+Recorded next enumeration (deterministic, no LLM): writer variants for `Unresolved_c4590d3f` that
+read the second word as a `msg.data` suffix (`uint256(bytes32(msg.data[0x24:0x44]))` family),
+verified by the same regime machinery with per-side setup applied; the deposit enumeration then
+re-runs on the repaired state. Only after both, the LLM loop re-enters for whatever remains.
