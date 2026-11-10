@@ -440,7 +440,7 @@ The unit-repair loop is 2-for-2 across fixtures and produced the two largest gai
 
 - Whole-source harness repair at synthetic-large scale does not compile; unit-scoping is the
   answer (`synthetic-large-inv-r3-repair`).
- Investigator merge lottery: gate hardening + per-cluster solo merge made merges reliable but
+- Investigator merge lottery: gate hardening + per-cluster solo merge made merges reliable but
   behavior-neutral; dropped-cluster quality was the constraint (`synthetic-large-inv-v2-*`).
 - Seven prompt variants (incl. counter-placement, coverage table, shape hints) each failed to
   move 3/12: plateau was unit synthesis, not prompt phrasing (campaigns 8-15 dirs).
@@ -485,3 +485,28 @@ python3 evaluation/scripts/run_behavior.py \
 Replays are new samples, not bit-for-bit reproductions; committed per-stage artifacts are the
 primary evidence. Full campaign history lives in this directory's per-run artifacts and in git
 history.
+
+## Fresh levers after consolidation (2026-11-11, later)
+
+History squashed to two commits; chronicle condensed above. Two new zero-LLM decision mechanisms:
+
+1. **State-distinguishability diagnostic** (`state_distinguishability.py`, evidence
+   `synthetic-large-seed-v3/synthetic-large/state-diagnostics/paired-histories.json`): paired
+   setup histories differing in one calldata word, per-side selectors resolved from the
+   decompiler's name-embedded selector suffixes, plus a deposit regime map. Reference truth on
+   empty limits `(0,0)`: `deposit(0)` succeeds; `100`, `1000001` and paused-deposit revert with
+   `CustomError_3261c792` (never bare). Reference `setLimits(10,x)` itself reverts in the empty
+   state.
+2. **Enumeration synthesis** (`enumerate_deposit.py`, evidence
+   `synthetic-large-seed-v3/synthetic-large/enum-synthesis/`): enumerate deposit bodies (guard
+   form x bound source x effect set), compile, execute under snapshot isolation, accept the first
+   matching the reference column on all four regimes. Winner = candidate 0 of 8:
+   `if (store_c > arg0 || arg0 > store_d) { revert CustomError_3261c792(); }` - no effect path
+   needed; the measured reference success delta on reachable states is zero.
+
+Harness verdict on the synthesized deposit (`enum-synthesis/harness-verify`): compiles; aggregate
+4/12 + 1/4 unchanged - the deposit unit is regime-exact, but those probes also read sibling units
+(supply/stats aliases) inside the same sequences. Recorded next step: point the same enumerator at
+the sibling readers (`totalSupply`/`var_c`, `getStats` composition) - the machinery extends as-is,
+still zero-LLM until bodies exist for repair. Standing results unchanged: synthetic 4/12+1/4,
+math-helper 10/10+5/5.
