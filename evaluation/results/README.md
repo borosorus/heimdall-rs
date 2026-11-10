@@ -567,3 +567,17 @@ withdraw now burns supply. Harness: **9/12 feedback + 2/4 withheld** (`set_fee_m
 `transfer_from_unapproved_spender` (both hinge on the allowance/transfer event or the
 `caller:1` sender path), and `initial_config` (limits getter ABI shape: dynamic-bytes layout vs
 the reference's static pair, plus `name()`).
+
+### Enumeration IV: dispatch-true signatures - 11/12 + 3/4 (2026-11-11, final)
+
+Fourth pass (`candidate-final6.sol`): the two approve-path probes failed on *dispatch identity*,
+not logic - the decompiler's `transferFrom(address,uint256,uint256)` / `allowance(address,uint256)`
+shapes are the candidate's real dispatch, so the rewrites keep those signatures and treat the
+middle uint as an address (`address(uint160(..))`); `limits()` retyped to the static
+`(uint256,uint256)` pair the reference ABI reads. Harness: **11/12 feedback + 3/4 withheld**
+(`candidate 15b9aea6`-lineage, sha in dir). Sole feedback residue: `initial_config`
+(`name()` dynamic-string layout); withheld residue: `burn_100`.
+
+Campaign totals, all zero-LLM on accepted rewrites: 0/12 seed -> 4/12 (loop era) -> 6 -> 9 -> 11/12
++ 3/4 across four enumeration passes in one session, every step accepted on measured observation
+parity against the live reference.
