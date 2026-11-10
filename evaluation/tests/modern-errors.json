@@ -1,0 +1,212 @@
+{
+ "fixture": "modern-errors",
+ "name": "modern-errors",
+ "contract": "DecompiledContract",
+ "solc_version": "0.8.30",
+ "reference_runtime": "evaluation/fixtures/modern-errors/runtime.hex",
+ "reference_abi": "evaluation/fixtures/modern-errors/abi.json",
+ "compare_events": false,
+ "withheld": [
+  "rv_revertWithCustomErrorMultipleParams",
+  "rv_panicWithArrayOutOfBounds"
+ ],
+ "bindings": {
+  "revertWithSimpleCustomError": {
+   "reference_signature": "revertWithSimpleCustomError()",
+   "baseline_signature": "revertWithSimpleCustomError()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "revertWithCustomErrorSingleParam": {
+   "reference_signature": "revertWithCustomErrorSingleParam()",
+   "baseline_signature": "revertWithCustomErrorSingleParam()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "revertWithCustomErrorMultipleParams": {
+   "reference_signature": "revertWithCustomErrorMultipleParams()",
+   "baseline_signature": "revertWithCustomErrorMultipleParams()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "revertWithStringError": {
+   "reference_signature": "revertWithStringError()",
+   "baseline_signature": "revertWithStringError()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "revertWithRequireAndMessage": {
+   "reference_signature": "revertWithRequireAndMessage()",
+   "baseline_signature": "revertWithRequireAndMessage()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "revertWithoutMessage": {
+   "reference_signature": "revertWithoutMessage()",
+   "baseline_signature": "revertWithoutMessage()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "revertWithRequireNoMessage": {
+   "reference_signature": "revertWithRequireNoMessage()",
+   "baseline_signature": "revertWithRequireNoMessage()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "panicWithAssertFailure": {
+   "reference_signature": "panicWithAssertFailure()",
+   "baseline_signature": "panicWithAssertFailure()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "panicWithArithmeticOverflow": {
+   "reference_signature": "panicWithArithmeticOverflow()",
+   "baseline_signature": "panicWithArithmeticOverflow()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "panicWithDivisionByZero": {
+   "reference_signature": "panicWithDivisionByZero()",
+   "baseline_signature": "panicWithDivisionByZero()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "panicWithArrayOutOfBounds": {
+   "reference_signature": "panicWithArrayOutOfBounds()",
+   "baseline_signature": "panicWithArrayOutOfBounds()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "errorOutOfGas": {
+   "reference_signature": "errorOutOfGas()",
+   "baseline_signature": "errorOutOfGas()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  },
+  "errorWithInvalidOpcode": {
+   "reference_signature": "errorWithInvalidOpcode()",
+   "baseline_signature": "errorWithInvalidOpcode()",
+   "candidate_signature": null,
+   "candidate_signatures": {}
+  }
+ },
+ "probes": [
+  {
+   "name": "rv_revertWithSimpleCustomError",
+   "steps": [
+    {
+     "call": "revertWithSimpleCustomError",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_revertWithCustomErrorSingleParam",
+   "steps": [
+    {
+     "call": "revertWithCustomErrorSingleParam",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_revertWithCustomErrorMultipleParams",
+   "steps": [
+    {
+     "call": "revertWithCustomErrorMultipleParams",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_revertWithStringError",
+   "steps": [
+    {
+     "call": "revertWithStringError",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_revertWithRequireAndMessage",
+   "steps": [
+    {
+     "call": "revertWithRequireAndMessage",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_revertWithoutMessage",
+   "steps": [
+    {
+     "call": "revertWithoutMessage",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_revertWithRequireNoMessage",
+   "steps": [
+    {
+     "call": "revertWithRequireNoMessage",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_panicWithAssertFailure",
+   "steps": [
+    {
+     "call": "panicWithAssertFailure",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_panicWithArithmeticOverflow",
+   "steps": [
+    {
+     "call": "panicWithArithmeticOverflow",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_panicWithDivisionByZero",
+   "steps": [
+    {
+     "call": "panicWithDivisionByZero",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "rv_panicWithArrayOutOfBounds",
+   "steps": [
+    {
+     "call": "panicWithArrayOutOfBounds",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "ok_errorOutOfGas",
+   "steps": [
+    {
+     "call": "errorOutOfGas",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "ok_errorWithInvalidOpcode",
+   "steps": [
+    {
+     "call": "errorWithInvalidOpcode",
+     "send": true
+    }
+   ]
+  }
+ ]
+}
