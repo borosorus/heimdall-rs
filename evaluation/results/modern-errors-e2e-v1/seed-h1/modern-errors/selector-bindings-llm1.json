@@ -1,0 +1,221 @@
+{
+  "bindings": {
+    "errorOutOfGas": {
+      "available": true,
+      "baseline_selector": "0xb641db83",
+      "baseline_signature": "errorOutOfGas()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xc67e6ccd",
+      "candidate_signature": "Unresolved_b641db83()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_b641db83()"
+      },
+      "reference_selector": "0xb641db83",
+      "reference_signature": "errorOutOfGas()",
+      "unavailable_reason": null
+    },
+    "errorWithInvalidOpcode": {
+      "available": true,
+      "baseline_selector": "0x728b2fc4",
+      "baseline_signature": "errorWithInvalidOpcode()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xfc46a567",
+      "candidate_signature": "Unresolved_728b2fc4()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_728b2fc4()"
+      },
+      "reference_selector": "0x728b2fc4",
+      "reference_signature": "errorWithInvalidOpcode()",
+      "unavailable_reason": null
+    },
+    "panicWithArithmeticOverflow": {
+      "available": true,
+      "baseline_selector": "0xeca9a83d",
+      "baseline_signature": "panicWithArithmeticOverflow()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xd3cc29e6",
+      "candidate_signature": "Unresolved_eca9a83d()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_eca9a83d()"
+      },
+      "reference_selector": "0xeca9a83d",
+      "reference_signature": "panicWithArithmeticOverflow()",
+      "unavailable_reason": null
+    },
+    "panicWithArrayOutOfBounds": {
+      "available": true,
+      "baseline_selector": "0x58df7f77",
+      "baseline_signature": "panicWithArrayOutOfBounds()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xfde2f6be",
+      "candidate_signature": "Unresolved_58df7f77()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_58df7f77()"
+      },
+      "reference_selector": "0x58df7f77",
+      "reference_signature": "panicWithArrayOutOfBounds()",
+      "unavailable_reason": null
+    },
+    "panicWithAssertFailure": {
+      "available": true,
+      "baseline_selector": "0x6e798b85",
+      "baseline_signature": "panicWithAssertFailure()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xe08ddd47",
+      "candidate_signature": "Unresolved_6e798b85()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_6e798b85()"
+      },
+      "reference_selector": "0x6e798b85",
+      "reference_signature": "panicWithAssertFailure()",
+      "unavailable_reason": null
+    },
+    "panicWithDivisionByZero": {
+      "available": true,
+      "baseline_selector": "0x7b41bf2f",
+      "baseline_signature": "panicWithDivisionByZero()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0x9439a143",
+      "candidate_signature": "Unresolved_7b41bf2f()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_7b41bf2f()"
+      },
+      "reference_selector": "0x7b41bf2f",
+      "reference_signature": "panicWithDivisionByZero()",
+      "unavailable_reason": null
+    },
+    "revertWithCustomErrorMultipleParams": {
+      "available": true,
+      "baseline_selector": "0xb3456cd6",
+      "baseline_signature": "revertWithCustomErrorMultipleParams()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xf6b66897",
+      "candidate_signature": "Unresolved_b3456cd6()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_b3456cd6()"
+      },
+      "reference_selector": "0xb3456cd6",
+      "reference_signature": "revertWithCustomErrorMultipleParams()",
+      "unavailable_reason": null
+    },
+    "revertWithCustomErrorSingleParam": {
+      "available": true,
+      "baseline_selector": "0xf5ba8315",
+      "baseline_signature": "revertWithCustomErrorSingleParam()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0x2ce3e56b",
+      "candidate_signature": "Unresolved_f5ba8315()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_f5ba8315()"
+      },
+      "reference_selector": "0xf5ba8315",
+      "reference_signature": "revertWithCustomErrorSingleParam()",
+      "unavailable_reason": null
+    },
+    "revertWithRequireAndMessage": {
+      "available": true,
+      "baseline_selector": "0x8f05ba67",
+      "baseline_signature": "revertWithRequireAndMessage()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xf4c40c87",
+      "candidate_signature": "Unresolved_8f05ba67()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_8f05ba67()"
+      },
+      "reference_selector": "0x8f05ba67",
+      "reference_signature": "revertWithRequireAndMessage()",
+      "unavailable_reason": null
+    },
+    "revertWithRequireNoMessage": {
+      "available": true,
+      "baseline_selector": "0x6ab639f2",
+      "baseline_signature": "revertWithRequireNoMessage()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0x3f60ac86",
+      "candidate_signature": "Unresolved_6ab639f2()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_6ab639f2()"
+      },
+      "reference_selector": "0x6ab639f2",
+      "reference_signature": "revertWithRequireNoMessage()",
+      "unavailable_reason": null
+    },
+    "revertWithSimpleCustomError": {
+      "available": true,
+      "baseline_selector": "0x900a9c45",
+      "baseline_signature": "revertWithSimpleCustomError()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0x5edae15a",
+      "candidate_signature": "Unresolved_900a9c45()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_900a9c45()"
+      },
+      "reference_selector": "0x900a9c45",
+      "reference_signature": "revertWithSimpleCustomError()",
+      "unavailable_reason": null
+    },
+    "revertWithStringError": {
+      "available": true,
+      "baseline_selector": "0xbe8cdacd",
+      "baseline_signature": "revertWithStringError()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xd53f9d5e",
+      "candidate_signature": "Unresolved_be8cdacd()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_be8cdacd()"
+      },
+      "reference_selector": "0xbe8cdacd",
+      "reference_signature": "revertWithStringError()",
+      "unavailable_reason": null
+    },
+    "revertWithoutMessage": {
+      "available": true,
+      "baseline_selector": "0xc06a97cb",
+      "baseline_signature": "revertWithoutMessage()",
+      "candidate_label": "decompile-v2",
+      "candidate_selector": "0xbca5fae8",
+      "candidate_signature": "Unresolved_c06a97cb()",
+      "candidate_signatures": {
+        "decompile-v2": "Unresolved_c06a97cb()"
+      },
+      "reference_selector": "0xc06a97cb",
+      "reference_signature": "revertWithoutMessage()",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x2ce3e56b",
+      "0x3f60ac86",
+      "0x5edae15a",
+      "0x9439a143",
+      "0xbca5fae8",
+      "0xc67e6ccd",
+      "0xd3cc29e6",
+      "0xd53f9d5e",
+      "0xe08ddd47",
+      "0xf4c40c87",
+      "0xf6b66897",
+      "0xfc46a567",
+      "0xfde2f6be"
+    ],
+    "candidate_selector_count": 13,
+    "matched": 0,
+    "missing": [
+      "0x58df7f77",
+      "0x6ab639f2",
+      "0x6e798b85",
+      "0x728b2fc4",
+      "0x7b41bf2f",
+      "0x8f05ba67",
+      "0x900a9c45",
+      "0xb3456cd6",
+      "0xb641db83",
+      "0xbe8cdacd",
+      "0xc06a97cb",
+      "0xeca9a83d",
+      "0xf5ba8315"
+    ],
+    "reference_selector_count": 13
+  }
+}

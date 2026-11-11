@@ -324,9 +324,61 @@ def _infer_type(expression: str, parsed, source: str, masked: str, site_offset: 
     return "uint256"
 
 
+def _split_self_referential_initializers(source: str, masked: str) -> tuple[str, list[dict[str, Any]]]:
+    """Split ``T var_x = <expr referencing var_x>;`` when no earlier ``var_x`` binding exists.
+
+    The decompiler emits self-referential local initializers (e.g.
+    ``uint256 var_b = var_b + 0x60;``) for loop-carried accumulators; with no outer
+    binding the initializer reads an identifier that is not in scope yet. Splitting
+    into a default-initialized declaration plus an assignment preserves the
+    decompiled expression verbatim while making the definition order explicit.
+    """
+    edits: list[dict[str, Any]] = []
+    pattern = re.compile(
+        r"(?P<indent>[ \t]*)\b(?P<type>uint\d+|int\d+|address|bytes\d+|bool)\s+"
+        r"(?P<name>var_[a-z]+)\s*=\s*(?P<expr>[^;\n]+);"
+    )
+    out = []
+    last = 0
+    for match in pattern.finditer(masked):
+        name = match.group("name")
+        before = masked[: match.start()]
+        earlier_binding = (
+            re.search(r"\b%s\s*=[^=]" % re.escape(name), before)
+            or re.search(r"\b(?:uint\d+|int\d+|address|bytes\d+|bool)\s+%s\b" % re.escape(name), before)
+        )
+        uses_self = re.search(r"\b%s\b" % re.escape(name), match.group("expr"))
+        if not earlier_binding and uses_self:
+            # the mask is length-preserving, so group spans address `source` directly;
+            # rebuild from source text to keep string literals intact
+            start, end = match.span()
+            indent = source[match.start("indent") : match.end("indent")]
+            src_type = source[match.start("type") : match.end("type")]
+            src_name = source[match.start("name") : match.end("name")]
+            src_expr = source[match.start("expr") : match.end("expr")]
+            replacement = f"{indent}{src_type} {src_name};\n{indent}{src_name} = {src_expr};"
+            out.append(source[last:start])
+            out.append(replacement)
+            last = end
+            edits.append(
+                _record(
+                    "selfref-initializer",
+                    f"{src_type} {src_name} = ...; -> {src_name}; {src_name} = ...;",
+                    "self-referential initializer without an earlier binding",
+                )
+            )
+    if not out:
+        return source, edits
+    out.append(source[last:])
+    return "".join(out), edits
+
+
 def declare_undefined_vars(source: str) -> Stage:
     """Tier 3: declare ``var_*`` identifiers used but never declared."""
     masked = _mask_strings_and_comments(source, 0, len(source))
+    source, split_edits = _split_self_referential_initializers(source, masked)
+    if split_edits:
+        masked = _mask_strings_and_comments(source, 0, len(source))
     used = set(re.findall(r"\b(var_[a-z]+)\b", masked))
     declared = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", masked))
     declared |= {
@@ -334,8 +386,10 @@ def declare_undefined_vars(source: str) -> Stage:
         for m in re.finditer(r"\b(uint\d*|address|bool|bytes\d*)\s+(var_[a-z]+)\s*=[^=]", masked)
     }  # typed local definitions declare; bare assignment targets do not
     undeclared = sorted(used - declared)
-    edits: list[dict[str, Any]] = []
+    edits: list[dict[str, Any]] = list(split_edits)
     if not undeclared:
+        if not edits:
+            return Stage("vars", "undefined var_* state", source, edits)
         return Stage("vars", "undefined var_* state", source, edits)
     parsed = parse_contract(source, None)
     offset = _body_open_line_end(source, parsed.body_start)
@@ -344,6 +398,57 @@ def declare_undefined_vars(source: str) -> Stage:
     for name in undeclared:
         edits.append(_record("undefined-var", f"uint256 {name}", "used before any declaration"))
     return Stage("vars", "undefined var_* state", replacement, edits)
+
+
+def align_function_mutability(source: str) -> Stage:
+    """Tier 3b: relax ``pure`` to ``view`` when the function body reads contract state.
+
+    The decompiler stamps mutability from its own pre-repair view of the contract;
+    once state variables exist (declared here or by earlier tiers), a ``pure``
+    function whose body references one no longer compiles. Parameter shadowing is
+    respected: a name bound in the header is not a state read.
+    """
+    parsed = parse_contract(source, None)
+    # declaration name after the type, skipping visibility/mutability modifiers;
+    # covers plain, mapping(...), and fixed-array state declarations
+    declaration_name = re.compile(
+        r"^(?:mapping\s*\([^)]*\)|(?:address|uint\d+|int\d+|bytes\d*|bytes|string|bool)(?:\[[^\]]*\])*)"
+        r"(?:\s+(?:public|private|internal|constant|immutable|override))*"
+        r"\s+([A-Za-z_]\w*)"
+    )
+    state_names = set()
+    for unit in parsed.declarations:
+        declared = declaration_name.match(unit.header)
+        if declared:
+            state_names.add(declared.group(1))
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    for unit in parsed.functions:
+        header_masked = _mask_strings_and_comments(unit.header, 0, len(unit.header))
+        if not re.search(r"\bpure\b", header_masked):
+            continue
+        header_len = len(unit.header)
+        body_masked = _mask_strings_and_comments(unit.text, header_len, len(unit.text))
+        param_names = {name for _, name in _header_params(header_masked)}
+        readable = sorted(state_names - param_names)
+        if not any(re.search(r"\b%s\b" % re.escape(name), body_masked) for name in readable):
+            continue
+        start = unit.start
+        end = unit.start + header_len
+        # the header span covers the @custom:signature comment and the declaration;
+        # relax every `pure` in it so the provenance comment stays in sync
+        relaxed = re.sub(r"\bpure\b", "view", source[start:end])
+        pieces.append(source[last:start])
+        pieces.append(relaxed)
+        last = end
+        edits.append(
+            _record("mutability-relaxed", "pure -> view", "pure function body reads contract state")
+        )
+    if not pieces:
+        return Stage("mutability", "pure vs state reads", source, edits)
+    pieces.append(source[last:])
+    return Stage("mutability", "pure vs state reads", "".join(pieces), edits)
 
 
 def _header_params(masked_header: str) -> list[tuple[str, str]]:
@@ -906,6 +1011,7 @@ def prepare_stages(source: str) -> list[Stage]:
         normalize_placeholders,
         declare_missing_symbols,
         declare_undefined_vars,
+        align_function_mutability,
         align_arities,
         unify_storage_views,
         recover_packed_scalar_storage,

@@ -1,0 +1,124 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "Unresolved_58df7f77",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_6ab639f2",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_6e798b85",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_728b2fc4",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_7b41bf2f",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_8f05ba67",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_900a9c45",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_b3456cd6",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_b641db83",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_be8cdacd",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_c06a97cb",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_eca9a83d",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_f5ba8315",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_00000000",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_ae6e59ae",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_c2bb947c",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_f052b721",
+      "type": "error"
+    }
+  ],
+  "artifact": "out/Candidate.sol/DecompiledContract.json",
+  "deployed_bytecode": "0x608060405234801561000f575f5ffd5b50600436106100cd575f3560e01c8063d3cc29e61161008a578063f4c40c8711610064578063f4c40c871461012b578063f6b6689714610135578063fc46a5671461013f578063fde2f6be14610149576100cd565b8063d3cc29e61461010d578063d53f9d5e14610117578063e08ddd4714610121576100cd565b80632ce3e56b146100d15780633f60ac86146100db5780635edae15a146100e55780639439a143146100ef578063bca5fae8146100f9578063c67e6ccd14610103575b5f5ffd5b6100d9610153565b005b6100e3610185565b005b6100ed610189565b005b6100f76101bb565b005b6101016101bd565b005b61010b6101c1565b005b6101156101c3565b005b61011f6101c5565b005b610129610200565b005b610133610202565b005b61013d61023d565b005b6101476102a7565b005b6101516102a9565b005b6040517f0bc1c78e00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b5f5ffd5b6040517f07cfeca900000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b565b5f5ffd5b565b565b6040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016101f790610305565b60405180910390fd5b565b6040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102349061036d565b60405180910390fd5b67ffffffffffffffff6002116102a5575f60608161025b91906103c1565b90505f545f10156102a3575f54600110156102a2576040517f2061055600000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b5b505b565b565b565b5f82825260208201905092915050565b7f54686973206973206120737472696e67206572726f72206d65737361676500005f82015250565b5f6102ef601e836102ab565b91506102fa826102bb565b602082019050919050565b5f6020820190508181035f83015261031c816102e3565b9050919050565b7f52657175697265206661696c65642077697468206d65737361676500000000005f82015250565b5f610357601b836102ab565b915061036282610323565b602082019050919050565b5f6020820190508181035f8301526103848161034b565b9050919050565b5f819050919050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f6103cb8261038b565b91506103d68361038b565b92508282019050808211156103ee576103ed610394565b5b9291505056fea26469706673582212206209cc7ba36fc880af9a38cee07405a6213ae07c90e53f8080d7116b28abdcba64736f6c634300081e0033",
+  "label": "llm1",
+  "ok": true,
+  "returncode": 0,
+  "solc_version": "0.8.30",
+  "source_sha256": "10d3973d2d068dcb780168b4e900703513fe6fa4cc53151b6fe6634e3852741c",
+  "stderr": "",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 9.71ms\nCompiler run successful!\n"
+}

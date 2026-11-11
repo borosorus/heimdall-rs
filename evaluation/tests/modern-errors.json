@@ -14,80 +14,106 @@
   "revertWithSimpleCustomError": {
    "reference_signature": "revertWithSimpleCustomError()",
    "baseline_signature": "revertWithSimpleCustomError()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_900a9c45()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_900a9c45()"
+   }
   },
   "revertWithCustomErrorSingleParam": {
    "reference_signature": "revertWithCustomErrorSingleParam()",
    "baseline_signature": "revertWithCustomErrorSingleParam()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_f5ba8315()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_f5ba8315()"
+   }
   },
   "revertWithCustomErrorMultipleParams": {
    "reference_signature": "revertWithCustomErrorMultipleParams()",
    "baseline_signature": "revertWithCustomErrorMultipleParams()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_b3456cd6()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_b3456cd6()"
+   }
   },
   "revertWithStringError": {
    "reference_signature": "revertWithStringError()",
    "baseline_signature": "revertWithStringError()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_be8cdacd()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_be8cdacd()"
+   }
   },
   "revertWithRequireAndMessage": {
    "reference_signature": "revertWithRequireAndMessage()",
    "baseline_signature": "revertWithRequireAndMessage()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_8f05ba67()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_8f05ba67()"
+   }
   },
   "revertWithoutMessage": {
    "reference_signature": "revertWithoutMessage()",
    "baseline_signature": "revertWithoutMessage()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_c06a97cb()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_c06a97cb()"
+   }
   },
   "revertWithRequireNoMessage": {
    "reference_signature": "revertWithRequireNoMessage()",
    "baseline_signature": "revertWithRequireNoMessage()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_6ab639f2()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_6ab639f2()"
+   }
   },
   "panicWithAssertFailure": {
    "reference_signature": "panicWithAssertFailure()",
    "baseline_signature": "panicWithAssertFailure()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_6e798b85()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_6e798b85()"
+   }
   },
   "panicWithArithmeticOverflow": {
    "reference_signature": "panicWithArithmeticOverflow()",
    "baseline_signature": "panicWithArithmeticOverflow()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_eca9a83d()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_eca9a83d()"
+   }
   },
   "panicWithDivisionByZero": {
    "reference_signature": "panicWithDivisionByZero()",
    "baseline_signature": "panicWithDivisionByZero()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_7b41bf2f()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_7b41bf2f()"
+   }
   },
   "panicWithArrayOutOfBounds": {
    "reference_signature": "panicWithArrayOutOfBounds()",
    "baseline_signature": "panicWithArrayOutOfBounds()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_58df7f77()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_58df7f77()"
+   }
   },
   "errorOutOfGas": {
    "reference_signature": "errorOutOfGas()",
    "baseline_signature": "errorOutOfGas()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_b641db83()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_b641db83()"
+   }
   },
   "errorWithInvalidOpcode": {
    "reference_signature": "errorWithInvalidOpcode()",
    "baseline_signature": "errorWithInvalidOpcode()",
-   "candidate_signature": null,
-   "candidate_signatures": {}
+   "candidate_signature": "Unresolved_728b2fc4()",
+   "candidate_signatures": {
+    "decompile-v2": "Unresolved_728b2fc4()"
+   }
   }
  },
  "probes": [
@@ -95,8 +121,7 @@
    "name": "rv_revertWithSimpleCustomError",
    "steps": [
     {
-     "call": "revertWithSimpleCustomError",
-     "send": true
+     "call": "revertWithSimpleCustomError"
     }
    ]
   },
@@ -104,8 +129,7 @@
    "name": "rv_revertWithCustomErrorSingleParam",
    "steps": [
     {
-     "call": "revertWithCustomErrorSingleParam",
-     "send": true
+     "call": "revertWithCustomErrorSingleParam"
     }
    ]
   },
@@ -113,8 +137,7 @@
    "name": "rv_revertWithCustomErrorMultipleParams",
    "steps": [
     {
-     "call": "revertWithCustomErrorMultipleParams",
-     "send": true
+     "call": "revertWithCustomErrorMultipleParams"
     }
    ]
   },
@@ -122,8 +145,7 @@
    "name": "rv_revertWithStringError",
    "steps": [
     {
-     "call": "revertWithStringError",
-     "send": true
+     "call": "revertWithStringError"
     }
    ]
   },
@@ -131,8 +153,7 @@
    "name": "rv_revertWithRequireAndMessage",
    "steps": [
     {
-     "call": "revertWithRequireAndMessage",
-     "send": true
+     "call": "revertWithRequireAndMessage"
     }
    ]
   },
@@ -140,8 +161,7 @@
    "name": "rv_revertWithoutMessage",
    "steps": [
     {
-     "call": "revertWithoutMessage",
-     "send": true
+     "call": "revertWithoutMessage"
     }
    ]
   },
@@ -149,8 +169,7 @@
    "name": "rv_revertWithRequireNoMessage",
    "steps": [
     {
-     "call": "revertWithRequireNoMessage",
-     "send": true
+     "call": "revertWithRequireNoMessage"
     }
    ]
   },
@@ -158,8 +177,7 @@
    "name": "rv_panicWithAssertFailure",
    "steps": [
     {
-     "call": "panicWithAssertFailure",
-     "send": true
+     "call": "panicWithAssertFailure"
     }
    ]
   },
@@ -167,8 +185,7 @@
    "name": "rv_panicWithArithmeticOverflow",
    "steps": [
     {
-     "call": "panicWithArithmeticOverflow",
-     "send": true
+     "call": "panicWithArithmeticOverflow"
     }
    ]
   },
@@ -176,8 +193,7 @@
    "name": "rv_panicWithDivisionByZero",
    "steps": [
     {
-     "call": "panicWithDivisionByZero",
-     "send": true
+     "call": "panicWithDivisionByZero"
     }
    ]
   },
@@ -185,8 +201,7 @@
    "name": "rv_panicWithArrayOutOfBounds",
    "steps": [
     {
-     "call": "panicWithArrayOutOfBounds",
-     "send": true
+     "call": "panicWithArrayOutOfBounds"
     }
    ]
   },
@@ -194,8 +209,7 @@
    "name": "ok_errorOutOfGas",
    "steps": [
     {
-     "call": "errorOutOfGas",
-     "send": true
+     "call": "errorOutOfGas"
     }
    ]
   },
@@ -203,10 +217,11 @@
    "name": "ok_errorWithInvalidOpcode",
    "steps": [
     {
-     "call": "errorWithInvalidOpcode",
-     "send": true
+     "call": "errorWithInvalidOpcode"
     }
    ]
   }
- ]
+ ],
+ "strict_evidence": true,
+ "notes": "v2: read-mode probes per verdict-audit-v1 (send-mode receipts are payload-blind); strict_evidence on; candidate bindings resolved via name-embedded selectors."
 }

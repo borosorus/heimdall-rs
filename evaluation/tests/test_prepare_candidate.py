@@ -306,7 +306,15 @@ class PipelineTest(unittest.TestCase):
         stages = prepare.prepare_stages(self.BASELINE)
         self.assertEqual(
             [stage.name for stage in stages],
-            ["placeholders", "declarations", "vars", "arity", "slot-aliases", "packed-scalars"],
+            [
+                "placeholders",
+                "declarations",
+                "vars",
+                "mutability",
+                "arity",
+                "slot-aliases",
+                "packed-scalars",
+            ],
         )
         final = stages[-1].source
         self.assertIn("uint256 arg1", final)
@@ -320,6 +328,74 @@ class PipelineTest(unittest.TestCase):
     def test_parse_error_is_reported(self):
         with self.assertRaises(prepare.PreparationError):
             prepare.prepare_stages("not solidity")
+
+
+class SeedRuleTests(unittest.TestCase):
+    def test_selfreferential_initializer_is_split(self):
+        source = (
+            "contract C {\n"
+            "    function f() public pure {\n"
+            "        uint256 var_b = var_b + 0x60;\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("uint256 var_b;\n", staged)
+        self.assertIn("var_b = var_b + 0x60;", staged)
+        self.assertNotIn("uint256 var_b = var_b", staged)
+
+    def test_selfreferential_split_respects_outer_binding(self):
+        source = (
+            "contract C {\n"
+            "    uint256 var_b;\n"
+            "    function f() public view {\n"
+            "        uint256 var_b = var_b + 0x60;\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        # an outer binding exists: the local shadowing declaration is legal, keep it
+        self.assertIn("uint256 var_b = var_b + 0x60;", staged)
+
+    def test_pure_reading_state_is_relaxed_to_view(self):
+        source = (
+            "contract C {\n"
+            "    uint256 var_c;\n"
+            "    function f() public pure {\n"
+            "        if (0 < var_c) {\n"
+            "            return;\n"
+            "        }\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("function f() public view {", staged)
+
+    def test_pure_with_only_shadowed_state_name_stays_pure(self):
+        source = (
+            "contract C {\n"
+            "    uint256 var_c;\n"
+            "    function f(uint256 var_c) public pure returns (uint256) {\n"
+            "        return var_c + 1;\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("function f(uint256 var_c) public pure returns (uint256) {", staged)
+
+    def test_mutability_reads_modified_and_mapping_state(self):
+        source = (
+            "contract C {\n"
+            "    uint256 public var_c;\n"
+            "    mapping(address => uint256) public balances;\n"
+            "    uint256[] var_a;\n"
+            "    function f() public pure returns (uint256) {\n"
+            "        return var_c + balances(address(0)) + var_a.length;\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("function f() public view returns (uint256) {", staged)
 
 
 class PackedScalarTest(unittest.TestCase):
