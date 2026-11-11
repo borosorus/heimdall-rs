@@ -40,6 +40,10 @@
     "contract_balance",
     "event_logs_only_when_compare_events_is_true"
   ],
+  "deployment_context": {
+    "baseline": null,
+    "llm1": null
+  },
   "executed_probes": 16,
   "feedback_probes": [
     "initial_config",

@@ -286,11 +286,21 @@ def declared_event_topics(source: str) -> dict[str, str]:
     spelling-based. Requires an external keccak (cast) - absence degrades to an
     empty table and unresolved topics compare by raw value.
     """
-    table: dict[str, str] = {}
+    signatures = []
     for match in re.finditer(r"\bevent\s+([A-Za-z_]\w*)\s*\(([^)]*)\)", source):
         name, params = match.group(1), match.group(2)
         types = ",".join(p.strip().split()[0] for p in params.split(",") if p.strip())
-        signature = f"{name}({types})"
+        signatures.append((f"{name}({types})", name))
+    return event_topic_table(signatures)
+
+
+def event_topic_table(signatures: list[tuple[str, str]]) -> dict[str, str]:
+    """topic0 -> name for `(signature, name)` pairs, via `cast sig-event`.
+
+    Hashing failures degrade to omission: unresolved topics compare raw.
+    """
+    table: dict[str, str] = {}
+    for signature, name in signatures:
         try:
             topic = subprocess.run(
                 ["cast", "sig-event", signature], capture_output=True, text=True, timeout=30, check=True
@@ -343,6 +353,18 @@ def trace_failed_call_gas(rpc: Rpc, call_params: dict) -> str | None:
 CONSTRUCTOR_SENDER = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
 
+def await_transaction_receipt(rpc: Rpc, tx_hash: str, timeout_s: float = 15.0) -> dict[str, Any]:
+    """Poll for a transaction receipt; HarnessError on timeout."""
+    deadline = time.time() + timeout_s
+    while True:
+        receipt = rpc.call("eth_getTransactionReceipt", [tx_hash])
+        if receipt is not None:
+            return receipt
+        if time.time() >= deadline:
+            raise HarnessError(f"timed out waiting for receipt {tx_hash}")
+        time.sleep(0.05)
+
+
 def deploy_with_constructor(rpc: Rpc, creation_code: str, constructor_args: str) -> dict[str, Any]:
     """Deploy creation code (+ constructor args) via an unsigned setup transaction.
 
@@ -362,12 +384,7 @@ def deploy_with_constructor(rpc: Rpc, creation_code: str, constructor_args: str)
             }
         ],
     )
-    for _ in range(200):
-        receipt = rpc.call("eth_getTransactionReceipt", [tx_hash])
-        if receipt is not None:
-            return receipt
-        time.sleep(0.05)
-    raise HarnessError(f"timed out waiting for deployment receipt {tx_hash}")
+    return await_transaction_receipt(rpc, tx_hash)
 
 
 GAS_LADDER_FRACTION = 2  # second probe runs at half the first cap
@@ -487,15 +504,7 @@ def call_step(
             f"transaction submission failed for calldata {calldata}: {error}"
         ) from error
 
-    deadline = time.time() + 15
-    receipt = None
-    while time.time() < deadline:
-        receipt = rpc.call("eth_getTransactionReceipt", [tx_hash])
-        if receipt is not None:
-            break
-        time.sleep(0.05)
-    if receipt is None:
-        raise HarnessError(f"timed out waiting for receipt {tx_hash}")
+    receipt = await_transaction_receipt(rpc, tx_hash)
 
     status = int(receipt.get("status", "0x0"), 16)
     gas_used = receipt.get("gasUsed")
@@ -1104,6 +1113,7 @@ def evaluate_stage(
     stage_index: int,
     result_dir: Path,
     reference_addr: str | None = None,
+    reference_event_topics: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     work_dir = result_dir / "work" / label
     compile_record = compile_candidate(
@@ -1152,25 +1162,10 @@ def evaluate_stage(
     # reference and candidate sequences, so each stage needs both tables - the
     # candidate resolves against its own declared (alias) events; the reference
     # side is the published fixture runtime, resolved via the reference ABI
-    event_tables = {"candidate": declared_event_topics(source), "reference": {}}
-    abi_path = repo_root() / spec["reference_abi"]
-    for entry in json.loads(abi_path.read_text(encoding="utf-8")):
-        if entry.get("type") != "event":
-            continue
-        types = ",".join(param["type"] for param in entry.get("inputs", []))
-        signature = f"{entry['name']}({types})"
-        try:
-            topic = subprocess.run(
-                ["cast", "sig-event", signature],
-                capture_output=True,
-                text=True,
-                timeout=30,
-                check=True,
-            ).stdout.strip().lower()
-        except (subprocess.SubprocessError, OSError):
-            continue
-        if topic.startswith("0x") and len(topic) == 66:
-            event_tables["reference"].setdefault(topic, entry["name"])
+    event_tables = {
+        "candidate": declared_event_topics(source),
+        "reference": reference_event_topics,
+    }
     stage["probe_results"] = run_probes(
         rpc,
         spec,
@@ -1247,6 +1242,16 @@ def main() -> int:
     attempts: list[dict[str, Any]] = []
     repair_error: str | None = None
     selected_stage: dict[str, Any] | None = None
+    # event identities for the reference side are a property of the fixture:
+    # build the topic table once instead of per stage
+    reference_event_topics = event_topic_table(
+        (
+            f"{entry['name']}({','.join(param['type'] for param in entry.get('inputs', []))})",
+            entry["name"],
+        )
+        for entry in json.loads((repo_root() / spec["reference_abi"]).read_text(encoding="utf-8"))
+        if entry.get("type") == "event"
+    )
 
     def _rewind_to_anchor() -> None:
         """Restore the post-reference chain state and re-anchor it.
@@ -1302,6 +1307,7 @@ def main() -> int:
             0,
             result_dir,
             reference_addr=reference_addr,
+            reference_event_topics=reference_event_topics,
         )
         _rewind_to_anchor()  # restore the anchor for the NEXT stage
         stages.append(baseline_stage)
@@ -1317,6 +1323,7 @@ def main() -> int:
             1,
             result_dir,
             reference_addr=reference_addr,
+            reference_event_topics=reference_event_topics,
         )
         stages.append(llm1_stage)
         selected_stage = llm1_stage
@@ -1390,6 +1397,7 @@ def main() -> int:
                         "candidate",
                         1 + round_index,
                         result_dir,
+                    reference_event_topics=reference_event_topics,
                     )
                     stages.append(repaired_stage)
                     prior_matches = current_stage["matches"]

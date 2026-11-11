@@ -86,16 +86,13 @@ def classify(observation: dict) -> tuple[str, dict]:
     return "silent-failure", {}
 
 
-def unit_for_selector(source: str, selector: str):
-    """The parsed function whose @custom:selector provenance carries `selector`."""
-    parsed = investigator.parse_contract(source, None)
-    token = selector.lower().removeprefix("0x")
-    for unit in parsed.functions:
-        if token in unit.text[: unit.text.find("function") if "function" in unit.text else 0] or re.search(
-            r"@custom:selector\s+0x%s\b" % token, unit.text
-        ):
-            return unit
-    return None
+def units_by_selector(source: str) -> dict[str, object]:
+    """Map selector-hex -> unit, from each unit's own provenance (one parse)."""
+    index: dict[str, object] = {}
+    for unit in investigator.parse_contract(source, None).functions:
+        for match in re.finditer(r"@custom:selector\s+0x([0-9a-fA-F]{8})\b", unit.text):
+            index.setdefault(match.group(1).lower(), unit)
+    return index
 
 
 def replace_unit_body(source: str, unit, new_body: str) -> str:
@@ -148,14 +145,15 @@ def main() -> int:
     else:
         targets = {name for name, entry in probe_results.items() if not entry.get("semantic_match")}
 
-    rewrites: dict[int, tuple[str, str]] = {}  # unit span start -> (unit name, body)
+    unit_index = units_by_selector(source)
+    rewrites: dict[int, tuple[object, str]] = {}  # span start -> (unit, body)
     plan: list[dict] = []
     for name in sorted(targets):
         entry = probe_results.get(name)
         if entry is None or entry.get("semantic_match"):
             continue  # passing units are never rewritten
         obs = observations[name]
-        unit = unit_for_selector(source, obs["reference_selector"])
+        unit = unit_index.get(obs["reference_selector"].lower().removeprefix("0x"))
         if unit is None:
             plan.append({"probe": name, "error": "no candidate unit carries the reference selector"})
             continue
@@ -167,15 +165,13 @@ def main() -> int:
         existing = rewrites.get(unit.start)
         if existing not in (None, (unit.name, body)):
             raise SystemExit(f"unit at {unit.start} targeted by conflicting rewrites")
-        rewrites[unit.start] = (unit.name, body)
+        rewrites[unit.start] = (unit, body)
         plan.append({"probe": name, "unit": unit.name, "template": kind})
 
-    # descending span order: each replacement only shifts positions after it, so
-    # the remaining (smaller) starts from the original parse stay valid
+    # descending span order from the ONE original parse: each replacement only
+    # shifts positions after it, so the remaining smaller starts stay valid
     for start in sorted(rewrites, reverse=True):
-        _, body = rewrites[start]
-        parsed = investigator.parse_contract(source, None)
-        unit = next(u for u in parsed.functions if u.start == start)
+        unit, body = rewrites[start]
         source = replace_unit_body(source, unit, body)
 
     args.out.write_text(source, encoding="utf-8")

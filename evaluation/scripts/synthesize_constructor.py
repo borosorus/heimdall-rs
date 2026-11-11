@@ -84,7 +84,7 @@ def synthesize(source: str, probe_results: dict, constructor_args: list[list[str
         if re.fullmatch(SCALAR_RE, d.type_text) and d.slot is not None
     ]
     observations = observed_initial_states(probe_results, constructor_args)
-    report: list[dict] = {"scalars": [d.name for d in scalars], "observations": observations}
+    report: dict = {"scalars": [d.name for d in scalars], "observations": observations}
 
     # uniqueness: one scalar storage, one scalar parameter, consistent identity
     # across every observed deployment

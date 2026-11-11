@@ -11,7 +11,6 @@ weight on that fixture. Read-only over the ladder; no fixture-name logic.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import importlib.util
 import json
 import sys
@@ -33,10 +32,6 @@ prepare = _load("ablate_prepare", ROOT / "evaluation" / "scripts" / "prepare_can
 behavior = _load("ablate_behavior", ROOT / "evaluation" / "scripts" / "run_behavior.py")
 
 
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
 def run_variant(source: str, transforms, tag: str, work_root: Path, contract: str, solc: str) -> dict:
     try:
         stages = prepare.prepare_stages(source, transforms)
@@ -48,7 +43,7 @@ def run_variant(source: str, transforms, tag: str, work_root: Path, contract: st
         "variant": tag,
         "stages": [stage.name for stage in stages],
         "edits": {stage.name: len(stage.edits) for stage in stages},
-        "candidate_sha256": sha256_text(final),
+        "candidate_sha256": behavior.sha256_text(final),
         "compiled": bool(record.get("ok")),
         "compile_returncode": record.get("returncode"),
     }
@@ -70,7 +65,7 @@ def main() -> int:
     full = list(prepare.PREPARE_STAGES)
     names = [fn.__name__ for fn in full]
     matrix = {
-        "source_sha256": sha256_text(source),
+        "source_sha256": behavior.sha256_text(source),
         "solc": args.solc,
         "stage_order": names,
         "variants": [],

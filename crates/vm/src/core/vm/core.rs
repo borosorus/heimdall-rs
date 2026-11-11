@@ -672,7 +672,24 @@ impl VM {
     /// assert_eq!(vm.exitcode, 10);
     /// ```
     pub fn execute(&mut self) -> Result<ExecutionResult> {
+        self.execute_bounded(None)
+    }
+
+    /// Shared execution loop: runs until a terminal state, or until
+    /// `max_steps` instructions have been executed when a limit is given.
+    fn execute_bounded(&mut self, max_steps: Option<u64>) -> Result<ExecutionResult> {
+        let mut steps_remaining = max_steps;
         while self.bytecode.len() >= self.instruction as usize {
+            if let Some(remaining) = steps_remaining.as_mut() {
+                if *remaining == 0 {
+                    return Err(ExecutionStepLimitExceeded {
+                        max_steps: max_steps.expect("checked above"),
+                    }
+                    .into());
+                }
+                *remaining -= 1;
+            }
+
             self.step()?;
 
             if self.exitcode != 255 || !self.returndata.is_empty() {
@@ -736,28 +753,7 @@ impl VM {
         calldata.clone_into(&mut self.calldata);
         self.value = value;
 
-        let mut steps_remaining = max_steps;
-        while self.bytecode.len() >= self.instruction as usize {
-            if steps_remaining == 0 {
-                return Err(ExecutionStepLimitExceeded { max_steps }.into());
-            }
-            steps_remaining -= 1;
-
-            self.step()?;
-
-            if self.exitcode != 255 || !self.returndata.is_empty() {
-                break;
-            }
-        }
-
-        Ok(ExecutionResult {
-            gas_used: self.gas_used,
-            gas_remaining: self.gas_remaining,
-            returndata: self.returndata.to_owned(),
-            exitcode: self.exitcode,
-            events: self.events.clone(),
-            instruction: self.instruction,
-        })
+        self.execute_bounded(Some(max_steps))
     }
 }
 

@@ -24,6 +24,7 @@ Mutants (synthetic-large, positive control = candidate-FINAL, label seed-v2):
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import shutil
@@ -43,21 +44,22 @@ BASELINE_METRICS = (
 )
 
 
+_investigator_spec = importlib.util.spec_from_file_location(
+    "verdict_audit_inv", ROOT / "evaluation" / "scripts" / "run_investigator.py"
+)
+assert _investigator_spec and _investigator_spec.loader
+investigator = importlib.util.module_from_spec(_investigator_spec)
+sys.modules["verdict_audit_inv"] = investigator
+_investigator_spec.loader.exec_module(investigator)
+
+
 def function_block(source: str, name: str) -> tuple[int, int, str]:
-    """Span of `function <name>(...) { ... }` (brace-balanced), or raise."""
-    opener = re.search(r"function %s\(" % re.escape(name), source)
-    if not opener:
-        raise SystemExit(f"audit bug: function {name} not found in candidate")
-    body_open = source.index("{", opener.end())
-    depth = 0
-    for i in range(body_open, len(source)):
-        if source[i] == "{":
-            depth += 1
-        elif source[i] == "}":
-            depth -= 1
-            if depth == 0:
-                return opener.start(), i + 1, source[opener.start() : i + 1]
-    raise SystemExit(f"audit bug: unbalanced braces in {name}")
+    """Span of `function <name>(...) { ... }` from the shared contract parser."""
+    parsed = investigator.parse_contract(source, None)
+    for unit in parsed.functions:
+        if unit.name == name:
+            return unit.start, unit.end, source[unit.start : unit.end]
+    raise SystemExit(f"audit bug: function {name} not found in candidate")
 
 
 def replace_once(haystack: str, old: str, new: str) -> str:

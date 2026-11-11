@@ -47,6 +47,7 @@ from run_investigator import (  # noqa: E402
     ParseError,
     _mask_strings_and_comments,
     parse_contract,
+    header_param_span as run_investigator_header_param_span,
     rb,
 )
 import storage_flow  # noqa: E402  (sibling module; proves the typed storage map)
@@ -456,22 +457,9 @@ def align_function_mutability(source: str) -> Stage:
 
 def _header_params(masked_header: str) -> list[tuple[str, str]]:
     """(type, name) pairs for a function header's parameter list."""
-    match = re.search(r"\bfunction\s+[A-Za-z_]\w*\s*\(", masked_header)
-    if not match:
+    inner = run_investigator_header_param_span(masked_header)
+    if inner is None:
         return []
-    start = match.end()
-    depth = 1
-    index = start
-    while index < len(masked_header) and depth > 0:
-        char = masked_header[index]
-        if char == "(":
-            depth += 1
-        elif char == ")":
-            depth -= 1
-        index += 1
-    if depth != 0:
-        return []
-    inner = masked_header[start : index - 1]
     params: list[tuple[str, str]] = []
     for part in inner.split(","):
         words = part.split()
@@ -1346,6 +1334,11 @@ def synthesize_send_guards(source: str) -> Stage:
         for name in guards & mutations & mappings:
             guarded_by.setdefault(name, set()).add(unit.name)
 
+    # resolve once for all stubs: the guarded-and-mutated mappings with a
+    # unique precedent sibling
+    unique_precedents = {
+        name: next(iter(sibs)) for name, sibs in guarded_by.items() if len(sibs) == 1
+    }
     edits: list[dict[str, Any]] = []
     rewrites: list[tuple[int, int, str]] = []
     for unit in parsed.functions:
@@ -1370,17 +1363,16 @@ def synthesize_send_guards(source: str) -> Stage:
         scalar_params = [n for t, n in params if re.fullmatch(r"uint\d*", t)]
         if not address_params or not scalar_params:
             continue
-        unique = {name: next(iter(sibs)) for name, sibs in guarded_by.items() if len(sibs) == 1}
-        if len(unique) != 1:
+        if len(unique_precedents) != 1:
             edits.append(
                 _record(
                     "send-guard-abstain",
-                    f"{unit.name}: {len(unique)} guarded-and-mutated mappings",
+                    f"{unit.name}: {len(unique_precedents)} guarded-and-mutated mappings",
                     "guard precedent must be unique",
                 )
             )
             continue
-        mapping_name, precedent = next(iter(unique.items()))
+        mapping_name, precedent = next(iter(unique_precedents.items()))
         guard = f"require({mapping_name}[{address_params[0]}] >= {scalar_params[-1]});"
         if guard in body_masked:
             continue

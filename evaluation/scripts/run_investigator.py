@@ -415,6 +415,30 @@ def _dependencies(
     }
 
 
+def header_param_span(masked_header: str) -> str | None:
+    """The comma-separated parameter list inside a `function name(...)` header.
+
+    Paren-balanced on the comment-masked text; None when no declaration or an
+    unbalanced list is present. Callers own the per-word semantics.
+    """
+    match = re.search(r"\bfunction\s+[A-Za-z_]\w*\s*\(", masked_header)
+    if not match:
+        return None
+    start = match.end()
+    depth = 1
+    index = start
+    while index < len(masked_header) and depth > 0:
+        char = masked_header[index]
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+        index += 1
+    if depth != 0:
+        return None
+    return masked_header[start : index - 1]
+
+
 def parse_contract(source: str, contract_name: str | None = None) -> ParsedSource:
     name, body_start, body_end, units = _find_contract(source, contract_name)
     parsed = ParsedSource(source, name, body_start, body_end, units)

@@ -200,7 +200,7 @@ def _mask(source: str) -> str:
     raise RuntimeError("mask helper unavailable")
 
 
-def canonical_type(type_text: str) -> int | str:
+def canonical_type(type_text: str) -> str:
     """Canonical key for structural unification.
 
     Integer widths collapse to their signedness class: the decompiler's width
@@ -297,18 +297,9 @@ def _param_type_hints(unit) -> dict[str, list[str]]:
 def _function_params(source: str, unit):
     masked_unit = _mask(source[unit.start : unit.end])
     header = masked_unit[: len(unit.header)]
-    open_match = re.search(r"\bfunction\s+[A-Za-z_]\w*\s*\(", header)
-    if not open_match:
+    inner = investigator.header_param_span(header)
+    if inner is None:
         return []
-    depth = 1
-    index = open_match.end()
-    while index < len(header) and depth > 0:
-        if header[index] == "(":
-            depth += 1
-        elif header[index] == ")":
-            depth -= 1
-        index += 1
-    inner = header[open_match.end() : index - 1]
     params = []
     for part in inner.split(","):
         tokens = par.split() if (par := part.strip()) else []

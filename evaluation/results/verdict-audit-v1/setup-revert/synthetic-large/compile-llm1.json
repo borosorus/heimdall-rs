@@ -577,5 +577,5 @@
   "solc_version": "0.8.30",
   "source_sha256": "fb53bad59f40fd60d5a793c2771e90d66de1a0aca9fbbe65c5caa2616c8aee8d",
   "stderr": "",
-  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 45.92ms\nCompiler run successful with warnings:\nWarning (5740): Unreachable code.\n   --> src/Candidate.sol:173:9:\n    |\n173 |         require(arg0 == 1);\n    |         ^^^^^^^^^^^^^^^^^^\n\nWarning (5740): Unreachable code.\n   --> src/Candidate.sol:174:9:\n    |\n174 |         store_c = arg0;\n    |         ^ (Relevant source part starts here and spans across multiple lines).\n\n"
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 45.44ms\nCompiler run successful with warnings:\nWarning (5740): Unreachable code.\n   --> src/Candidate.sol:173:9:\n    |\n173 |         require(arg0 == 1);\n    |         ^^^^^^^^^^^^^^^^^^\n\nWarning (5740): Unreachable code.\n   --> src/Candidate.sol:174:9:\n    |\n174 |         store_c = arg0;\n    |         ^ (Relevant source part starts here and spans across multiple lines).\n\n"
 }
