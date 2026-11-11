@@ -1234,6 +1234,81 @@ def synthesize_storage_getters(source: str) -> Stage:
     return Stage("storage-getters", "storage-getter synthesis", result, edits)
 
 
+def infer_param_types_from_storage(source: str) -> Stage:
+    """Stage: re-type generic-uint parameters from storage-map key evidence.
+
+    For a stub the storage-flow map correlated with a mapping, a parameter
+    typed as the decompiler's generic ``uintN`` is re-declared with the
+    mapped key's class where they differ (today: ``address`` keys, whose
+    evidence class is proven by the uint160 narrowing). The declaration AND
+    its ``@custom:signature`` provenance comment are rewritten together;
+    dispatch selector and harness calldata both derive from the declared
+    signature, so the shift is self-consistent. The synthesized getter then
+    indexes directly, without the widening cast. Non-mapping key classes are
+    future evidence, not guesses.
+    """
+    flow = storage_flow.build_storage_flow(source)
+    edits: list[dict[str, Any]] = []
+    rewrites: list[tuple[int, int, str]] = []
+    for candidate in flow.correlations:
+        if candidate.evidence == "exact":
+            continue  # every position already agrees; nothing to infer
+        keys = [storage_flow.canonical_type(k) for k in candidate.key_chain]
+        unit_text = source[candidate.start : candidate.end]
+        header = unit_text[: candidate.header_len]
+
+        # retype only THIS function's declared parameter list
+        open_paren = header.find("(", header.find("function"))
+        close_paren = header.find(")", open_paren)
+        if open_paren < 0 or close_paren < 0:
+            continue
+        param_span = header[open_paren + 1 : close_paren]
+        params = [part.strip() for part in param_span.split(",")]
+        new_params = []
+        changed = False
+        for index, part in enumerate(params):
+            tokens = part.split()
+            if (
+                index < len(keys)
+                and keys[index] == "address"
+                and len(tokens) == 2
+                and re.fullmatch(r"uint\d+", tokens[0])
+                and tokens[1] in candidate.param_names
+            ):
+                new_params.append(f"address {tokens[1]}")
+                changed = True
+            else:
+                new_params.append(" ".join(tokens))
+        if not changed:
+            continue
+        new_header = header[:open_paren + 1] + ", ".join(new_params) + header[close_paren:]
+        # provenance comment carries the same signature: sync its parameter
+        # list for this function name (the comment lives in the header span)
+        comment_pattern = re.compile(
+            r"(@custom:signature\s+%s\()([^)]*)(\))" % re.escape(candidate.function)
+        )
+        new_header = comment_pattern.sub(
+            lambda m: m.group(1) + ", ".join(new_params) + m.group(3), new_header
+        )
+        rewrites.append(
+            (candidate.start, candidate.end, new_header + unit_text[candidate.header_len :])
+        )
+        edits.append(
+            _record(
+                "param-retyped",
+                f"{candidate.function}: {param_span} -> {', '.join(new_params)}"
+                f" (map keys {candidate.key_chain}, evidence {candidate.evidence})",
+                "storage-map key class proves the parameter type",
+            )
+        )
+    if not rewrites:
+        return Stage("param-types", "calldata-word type inference", source, edits)
+    result = source
+    for start, end, replacement in sorted(rewrites, reverse=True):
+        result = result[:start] + replacement + result[end:]
+    return Stage("param-types", "calldata-word type inference", result, edits)
+
+
 _GUARD_PRECEDENT_RE = re.compile(r"\b([A-Za-z_]\w*)\[([^\]]+)\] >= ([A-Za-z_]\w*)")
 _MUTATION_RE = re.compile(r"\b([A-Za-z_]\w*)\[[^\]]+\] [-+]=")
 _REQUIRE_LINE_RE = re.compile(r"^[ \t]*require\([^;]*;[ \t]*$")
@@ -1365,6 +1440,7 @@ PREPARE_STAGES = (
     recover_packed_scalar_storage,
     relax_truthiness_requires,
     repair_fallback_shape,
+    infer_param_types_from_storage,
     synthesize_storage_getters,
     synthesize_send_guards,
 )

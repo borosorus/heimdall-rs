@@ -20,15 +20,15 @@ paired run, sealed reveal, numbers never merged across labels.
 2. **Mapping-getter body synthesis - DONE (v3, `fresh-holdout-v3/`)**: erc20
    fb 2/4 -> 4/4 via the audited map+synthesis; the transferFrom wh clause went
    partial (its residual is a stateful send body, not a getter) and spawned 0.
-3. **Calldata-word type inference** (consumer of 1). Fill arity-extended params
-   from casts / mapping-key positions / storage access types instead of generic
-   `uint256`; infer only on agreeing evidence. Done-when: targeted entrypoints bind
-   with reference-matching selectors and their probes pass on a labeled replay.
-4. **Events into the verdict, then event repair.** `compare_events=false`
-   everywhere; erc20 v2 metrics already record event mismatches on approval /
-   transfer paths. Enable on a controlled spec first (scores may drop - that is
-   measurement improving, and it must be labeled), then deterministic event
-   synthesis from declared topics + observed argument flow.
+3. **DONE (v5/v6, `fresh-holdout-v6/`)**: map-key classes re-type generic-uint
+   params (declaration + provenance); verdict-neutral, structurally truthful.
+   Enforced lesson: per-arm bindings re-derived mechanically after any
+   signature change.
+4. **DONE (v5/v6, `fresh-holdout-v6/`)**: events in the verdict via per-side
+   identity tables (candidate decls / reference fixture ABI) with raw
+   fallback; the exposed layout defect (missing `indexed`) repaired
+   observation-side; erc20 4/4+2/2 WITH events. Remaining event nicety
+   (alias renaming) is cosmetic - LLM-era territory.
 5. **Gas-budget probes for exceptional halts.** modern-errors OOG vs invalid are
    observation-equivalent at current depth (recorded in its README). A
    deterministic gas-limit ladder separates them and tightens synthesis acceptance.

@@ -316,3 +316,44 @@ class SendPathEvidenceTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CanonicalEventTest(unittest.TestCase):
+    TOPIC_TRANSFER = "0xddf252ad" + "00" * 28
+    TOPIC_ALIAS = "0x1234abcd" + "00" * 28
+
+    def test_declared_event_table_maps_own_keccaks(self):
+        source = "contract C { event Event_ddf252ad(address, address, uint256); }"
+        table = run_behavior.declared_event_topics(source)
+        self.assertEqual(len(table), 1)
+        (name,) = table.values()
+        self.assertEqual(name, "Event_ddf252ad")
+        # the alias name embeds the id used for cross-side identity
+        logs = [{"topics": [next(iter(table)), "0x" + "aa" * 32], "data": "0x0"}]
+        (event,) = run_behavior.canonical_events(logs, table)
+        self.assertEqual(event["event"], "ddf252ad")
+
+    def test_event_match_resolves_alias_topics_to_identity(self):
+        table = {
+            "reference": {self.TOPIC_TRANSFER: "Transfer"},
+            "candidate": {self.TOPIC_ALIAS: "Event_ddf252ad"},
+        }
+        ref = [{"logs": [{"topics": [self.TOPIC_TRANSFER, "0x" + "aa" * 32], "data": "0x01"}]}]
+        cand = [{"logs": [{"topics": [self.TOPIC_ALIAS, "0x" + "aa" * 32], "data": "0x01"}]}]
+        self.assertTrue(run_behavior.event_matches(ref, cand, table))
+
+    def test_event_match_rejects_different_payloads(self):
+        table = {
+            "reference": {self.TOPIC_TRANSFER: "Transfer"},
+            "candidate": {self.TOPIC_ALIAS: "Event_ddf252ad"},
+        }
+        ref = [{"logs": [{"topics": [self.TOPIC_TRANSFER], "data": "0x01"}]}]
+        cand = [{"logs": [{"topics": [self.TOPIC_ALIAS], "data": "0x02"}]}]
+        self.assertFalse(run_behavior.event_matches(ref, cand, table))
+
+    def test_event_match_without_table_compares_raw(self):
+        logs = [{"logs": [{"topics": ["0xab"], "data": "0x1"}]}]
+        self.assertTrue(run_behavior.event_matches(logs, [dict(logs[0])]))
+        self.assertFalse(
+            run_behavior.event_matches(logs, [{"logs": [{"topics": ["0xcd"], "data": "0x1"}]}])
+        )

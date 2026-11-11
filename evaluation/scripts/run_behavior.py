@@ -14,6 +14,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -272,6 +273,53 @@ def normalize_logs(logs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
+def declared_event_topics(source: str) -> dict[str, str]:
+    """topic0 -> canonical event name, from a source's OWN event declarations.
+
+    Both sides name events differently (the decompiler emits alias declarations
+    whose keccak differs from the reference's); resolving each side against its
+    own declarations makes log comparison identity-based instead of
+    spelling-based. Requires an external keccak (cast) - absence degrades to an
+    empty table and unresolved topics compare by raw value.
+    """
+    table: dict[str, str] = {}
+    for match in re.finditer(r"\bevent\s+([A-Za-z_]\w*)\s*\(([^)]*)\)", source):
+        name, params = match.group(1), match.group(2)
+        types = ",".join(p.strip().split()[0] for p in params.split(",") if p.strip())
+        signature = f"{name}({types})"
+        try:
+            topic = subprocess.run(
+                ["cast", "sig-event", signature], capture_output=True, text=True, timeout=30, check=True
+            ).stdout.strip().lower()
+        except (subprocess.SubprocessError, OSError):
+            continue
+        if topic.startswith("0x") and len(topic) == 66:
+            table.setdefault(topic, name)
+    return table
+
+
+def canonical_events(logs: list[dict[str, Any]], event_topics: dict[str, str]) -> list[dict[str, Any]]:
+    """Logs as (canonical event id, non-signature topics, data).
+
+    The id is side-independent by construction: a decompiler alias name
+    (``Event_<hex8>``) carries its id inline; any other name takes the id from
+    its own table's topic0 prefix. Equal ids mean the same event signature
+    without sharing spelling conventions across sides.
+    """
+    events = []
+    for log in normalize_logs(logs):
+        topics = log["topics"]
+        signature, rest = (topics[0], topics[1:]) if topics else (None, [])
+        name = event_topics.get(signature) if signature else None
+        if name:
+            embedded = re.fullmatch(r"Event_([0-9a-fA-F]{8})", name)
+            identity = embedded.group(1).lower() if embedded else (signature[2:10] if signature else None)
+        else:
+            identity = None
+        events.append({"event": identity, "topics": rest, "data": log["data"]})
+    return events
+
+
 def trace_failed_call_gas(rpc: Rpc, call_params: dict) -> str | None:
     """Gas used by a failed eth_call, via debug_traceCall; None when unavailable.
 
@@ -520,11 +568,29 @@ def configured_match(result: dict[str, Any], compare_events: bool) -> bool:
     return result["semantic_match"] and (not compare_events or result["event_match"])
 
 
-def event_matches(reference: list[dict[str, Any]], candidate: list[dict[str, Any]]) -> bool:
-    return len(reference) == len(candidate) and all(
-        left.get("logs", []) == right.get("logs", [])
-        for left, right in zip(reference, candidate)
-    )
+def event_matches(
+    reference: list[dict[str, Any]],
+    candidate: list[dict[str, Any]],
+    event_topics: dict[str, dict[str, str]] | None = None,
+) -> bool:
+    event_topics = event_topics or {}
+    if len(reference) != len(candidate):
+        return False
+    for left, right in zip(reference, candidate):
+        ref_events = canonical_events(left.get("logs", []), event_topics.get("reference", {}))
+        cand_events = canonical_events(right.get("logs", []), event_topics.get("candidate", {}))
+        if len(ref_events) != len(cand_events):
+            return False
+        for ref_event, cand_event in zip(ref_events, cand_events):
+            if ref_event["event"] is not None and cand_event["event"] is not None:
+                # both sides resolved to a declared identity: compare by name,
+                # indexed arguments and data - alias spellings are equal
+                if ref_event != cand_event:
+                    return False
+            elif left.get("logs", []) != right.get("logs", []):
+                # unresolved topic0 on either side: raw comparison
+                return False
+    return True
 
 
 def combined_event_match(
@@ -532,9 +598,10 @@ def combined_event_match(
     setup_candidate: list[dict[str, Any]],
     reference: list[dict[str, Any]],
     candidate: list[dict[str, Any]],
+    event_topics: dict[str, dict[str, str]] | None = None,
 ) -> bool:
-    return event_matches(setup_reference, setup_candidate) and event_matches(
-        reference, candidate
+    return event_matches(setup_reference, setup_candidate, event_topics) and event_matches(
+        reference, candidate, event_topics
     )
 
 
@@ -632,7 +699,9 @@ def run_probes(
     reference_addr: str,
     candidate_addr: str,
     accounts: list[str],
+    event_topics: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, Any]:
+    event_topics = event_topics or {}
     setup = spec.get("setup", [])
     probe_results: dict[str, Any] = {}
     base_snapshot = rpc.call("evm_snapshot")
@@ -672,8 +741,20 @@ def run_probes(
                 strict_evidence=bool(spec.get("strict_evidence", False)),
             ),
             "event_match": combined_event_match(
-                setup_reference, setup_candidate, reference, candidate
+                setup_reference,
+                setup_candidate,
+                reference,
+                candidate,
+                event_topics,
             ),
+            "events_reference": [
+                canonical_events(obs["logs"], event_topics.get("reference", {}))
+                for obs in [*setup_reference, *reference]
+            ],
+            "events_candidate": [
+                canonical_events(obs["logs"], event_topics.get("candidate", {}))
+                for obs in [*setup_candidate, *candidate]
+            ],
         }
     rpc.call("evm_revert", [base_snapshot])
     return probe_results
@@ -951,8 +1032,37 @@ def evaluate_stage(
     rpc.call("anvil_setCode", [candidate_addr, compile_record["deployed_bytecode"]])
     rpc.call("anvil_setBalance", [candidate_addr, "0x0"])
     stage["address"] = candidate_addr
+    # event identity tables for BOTH sides: run_probes always collects the
+    # reference and candidate sequences, so each stage needs both tables - the
+    # candidate resolves against its own declared (alias) events; the reference
+    # side is the published fixture runtime, resolved via the reference ABI
+    event_tables = {"candidate": declared_event_topics(source), "reference": {}}
+    abi_path = repo_root() / spec["reference_abi"]
+    for entry in json.loads(abi_path.read_text(encoding="utf-8")):
+        if entry.get("type") != "event":
+            continue
+        types = ",".join(param["type"] for param in entry.get("inputs", []))
+        signature = f"{entry['name']}({types})"
+        try:
+            topic = subprocess.run(
+                ["cast", "sig-event", signature],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=True,
+            ).stdout.strip().lower()
+        except (subprocess.SubprocessError, OSError):
+            continue
+        if topic.startswith("0x") and len(topic) == 66:
+            event_tables["reference"].setdefault(topic, entry["name"])
     stage["probe_results"] = run_probes(
-        rpc, spec, stage_bindings, REF_ADDR, candidate_addr, rpc.call("eth_accounts")
+        rpc,
+        spec,
+        stage_bindings,
+        REF_ADDR,
+        candidate_addr,
+        rpc.call("eth_accounts"),
+        event_topics=event_tables,
     )
     write_json(result_dir / f"probe-results-{label}.json", stage["probe_results"])
     write_json(

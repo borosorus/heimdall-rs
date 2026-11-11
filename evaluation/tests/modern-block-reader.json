@@ -1,9 +1,9 @@
 {
- "compare_events": false,
+ "compare_events": true,
  "strict_evidence": true,
  "fixture": "modern-block-reader",
  "contract": "DecompiledContract",
- "notes": "holdout bake-off spec (frozen): single-dispatch fallback contract; block-env reads are stable under read-mode eth_call within one harness pass",
+ "notes": "holdout bake-off spec (frozen): single-dispatch fallback contract; block-env reads are stable under read-mode eth_call within one harness pass Events in the verdict from v5 (canonical identity compare).",
  "reference_runtime": "evaluation/fixtures/modern-block-reader/runtime.hex",
  "reference_abi": "evaluation/fixtures/modern-block-reader/abi.json",
  "solc_version": "0.8.27",

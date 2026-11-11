@@ -1,19 +1,22 @@
 {
- "compare_events": false,
+ "compare_events": true,
  "strict_evidence": true,
  "fixture": "modern-oz-erc20",
  "contract": "DecompiledContract",
- "notes": "holdout bake-off spec (frozen): runtime-only deployment => constructor storage empty on BOTH sides; parity is still the verdict instrument. OZ semantics exercised from zero state. Candidate compile solc set to the repo-standard 0.8.30: the decompiler emits require(bool, CustomError()) which solc 0.8.22 rejects; toolchain choice, symmetric across arms (deviation 8).",
+ "notes": "holdout bake-off spec (frozen): runtime-only deployment => constructor storage empty on BOTH sides; parity is still the verdict instrument. OZ semantics exercised from zero state. Candidate compile solc set to the repo-standard 0.8.30: the decompiler emits require(bool, CustomError()) which solc 0.8.22 rejects; toolchain choice, symmetric across arms (deviation 8). Events in the verdict from v5 (canonical identity compare).",
  "reference_runtime": "evaluation/fixtures/modern-oz-erc20/runtime.hex",
  "reference_abi": "evaluation/fixtures/modern-oz-erc20/abi.json",
  "solc_version": "0.8.30",
  "bindings": {
   "allowance": {
    "reference_signature": "allowance(address,address)",
-   "candidate_signature": "Unresolved_dd62ed3e(address,uint256)",
+   "candidate_signature": "Unresolved_dd62ed3e(address,address)",
    "candidate_signatures": {
     "v2": "Unresolved_dd62ed3e(address,uint256)",
-    "v3": "Unresolved_dd62ed3e(address,uint256)"
+    "v3": "Unresolved_dd62ed3e(address,uint256)",
+    "v4": "Unresolved_dd62ed3e(address,uint256)",
+    "v5": "Unresolved_dd62ed3e(address,address)",
+    "v6": "Unresolved_dd62ed3e(address,address)"
    }
   },
   "approve": {
@@ -21,7 +24,10 @@
    "candidate_signature": "Unresolved_095ea7b3(address,uint256)",
    "candidate_signatures": {
     "v2": "Unresolved_095ea7b3(address,uint256)",
-    "v3": "Unresolved_095ea7b3(address,uint256)"
+    "v3": "Unresolved_095ea7b3(address,uint256)",
+    "v4": "Unresolved_095ea7b3(address,uint256)",
+    "v5": "Unresolved_095ea7b3(address,uint256)",
+    "v6": "Unresolved_095ea7b3(address,uint256)"
    }
   },
   "balanceOf": {
@@ -29,7 +35,10 @@
    "candidate_signature": "unresolved_70a08231(address)",
    "candidate_signatures": {
     "v2": "unresolved_70a08231(address)",
-    "v3": "unresolved_70a08231(address)"
+    "v3": "unresolved_70a08231(address)",
+    "v4": "unresolved_70a08231(address)",
+    "v5": "unresolved_70a08231(address)",
+    "v6": "unresolved_70a08231(address)"
    }
   },
   "decimals": {
@@ -37,7 +46,10 @@
    "candidate_signature": "unresolved_313ce567()",
    "candidate_signatures": {
     "v2": "unresolved_313ce567()",
-    "v3": "unresolved_313ce567()"
+    "v3": "unresolved_313ce567()",
+    "v4": "unresolved_313ce567()",
+    "v5": "unresolved_313ce567()",
+    "v6": "unresolved_313ce567()"
    }
   },
   "name": {
@@ -45,7 +57,10 @@
    "candidate_signature": "unresolved_06fdde03()",
    "candidate_signatures": {
     "v2": "unresolved_06fdde03()",
-    "v3": "unresolved_06fdde03()"
+    "v3": "unresolved_06fdde03()",
+    "v4": "unresolved_06fdde03()",
+    "v5": "unresolved_06fdde03()",
+    "v6": "unresolved_06fdde03()"
    }
   },
   "symbol": {
@@ -53,7 +68,10 @@
    "candidate_signature": "unresolved_95d89b41()",
    "candidate_signatures": {
     "v2": "unresolved_95d89b41()",
-    "v3": "unresolved_95d89b41()"
+    "v3": "unresolved_95d89b41()",
+    "v4": "unresolved_95d89b41()",
+    "v5": "unresolved_95d89b41()",
+    "v6": "unresolved_95d89b41()"
    }
   },
   "totalSupply": {
@@ -61,7 +79,10 @@
    "candidate_signature": "unresolved_18160ddd()",
    "candidate_signatures": {
     "v2": "unresolved_18160ddd()",
-    "v3": "unresolved_18160ddd()"
+    "v3": "unresolved_18160ddd()",
+    "v4": "unresolved_18160ddd()",
+    "v5": "unresolved_18160ddd()",
+    "v6": "unresolved_18160ddd()"
    }
   },
   "transfer": {
@@ -69,7 +90,10 @@
    "candidate_signature": "Unresolved_a9059cbb(address,uint256)",
    "candidate_signatures": {
     "v2": "Unresolved_a9059cbb(address,uint256)",
-    "v3": "Unresolved_a9059cbb(address,uint256)"
+    "v3": "Unresolved_a9059cbb(address,uint256)",
+    "v4": "Unresolved_a9059cbb(address,uint256)",
+    "v5": "Unresolved_a9059cbb(address,uint256)",
+    "v6": "Unresolved_a9059cbb(address,uint256)"
    }
   },
   "transferFrom": {
@@ -77,7 +101,10 @@
    "candidate_signature": "Unresolved_23b872dd(address,uint256,uint256)",
    "candidate_signatures": {
     "v2": "Unresolved_23b872dd(address,uint256,uint256)",
-    "v3": "Unresolved_23b872dd(address,uint256,uint256)"
+    "v3": "Unresolved_23b872dd(address,uint256,uint256)",
+    "v4": "Unresolved_23b872dd(address,uint256,uint256)",
+    "v5": "Unresolved_23b872dd(address,uint256,uint256)",
+    "v6": "Unresolved_23b872dd(address,uint256,uint256)"
    }
   }
  },

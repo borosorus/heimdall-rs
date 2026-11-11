@@ -317,6 +317,7 @@ class PipelineTest(unittest.TestCase):
                 "packed-scalars",
                 "truthiness",
                 "fallback-shape",
+                "param-types",
                 "storage-getters",
                 "send-guards",
             ],
@@ -531,14 +532,14 @@ class SeedRuleTests(unittest.TestCase):
         )
         staged = prepare.prepare_stages(source)[-1].source
         self.assertIn(
-            "function Unresolved_dd62ed3e(address arg0, uint256 arg1) public view returns (uint256) {",
+            "function Unresolved_dd62ed3e(address arg0, address arg1) public view returns (uint256) {",
             staged,
         )
         # arg1 is a generic-uint word; the address key gets the explicit narrowing
-        self.assertIn("return storage_map_b[arg0][address(uint160(arg1))];", staged)
+        self.assertIn("return storage_map_b[arg0][arg1];", staged)
         # provenance comment stays in sync with the new mutability/returns
         self.assertIn(
-            "Unresolved_dd62ed3e(address arg0, uint256 arg1) public view returns (uint256)",
+            "Unresolved_dd62ed3e(address arg0, address arg1) public view returns (uint256)",
             staged,
         )
 
@@ -608,6 +609,39 @@ class SeedRuleTests(unittest.TestCase):
         record = next(e for e in stages[-1].edits if e["kind"] == "send-guard")
         # recorded precedent names the sibling and the mapping
         self.assertIn("precedent transfer on balances", record["detail"])
+
+    def test_param_retyped_from_storage_map_key(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => mapping(address => uint256)) storage_map_b; // storage slot: 0x01\n"
+            "    /// @custom:signature   allowance(address arg0, uint256 arg1) public pure\n"
+            "    function allowance(address arg0, uint256 arg1) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x40);\n"
+            "    }\n"
+            "}\n"
+        )
+        stages = prepare.prepare_stages(source)
+        final = stages[-1].source
+        # arg1 re-typed to the map's second address key, declaration AND comment
+        self.assertIn("function allowance(address arg0, address arg1) public view returns (uint256) {", final)
+        self.assertIn(
+            "/// @custom:signature   allowance(address arg0, address arg1) public view returns (uint256)", final
+        )
+        self.assertIn("return storage_map_b[arg0][arg1];", final)
+        param_stage = next(s for s in stages if s.name == "param-types")
+        record = next(e for e in param_stage.edits if e["kind"] == "param-retyped")
+        self.assertIn("map keys", record["detail"])
+
+    def test_param_retype_abstains_without_map_evidence(self):
+        source = (
+            "contract C {\n"
+            "    function f(uint256 arg0) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);\n"
+            "    }\n"
+            "}\n"
+        )
+        final = prepare.prepare_stages(source)[-1].source
+        self.assertIn("function f(uint256 arg0) public pure {", final)
 
     def test_send_guard_abstains_without_guarding_sibling(self):
         source = (

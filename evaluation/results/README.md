@@ -729,3 +729,15 @@ which caught a real one-line-`}` grammar hole live; per-sibling uniqueness;
 string-safe mutability scope); post-fix seeds byte-identical to the sealed-run
 seeds. Suite 195/195. Roadmap: leads 0-2 done; next of kin: 3 (typed calldata
 inference), 4 (events), 5 (gas probes).
+### Holdout v5/v6: events into the verdict - erc20 perfect under full scrutiny (2026-11-11)
+
+`fresh-holdout-v6/`: roadmap leads 3-4 sealed. v5 exposes the verdict to events
+(honest dip to 1/4: the decompiler's alias events lack `indexed`); the new
+identity comparison (per-side event tables, canonical `Event_<hex8>` ids, raw
+fallback) plus observation-driven `repair_event_layout.py` restore full parity:
+**erc20 4/4 fb + 2/2 wh with events, strict evidence, zero LLM**. Lead 3's
+param-retyping is verdict-neutral and structurally true. A live-found binding
+staleness bug (stale v3 sig after signature rewrites) is now prevented by the
+mandatory mechanical per-arm derivation. Reviewer: 1 P1 + 2 P2 adopted; final
+code re-verified against the sealed verdict. Suite 201/201. Roadmap: 0-4 done;
+remaining 5-8 (gas probes, vm walk bound, constructor coverage, Rust port).
