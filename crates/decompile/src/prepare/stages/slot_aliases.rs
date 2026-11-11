@@ -298,7 +298,7 @@ mod tests {
     #[test]
     fn unknown_type_pair_abstains() {
         let source = SEED.replace("    address ownerAlias;", "    string ownerAlias;");
-        let stage = run(source).unwrap();
+        let stage = run(&source).unwrap();
         assert_eq!(stage.source, source);
         assert!(stage.findings.iter().any(|f| f.reason.contains("no proven conversion")));
     }
