@@ -9,43 +9,520 @@
   },
   "probes": {
     "initial_get": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_zero_get": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_123_get": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_max_get": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_with_value": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "truncated_set": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_from_second_caller": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x00000000000000000000000000000000000000000000000000000000000001c8",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x00000000000000000000000000000000000000000000000000000000000001c8",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "repeated_writes": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000002",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000002",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_42_get": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_max_then_zero_get": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "set_values_from_two_callers": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000009",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000009",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "truncated_then_valid": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000005",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x0000000000000000000000000000000000000000000000000000000000000005",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     },
     "value_rejection_then_read": {
-      "parity": true
+      "parity": true,
+      "ref_setup_valid": true,
+      "raw": {
+        "setup_reference": [],
+        "setup_candidate": [],
+        "reference": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x000000000000000000000000000000000000000000000000000000000000000b",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ],
+        "candidate": [
+          {
+            "ok": true,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": false,
+            "return_data": null,
+            "revert_data": null,
+            "contract_balance": "0x0"
+          },
+          {
+            "ok": true,
+            "return_data": "0x000000000000000000000000000000000000000000000000000000000000000b",
+            "revert_data": null,
+            "contract_balance": "0x0"
+          }
+        ]
+      }
     }
   },
   "summary": {

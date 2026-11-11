@@ -45,7 +45,7 @@ CALLER = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 REF_ADDR = "0x1000000000000000000000000000000000001001"
 CAND_ADDR = "0x1000000000000000000000000000000000001002"
 
-SETUPS = ["setLimits(uint256,uint256):10:5", "setLimits(uint256,uint256):10:50"]
+SETUPS = ["setLimits(uint256,uint256):10:5:send", "setLimits(uint256,uint256):10:50:send"]
 
 CONTINUATION = [
     "limits()::",
@@ -97,18 +97,18 @@ def step_once(rpc, addr, sigs, spec):
     name_full, _, argstr = body.partition(":")
     name = name_full.split("(")[0]
     args = [a for a in argstr.split(":") if a]
-    # a side's setter may accept fewer words than the reference call carries
-    # (the surplus-word story is the point): truncate until cast accepts
-    calldata = None
-    for k in range(len(args), -1, -1):
-        probe = subprocess.run(
-            ["cast", "calldata", sigs[name], *args[:k]], capture_output=True, text=True, timeout=30
+    # the candidate keeps the FULL reference argument encoding; only the
+    # selector is the candidate's own - surplus words reach msg.data, which
+    # is exactly the state-carrying mechanism under test
+    if len(args) > 1 and sigs[name].count(",") + 1 < len(args):
+        sel = subprocess.run(["cast", "sig", sigs[name]], capture_output=True, text=True, timeout=30, check=True).stdout.strip()
+        words = "".join("%032x" % int(a, 0) if not a.startswith("0x") else a[2:].rjust(64, "0") for a in args)
+        calldata = sel + words
+    else:
+        out = subprocess.run(
+            ["cast", "calldata", sigs[name], *args], capture_output=True, text=True, timeout=30, check=True
         )
-        if probe.returncode == 0:
-            calldata = probe.stdout.strip()
-            break
-    if calldata is None:
-        raise SystemExit(f"cast calldata failed for {sigs[name]} {args}")
+        calldata = out.stdout.strip()
     result = behavior.call_step(rpc, addr, calldata, CALLER, 0, send)
     return {"spec": spec, "ok": result["ok"], "return_data": result["return_data"], "revert_data": result["revert_data"]}
 

@@ -868,7 +868,7 @@ def _constraint_sections(
         result = stage["probe_results"].get(probe)
         if result is None:
             return None, None
-        rows = _feedback_or_setup_rows(result)
+        rows = _feedback_observations(result)
         return result, rows
 
     def unit_row_indices(rows, limit):
@@ -922,10 +922,16 @@ def _constraint_sections(
     return sections
 
 
-def _feedback_or_setup_rows(result: dict[str, Any]) -> list[dict[str, Any]]:
-    """Sanitized interleaved rows (alias kept for call-site clarity)."""
-    return _feedback_observations(result)
 
+
+
+def _external_only(units) -> set:
+    """Dispatch selectors of public/external functions only."""
+    return {
+        hb.cast_selector(dispatch_signature_text(u.header))
+        for u in units
+        if not re.search(r"\b(private|internal)\b", _mask_strings_and_comments(u.header, 0, len(u.header)))
+    }
 
 def _abi_surface(compile_record: dict[str, Any]) -> set[str]:
     return set(hb.abi_selectors(compile_record.get("abi") or []))
@@ -1065,7 +1071,6 @@ def run(args: argparse.Namespace) -> int:
                 no_progress[target] = no_progress.get(target, 0) + 1
                 continue
 
-            repaired_units: dict[str, int] = {}
             staged_source = current_source
             staged_parsed = parsed
             staged_stage = current_stage
@@ -1135,7 +1140,6 @@ def run(args: argparse.Namespace) -> int:
                 except BehaviorRepairError as validation_error:
                     entry["error"] = str(validation_error)
                     continue
-                repaired_units[unit.opaque_id] = repaired_units.get(unit.opaque_id, 0) + 1
                 merged = _apply_one(staged_parsed, unit, function_text)
                 merged_parsed = parse_contract(merged, spec.get("contract"))
                 compile_record = hb.compile_candidate(
@@ -1147,10 +1151,7 @@ def run(args: argparse.Namespace) -> int:
                 )
                 entry["compiled"] = bool(compile_record.get("ok"))
                 surface = _abi_surface(compile_record) if compile_record.get("ok") else set()
-                expected = {
-                    hb.cast_selector(dispatch_signature_text(u.header))
-                    for u in parsed.functions
-                }
+                expected = _external_only(parsed.functions)
                 entry["abi_loss"] = sorted(expected - surface) if compile_record.get("ok") else None
                 if not compile_record.get("ok") or (expected - surface):
                     if compile_record.get("ok"):
@@ -1173,7 +1174,6 @@ def run(args: argparse.Namespace) -> int:
                     staged_source, staged_parsed = merged, merged_parsed
                     staged_stage = trial_stage
                     error_reason = None
-                    repaired_units[unit.opaque_id] = 0  # fresh unit, fresh attempts
                     if accepted:
                         accepted_history.append(
                             _accepted_record("run", transaction, attempt_index, unit, function_text, SINGLE_ACCEPTANCE_SUMMARY)
@@ -1189,10 +1189,14 @@ def run(args: argparse.Namespace) -> int:
                     str(reason) for reason in verdict_reasons[:2]
                 )
 
+            if transaction_accepted:
+                accepted_source, accepted_stage = staged_source, staged_stage
             if transaction_accepted or (pending_seen and staged_source != current_source):
+                # pending progress advances the working state only; the
+                # accepted checkpoint moves on strict wins so exhaustion
+                # publishes the last strictly-accepted candidate.
                 current_source, parsed = staged_source, staged_parsed
                 current_stage = staged_stage
-                accepted_source, accepted_stage = current_source, current_stage
                 no_progress.pop(target, None)
             else:
                 no_progress[target] = no_progress.get(target, 0) + 1
@@ -1283,9 +1287,7 @@ def run(args: argparse.Namespace) -> int:
                             spec.get("contract"),
                         )
                         surface = _abi_surface(g_compile) if g_compile.get("ok") else set()
-                        expected_surface = {
-                            hb.cast_selector(dispatch_signature_text(u.header)) for u in parsed.functions
-                        }
+                        expected_surface = _external_only(parsed.functions)
                         g_ok = bool(g_compile.get("ok")) and not (expected_surface - surface)
                         g_stage = (
                             evaluate(group_source, f"txn{transaction:02d}-grp")
@@ -1305,19 +1307,20 @@ def run(args: argparse.Namespace) -> int:
                                 "verdict": g_reasons,
                             }
                         )
+                        if g_accepted:
+                            for member in members:
+                                rewritten = rewrites.get(member.opaque_id)
+                                if rewritten:
+                                    accepted_history.append(
+                                        _accepted_record("run", transaction, attempt_index, member, rewritten, GROUP_ACCEPTANCE_SUMMARY)
+                                    )
                         if g_accepted or g_pending:
                             if g_accepted:
-                                for member in members:
-                                    rewritten = rewrites.get(member.opaque_id)
-                                    if rewritten:
-                                        accepted_history.append(
-                                            _accepted_record("run", transaction, attempt_index, member, rewritten, GROUP_ACCEPTANCE_SUMMARY)
-                                        )
+                                accepted_source, accepted_stage = group_source, g_stage
                             current_source, parsed = group_source, parse_contract(
                                 group_source, spec.get("contract")
                             )
                             current_stage = g_stage
-                            accepted_source, accepted_stage = current_source, current_stage
                             no_progress.pop(target, None)
                             continue
             # Starvation guard: a stalled target rotates away; the loop only

@@ -72,29 +72,13 @@ def resolve_all(source, spec_bindings, abi=None):
         sel = subprocess.run(["cast", "sig", refsig], capture_output=True, text=True, timeout=30).stdout.strip().lower()
         token = sel[2:] if sel.startswith("0x") else sel
         for prefix in ("Unresolved_", "unresolved_"):
-            if prefix + token in decl:
+            if prefix + token in decl and (not abi_sigs or decl[prefix + token] in abi_sigs):
                 resolved[refname] = decl[prefix + token]
                 break
         else:
             matches = [sig for sig in list(decl.values()) + list(abi_sigs) if _sel(sig) == sel]
             resolved[refname] = matches[0] if len(matches) == 1 else refsig
     return resolved
-
-
-def calldata(sig, args):
-    args = [a for a in (args if args is not None else []) if a != ""]
-    if "bool" in sig:
-        args = [{"1": "true", "0": "false"}.get(a, a) for a in args]
-    fixed = []
-    for a in args:
-        if ((a.isdigit() and len(a) <= 40) or (a.startswith("0x") and 3 <= len(a) <= 42)):
-            fixed.append("0x" + (a[2:] if a.startswith("0x") else a).rjust(40, "0"))
-        else:
-            fixed.append(a)
-    args = fixed
-    argv = ["cast", "calldata", sig] + args
-    out = subprocess.run(argv, capture_output=True, text=True, timeout=30, check=True)
-    return out.stdout.strip()
 
 
 def encode_step(sig, step):
@@ -106,25 +90,36 @@ def _sel(sig):
     return subprocess.run(["cast", "sig", sig], capture_output=True, text=True, timeout=30, check=True).stdout.strip()
 
 
+def _obs(r):
+    return {
+        "ok": r["ok"],
+        "return_data": (r["return_data"] or "").lower() or None,
+        "revert_data": (r["revert_data"] or "").lower() or None,
+        "contract_balance": r.get("contract_balance"),
+    }
+
+
 def run_side(rpc, addr, callform, spec, side):
-    """Per-probe isolated: fresh snapshot + setup before every probe (harness semantics)."""
+    """Per-probe isolated: fresh snapshot + setup before every probe; full raw observations retained."""
     probes = {}
     setup_ok = True
     for probe in spec["probes"]:
         snap = rpc.call("evm_snapshot")
         try:
+            setup = []
             for step in spec.get("setup", []):
                 data = encode_step(callform[step["call"]], step)
                 sender = ACCOUNT1 if step.get("caller") == 1 else CALLER
                 r = behavior.call_step(rpc, addr, data, sender, int(step.get("value") or 0), step.get("send", False))
                 setup_ok = setup_ok and r["ok"]
+                setup.append(_obs(r))
             steps = []
             for step in probe["steps"]:
                 sender = ACCOUNT1 if step.get("caller") == 1 else CALLER
                 data = encode_step(callform[step["call"]], step)
                 r = behavior.call_step(rpc, addr, data, sender, int(step.get("value") or 0), step.get("send", False))
-                steps.append((r["ok"], (r["return_data"] or "").lower(), (r["revert_data"] or "").lower(), r.get("contract_balance")))
-            probes[probe["name"]] = steps
+                steps.append(_obs(r))
+            probes[probe["name"]] = {"setup": setup, "steps": steps}
         finally:
             rpc.call("evm_revert", [snap])
     return {"setup_ok": setup_ok, "probes": probes}
@@ -167,12 +162,25 @@ def main():
         perfect = 0
         for name in R["probes"]:
             rs, ks = R["probes"][name], K["probes"][name]
-            eq = len(rs) == len(ks) and all(a == b for a, b in zip(rs, ks))
-            evidence["probes"][name] = {"parity": eq}
+            # harness-grade parity: reference setup must be valid, then the
+            # same combined semantic match the harness verdicts use
+            ref_setup_ok = all(o["ok"] for o in rs["setup"])
+            result = {
+                "setup_reference": rs["setup"],
+                "setup_candidate": ks["setup"],
+                "reference": rs["steps"],
+                "candidate": ks["steps"],
+            }
+            eq = ref_setup_ok and behavior.combined_semantic_match(
+                rs["setup"], ks["setup"], rs["steps"], ks["steps"]
+            )
+            evidence["probes"][name] = {"parity": eq, "ref_setup_valid": ref_setup_ok, "raw": result}
             if not eq:
-                for i, (a, b) in enumerate(zip(rs, ks)):
+                pool_a = list(rs["setup"]) + rs["steps"]
+                pool_b = list(ks["setup"]) + ks["steps"]
+                for i, (a, b) in enumerate(zip(pool_a, pool_b)):
                     if a != b:
-                        evidence["probes"][name]["first_diff"] = {"step": i, "ref": a[:3], "cand": b[:3]}
+                        evidence["probes"][name]["first_diff"] = {"step": i, "ref": a, "cand": b}
                         break
             else:
                 perfect += 1

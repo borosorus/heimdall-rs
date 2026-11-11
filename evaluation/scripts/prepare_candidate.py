@@ -329,7 +329,10 @@ def declare_undefined_vars(source: str) -> Stage:
     masked = _mask_strings_and_comments(source, 0, len(source))
     used = set(re.findall(r"\b(var_[a-z]+)\b", masked))
     declared = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", masked))
-    declared |= set(re.findall(r"\b(var_[a-z]+)\s*=[^=]", masked))
+    declared |= {
+        m.group(2)
+        for m in re.finditer(r"\b(uint\d*|address|bool|bytes\d*)\s+(var_[a-z]+)\s*=[^=]", masked)
+    }  # typed local definitions declare; bare assignment targets do not
     undeclared = sorted(used - declared)
     edits: list[dict[str, Any]] = []
     if not undeclared:
@@ -532,15 +535,21 @@ _VIEW_CASTS = {
 
 
 def _declared_slots(source: str, masked: str) -> dict[str, tuple[str, str]]:
-    """State variables with their slot-comment provenance: name -> (type, slot hex)."""
+    """State variables with slot provenance.
+
+    Structure comes from the masked text (commented-out declarations are
+    spaces there and never match); the slot comment itself is read from the
+    raw source at the same offsets.
+    """
     declared: dict[str, tuple[str, str]] = {}
     for match in re.finditer(
-        r"^\s*(address|uint\d+|int\d+|bytes\d+|bytes|string|bool)\s+([A-Za-z_]\w*)\s*;"
-        r"(?:\s*//\s*storage slot:\s*(0x[0-9a-fA-F]+))?",
+        r"^\s*(address|uint\d+|int\d+|bytes\d+|bytes|string|bool)\s+([A-Za-z_]\w*)\s*;([^\n]*)",
         masked,
         re.M,
     ):
-        declared[match.group(2)] = (match.group(1), (match.group(3) or "").lower())
+        raw_tail = source[match.start(3) : match.end(3)] if match.group(3) else ""
+        slot = re.search(r"//\s*storage slot:\s*(0x[0-9a-fA-F]+)", raw_tail)
+        declared[match.group(2)] = (match.group(1), (slot.group(1) if slot else "").lower())
     return declared
 
 
@@ -564,7 +573,7 @@ def unify_storage_views(source: str) -> Stage:
     that are written, or type pairs without a proven conversion, abstain.
     """
     masked = _mask_strings_and_comments(source, 0, len(source))
-    declared = _declared_slots(source, source)
+    declared = _declared_slots(source, masked)
     by_slot: dict[str, list[str]] = {}
     for name, (_type, slot) in declared.items():
         if slot:
@@ -690,24 +699,24 @@ def _packed_uint_kind(ident: str, position: int, params_by_unit) -> bool:
 def _packed_length_read(masked: str, name: str, start: int, end: int, params_by_unit) -> bool:
     """True when this ``X.length`` is a comparison operand against a
     proven-unsigned identifier or an integer literal."""
-    line_start = masked.rfind("\n", 0, start) + 1
-    line_end = masked.find("\n", end)
-    line = masked[line_start : len(masked) if line_end < 0 else line_end]
+    window_start = max(0, start - 160)
+    window_end = min(len(masked), end + 160)
+    window = masked[window_start:window_end]
     token = re.escape(name)
+    occ = re.escape(masked[start:end])
     for pattern in (
-        rf"(?P<other>[A-Za-z_]\w*|\d+|0x[0-9a-fA-F]+)\s*(?:<=|>=|<|>)\s*uint256\s*\(\s*{token}\s*\.\s*length\s*\)",
-        rf"(?P<other>[A-Za-z_]\w*|\d+|0x[0-9a-fA-F]+)\s*(?:<=|>=|<|>)\s*{token}\s*\.\s*length\b",
-        rf"{token}\s*\.\s*length\s*\)?\s*(?:<=|>=|<|>)\s*(?:uint256\s*\(\s*(?P<wrapped>[A-Za-z_]\w*)\s*\)|(?P<other2>[A-Za-z_]\w*|\d+|0x[0-9a-fA-F]+))",
+        rf"(?P<other>[A-Za-z_]\w*|\d+|0x[0-9a-fA-F]+)\s*(?:<=|>=|<|>)\s*uint256\s*\(\s*{occ}\s*\)",
+        rf"(?P<other>[A-Za-z_]\w*|\d+|0x[0-9a-fA-F]+)\s*(?:<=|>=|<|>)\s*{occ}\b",
+        rf"{occ}\s*\)?\s*(?:<=|>=|<|>)\s*(?:uint256\s*\(\s*(?P<wrapped>[A-Za-z_]\w*)\s*\)|(?P<other2>[A-Za-z_]\w*|\d+|0x[0-9a-fA-F]+))",
     ):
-        match = re.search(pattern, line)
+        match = re.search(pattern, window)
         if not match:
             continue
         other = match.groupdict().get("other") or match.groupdict().get("other2") or match.groupdict().get("wrapped")
         if other is None or other.isdigit() or other.startswith("0x"):
             return True
-        absolute = line_start + match.start("other") if "other" in match.groupdict() and match.groupdict()["other"] else (
-            line_start + match.start("wrapped") if match.groupdict().get("wrapped") else line_start + match.start("other2")
-        )
+        gname = "other" if match.groupdict().get("other") else ("wrapped" if match.groupdict().get("wrapped") else "other2")
+        absolute = window_start + match.start(gname)
         return _packed_uint_kind(other, absolute, params_by_unit)
     return False
 
@@ -830,7 +839,8 @@ def recover_packed_scalar_storage(source: str) -> Stage:
                 ok = False
                 break
             packed_arg = any(
-                call_start <= start < call_end and any(a <= start < b for a, b in spans)
+                call_start <= start < call_end
+                and any(masked[a:b].strip() == name for a, b in spans)
                 for call_start, call_end, spans in packed_spans
             )
             if not packed_arg:

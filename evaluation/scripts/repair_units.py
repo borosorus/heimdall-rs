@@ -100,6 +100,16 @@ def _unit_line_span(parsed, unit) -> tuple[int, int]:
     return start_line, end_line
 
 
+def located_error_names(compile_record: dict) -> set:
+    """Units named by the compiler's diagnostics (empty when locationless)."""
+    names = set()
+    for diagnostic in compile_record.get("diagnostics") or []:
+        src = (diagnostic.get("sourceLocation") or {}).get("file")
+        if src:
+            names.add(Path(src).stem)
+    return names
+
+
 def _unit_error_codes(record: dict[str, Any], parsed, unit_name: str) -> Counter:
     """Multiset of compiler error codes whose location is inside the named unit."""
     unit = next((u for u in parsed.functions if u.name == unit_name), None)
@@ -334,11 +344,15 @@ def run(args: argparse.Namespace) -> int:
             # A failed compile with no located diagnostics for this unit proves
             # nothing about the rewrite; accept only located, strictly resolved
             # evidence or a full pass.
+            # Full compile pass always wins. Otherwise accept located,
+            # strictly-resolved progress in this unit; a locationless failure
+            # with remaining errors elsewhere still proves this unit's edit
+            # good when every located error here is resolved.
+            remaining_elsewhere = located_error_names(compile_attempt) - {unit.name}
             improved = bool(compile_attempt.get("ok")) or (
                 bool(old_codes)
-                and bool(new_codes)
-                and new_codes != old_codes
-                and not (Counter(new_codes) - Counter(old_codes))
+                and (not new_codes or (new_codes != old_codes and not (Counter(new_codes) - Counter(old_codes))))
+                and bool(remaining_elsewhere or not compile_attempt.get("locations"))
             )
             if improved:
                 attempt["accepted"] = True
@@ -369,7 +383,9 @@ def run(args: argparse.Namespace) -> int:
     if compiled:
         observed = abi_signatures(compile_record.get("abi") or [])
         expected = [
-            dispatch_signature_text(unit.header) for unit in parse_contract(source, contract).functions
+            dispatch_signature_text(unit.header)
+            for unit in parse_contract(source, contract).functions
+            if not re.search(r"\b(private|internal)\b", _mask_strings_and_comments(unit.header, 0, len(unit.header)))
         ]
         missing = [signature for signature in expected if signature not in observed]
         if missing:

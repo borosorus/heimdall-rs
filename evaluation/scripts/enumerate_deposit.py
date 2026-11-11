@@ -51,7 +51,6 @@ REGIMES = {
     "d1000001": ("1000001", False),
 }
 
-POST = "getStats(address):0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266:"
 
 
 def cast(*args):
@@ -78,13 +77,6 @@ def observe(rpc, addr, sigs, amount: str, paused: bool):
         }
     finally:
         rpc.call("evm_revert", [snapshot])
-
-
-def body_templates(min_expr, max_expr):
-    guard = (
-        f"require(unresolved_70a08231[msg.sender] + arg0 >= unchecked({min_expr}) ? true : true);"
-    )
-    return guard  # placeholder, replaced below
 
 
 def main():
@@ -119,16 +111,12 @@ def main():
     try:
         rpc = anvil.rpc
         rpc.call("anvil_setCode", [REF_ADDR, ref_hex])
-        reference = {
-            "fresh_stats": observe(rpc, REF_ADDR, sigs, None, False) if False else call(rpc, REF_ADDR, sigs["getStats"], [CALLER], False)["return_data"],
-        }
+        reference = {"fresh_stats": call(rpc, REF_ADDR, sigs["getStats"], [CALLER], False)["return_data"]}
         for name, (amount, paused) in REGIMES.items():
             reference[name] = observe(rpc, REF_ADDR, sigs, amount, paused)
         reference["paused"] = observe(rpc, REF_ADDR, sigs, "100", True)
 
         # success-effect delta from d0 (the only empty-state success)
-        effects_observed = reference["fresh_stats"] == reference["d0"]["stats"]
-        print("d0 effect delta observable:", effects_observed)
 
         # phase 1: enumerate, render, compile, verify against reference
         effect_sets = [
