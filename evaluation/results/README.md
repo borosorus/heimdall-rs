@@ -703,3 +703,16 @@ basis documented in-code; send path tested through `call_step` with a fake RPC).
 Open leads consolidated in `roadmap-deterministic.md` (top: typed storage-flow
 map -> mapping-getter synthesis; local-optimum flag on regex patches for the
 residual erc20 class).
+
+### Holdout v3: storage-flow map + getter synthesis - erc20 feedback perfect (2026-11-11)
+
+`fresh-holdout-v3/`: leads 1-2 of `roadmap-deterministic.md` executed under the
+labeled protocol. The typed storage-flow map (`storage_flow.py`: paren-balanced
+mapping parsing, recursive key-chain flattening, tiered exact/hinted unification
+against the decompiler's own `@param` hints) drove a new `storage-getters` prepare
+stage; the erc20 allowance stub now provably reads its slot-annotated double map.
+Sealed: erc20 fb 2/4 -> **4/4**, block-reader steady, modern-errors byte-neutral,
+tune parity PASS. Reviewer: 5 findings adopted (exact-tier demotion, bridge
+restriction, memory locations, intN canon; comment-sync pinned by test). Withheld
+stays 1/2 - the residual is a stateful send body, spun out as roadmap lead 0
+(stateful guard synthesis). Suite 192/192.

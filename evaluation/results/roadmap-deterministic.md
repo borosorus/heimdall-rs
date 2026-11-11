@@ -8,20 +8,19 @@ paired run, sealed reveal, numbers never merged across labels.
 
 ## Ranked
 
-1. **Typed storage-flow evidence map** (compounding infrastructure). One inferred
-   model connecting calldata words -> mapping keys -> slot-annotated storage, shared
-   by every consumer below instead of per-rule regex evidence. The erc20 candidate
-   already carries the raw material (slot comments, unresolved_<sel> mapping decls);
-   the seed rules are deliberately conservative per-stage rewrites, which is exactly
-   where the remaining erc20 class stalls. Local-optimum flag: the residual erc20
-   failures (stub getter bodies, unknown key types) are NOT reachable by more
-   regex patches - this is the structure change.
-2. **Mapping-getter body synthesis** (consumer of 1). Stub view function + arity
-   matching a slot-annotated (nested) mapping => emit the typed indexing expression
-   (`mapping[a][b]` - the compiler computes keccak layout); abstain on ambiguity.
-   Done-when: the two erc20 allowance fb probes and the `transferFrom_self_approved`
-   wh probe match on return data, nothing regresses; narrower results recorded
-   honestly if transferFrom needs more than the getter.
+0. **Stateful guard synthesis (2a, spun out of the v3 residual)**: the erc20
+   transferFrom withheld divergence is a stateful send body (reference reverts on
+   zero-balance transfer; candidate stub succeeds). Synthesize the guard
+   condition from the same map (balance/allowance checks over the slot-annotated
+   mappings); acceptance unchanged: harness parity on a labeled re-run.
+1. **Typed storage-flow evidence map - DONE as infrastructure (v3)**; now the
+   shared substrate: one inferred model connecting calldata words -> mapping
+   keys -> slot-annotated storage, consumed by synthesis (2), guard synthesis
+   (0) and type inference (3) instead of per-rule regex evidence. Remaining
+   extension: key-type inference from casts/hints for non-address keys.
+2. **Mapping-getter body synthesis - DONE (v3, `fresh-holdout-v3/`)**: erc20
+   fb 2/4 -> 4/4 via the audited map+synthesis; the transferFrom wh clause went
+   partial (its residual is a stateful send body, not a getter) and spawned 0.
 3. **Calldata-word type inference** (consumer of 1). Fill arity-extended params
    from casts / mapping-key positions / storage access types instead of generic
    `uint256`; infer only on agreeing evidence. Done-when: targeted entrypoints bind

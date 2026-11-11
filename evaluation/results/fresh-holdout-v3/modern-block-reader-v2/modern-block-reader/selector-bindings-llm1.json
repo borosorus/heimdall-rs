@@ -1,0 +1,29 @@
+{
+  "bindings": {
+    "getBlockInfo": {
+      "available": true,
+      "baseline_selector": "0x00819439",
+      "baseline_signature": "getBlockInfo()",
+      "candidate_label": "v2",
+      "candidate_selector": "0x00819439",
+      "candidate_signature": "getBlockInfo()",
+      "candidate_signatures": {
+        "v2": "getBlockInfo()",
+        "v3": "getBlockInfo()"
+      },
+      "fallback_dispatch": true,
+      "reference_selector": "0x00819439",
+      "reference_signature": "getBlockInfo()",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [],
+    "candidate_selector_count": 0,
+    "matched": 0,
+    "missing": [
+      "0x00819439"
+    ],
+    "reference_selector_count": 1
+  }
+}

@@ -49,6 +49,7 @@ from run_investigator import (  # noqa: E402
     parse_contract,
     rb,
 )
+import storage_flow  # noqa: E402  (sibling module; proves the typed storage map)
 
 PLACEHOLDER_TYPES = (("uint0", "uint256"), ("int0", "int256"), ("bytes0", "bytes"))
 
@@ -1160,6 +1161,79 @@ def repair_fallback_shape(source: str) -> Stage:
     return Stage("fallback-shape", "fallback dispatch shape", "".join(pieces), edits)
 
 
+def synthesize_storage_getters(source: str) -> Stage:
+    """Stage: give slot-correlated stubs their storage-getter bodies.
+
+    Consumes the typed storage-flow map (``storage_flow.py``): a return-less
+    stub whose signature uniquely unifies with a mapping's key chain and value
+    type gains ``return <mapping>[k0][k1...];``, view mutability, and the
+    value-typed returns clause. Purely structural; uniqueness is required and
+    the evidence tier is recorded. The harness revalidation is the acceptance
+    gate - this stage only proposes what the type system corroborates.
+    """
+    flow = storage_flow.build_storage_flow(source)
+    edits: list[dict[str, Any]] = []
+    rewrites: list[tuple[int, int, str]] = []  # (start, end, replacement)
+    for candidate in flow.correlations:
+        unit_text = source[candidate.start : candidate.end]
+        header = unit_text[: candidate.header_len]
+        body = unit_text[candidate.header_len :]
+        new_header = re.sub(r"\bpure\b", "view", header)
+        if not re.search(r"\breturns\b", new_header):
+            value = candidate.value_type
+            if re.match(r"^(string|bytes|[A-Za-z_]\w*\[\]|mapping)", value) and " memory" not in value:
+                # reference types need a data location in a returns clause
+                value = f"{value} memory"
+            returns_clause = f" returns ({value})"
+            new_header = new_header.rstrip() + returns_clause
+            # the provenance comment mirrors the declaration, as everywhere else
+            comment = re.search(
+                r"(?m)^(\s*///\s*@custom:signature\s+[A-Za-z_]\w*\([^)]*\))([^:\n]*)$",
+                new_header,
+            )
+            if comment:
+                new_header = (
+                    new_header[: comment.start(2)]
+                    + comment.group(2).rstrip()
+                    + returns_clause
+                    + new_header[comment.end(2) :]
+                )
+        expression = candidate.storage
+        casts: list[str] = []
+        for name, key_type, param_type in zip(
+            candidate.param_names,
+            (storage_flow.canonical_type(k) for k in candidate.key_chain),
+            candidate.params,
+        ):
+            index_expr = f"[{name}]"
+            if param_type != key_type and param_type == "uint" and key_type == "address":
+                # generic-uint decompiled word indexing an address key: the
+                # explicit uint160 narrowing is the standard decompiler cast
+                index_expr = f"[address(uint160({name}))]"
+                casts.append(name)
+            expression += index_expr
+        close = body.rfind("}")
+        if close < 0:
+            continue
+        new_body = body[:close] + f"\n        return {expression};" + body[close:]
+        rewrites.append((candidate.start, candidate.end, new_header + new_body))
+        edits.append(
+            _record(
+                "storage-getter",
+                f"{candidate.function} -> return {expression};"
+                f" (storage {candidate.storage} slot {candidate.slot}, evidence {candidate.evidence})"
+                + (f"; uint160 casts on {', '.join(casts)}" if casts else ""),
+                "stub signature uniquely unifies with slot-annotated mapping",
+            )
+        )
+    if not rewrites:
+        return Stage("storage-getters", "storage-getter synthesis", source, edits)
+    result = source
+    for start, end, replacement in sorted(rewrites, reverse=True):
+        result = result[:start] + replacement + result[end:]
+    return Stage("storage-getters", "storage-getter synthesis", result, edits)
+
+
 def _all_slot_decls(masked: str, source: str | None = None) -> dict[str, tuple[str, str]]:
     """Every slot-commented state declaration as name -> (type, slot).
 
@@ -1188,6 +1262,7 @@ PREPARE_STAGES = (
     recover_packed_scalar_storage,
     relax_truthiness_requires,
     repair_fallback_shape,
+    synthesize_storage_getters,
 )
 
 

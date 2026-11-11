@@ -317,6 +317,7 @@ class PipelineTest(unittest.TestCase):
                 "packed-scalars",
                 "truthiness",
                 "fallback-shape",
+                "storage-getters",
             ],
         )
         final = stages[-1].source
@@ -516,6 +517,74 @@ class SeedRuleTests(unittest.TestCase):
         )
         staged = prepare.prepare_stages(source)[-1].source
         self.assertIn("fallback() external payable {", staged)
+
+    def test_storage_getter_synthesized_from_unique_mapping_match(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => mapping(address => uint256)) storage_map_b; // storage slot: 0x01\n"
+            "    /// @custom:signature   Unresolved_dd62ed3e(address arg0, uint256 arg1) public pure\n"
+            "    function Unresolved_dd62ed3e(address arg0, uint256 arg1) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x40);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn(
+            "function Unresolved_dd62ed3e(address arg0, uint256 arg1) public view returns (uint256) {",
+            staged,
+        )
+        # arg1 is a generic-uint word; the address key gets the explicit narrowing
+        self.assertIn("return storage_map_b[arg0][address(uint160(arg1))];", staged)
+        # provenance comment stays in sync with the new mutability/returns
+        self.assertIn(
+            "Unresolved_dd62ed3e(address arg0, uint256 arg1) public view returns (uint256)",
+            staged,
+        )
+
+    def test_storage_getter_abstains_when_return_type_differs(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => uint256) storage_map_a; // storage slot: 0x00\n"
+            "    /// @custom:signature   f(address arg0) public view returns (string memory)\n"
+            "    function f(address arg0) public view returns (string memory) {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        # value uint256 != declared string return: no synthesis, body untouched
+        self.assertNotIn("return storage_map_a[arg0];", staged)
+
+    def test_storage_getter_needs_no_declared_return(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => uint256) balances; // storage slot: 0x00\n"
+            "    /// @custom:signature   balanceOf(address arg0) public pure\n"
+            "    function balanceOf(address arg0) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("function balanceOf(address arg0) public view returns (uint256) {", staged)
+        self.assertIn("return balances[arg0];", staged)
+        # provenance comment mirrors mutability AND returns on this path too
+        self.assertIn(
+            "/// @custom:signature   balanceOf(address arg0) public view returns (uint256)",
+            staged,
+        )
+
+    def test_storage_getter_reference_value_gets_memory_location(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => string) names; // storage slot: 0x00\n"
+            "    function nameOf(address arg0) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("function nameOf(address arg0) public view returns (string memory) {", staged)
 
 
 class PackedScalarTest(unittest.TestCase):

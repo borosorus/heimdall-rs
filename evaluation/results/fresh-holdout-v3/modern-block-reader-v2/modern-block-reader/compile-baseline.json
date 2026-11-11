@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.27",
+  "source_sha256": "b240033f213176b7857c4801c2bd3c64aaac78caf7519027e8fbfdc8f31c02fc",
+  "stderr": "Error: Compiler run failed:\nError (2271): Built-in binary operator == cannot be applied to types int_const 8492089 and bytes1.\n  --> src/Candidate.sol:20:17:\n   |\n20 |         require(0x819439 == msg.data[0] >> 0xe0);\n   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (8863): Different number of arguments in return statement than in returns declaration.\n  --> src/Candidate.sol:21:9:\n   |\n21 |         return abi.encodePacked(block.number, block.timestamp, address(block.coinbase), block.basefee);\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.27\nSolc 0.8.27 finished in 3.77ms\n"
+}

@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "dfd84d456e1c8834f9b0c60d09ab661852c3f6ab1ac6a3a426074764fa7cd0a6",
+  "stderr": "Error: Compiler run failed:\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:38:29:\n   |\n38 |         require(msg.sender, CustomError_e602df05());\n   |                             ^^^^^^^^^^^^^^^^^^^^\n\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:39:23:\n   |\n39 |         require(arg0, CustomError_94280d62());\n   |                       ^^^^^^^^^^^^^^^^^^^^\n\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:61:33:\n   |\n61 |             require(msg.sender, CustomError_96c6fd1e());\n   |                                 ^^^^^^^^^^^^^^^^^^^^\n\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:62:27:\n   |\n62 |             require(arg0, CustomError_ec442f05());\n   |                           ^^^^^^^^^^^^^^^^^^^^\n\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:64:66:\n   |\n64 |                 require(unresolved_70a08231[msg.sender] >= arg1, CustomError_e450d38c());\n   |                                                                  ^^^^^^^^^^^^^^^^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 4.65ms\n"
+}
