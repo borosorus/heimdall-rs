@@ -583,15 +583,21 @@ def stage_address(index: int) -> str:
 
 
 def bindings_for_stage(
-    bindings: dict[str, Any], selector_key: str, compiled_selectors: set[str]
+    bindings: dict[str, Any],
+    selector_key: str,
+    compiled_selectors: set[str],
+    fallback_receives_all: bool = False,
 ) -> dict[str, Any]:
     result = {}
     for name, binding in bindings.items():
         selector = binding[f"{selector_key}_selector"]
-        available = selector in compiled_selectors
+        # a payable fallback receives every selector: a contract that dispatches
+        # through fallback() has no named ABI entries, yet any calldata reaches it
+        available = selector in compiled_selectors or fallback_receives_all
         entry = dict(binding)
         entry["candidate_selector"] = selector
         entry["available"] = available
+        entry["fallback_dispatch"] = fallback_receives_all and selector not in compiled_selectors
         entry["unavailable_reason"] = (
             None
             if available
@@ -926,7 +932,12 @@ def evaluate_stage(
         return summarize_stage(stage, spec)
 
     candidate_selectors = abi_selectors(compile_record["abi"])
-    stage_bindings = bindings_for_stage(bindings, selector_key, candidate_selectors)
+    has_payable_fallback = any(
+        entry.get("type") == "fallback" for entry in compile_record["abi"]
+    )
+    stage_bindings = bindings_for_stage(
+        bindings, selector_key, candidate_selectors, fallback_receives_all=has_payable_fallback
+    )
     stage["bindings"] = stage_bindings
     stage["interface"] = interface_report(reference_selectors, candidate_selectors)
 

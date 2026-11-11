@@ -66,3 +66,21 @@ deviations, not silently.
    Rules added; NO candidate or reference verdict observed during this work. Final
    frozen pair for all runs: V0 = 413ad23, V1 = HEAD at first harness run (sha
    recorded in the result JSON). Both arms re-prepped from the shared decompile.
+
+6. Environment retry (no verdicts existed): first arm runs failed at harness compile
+   because solc 0.8.27/0.8.22 were not installed locally (`--offline`); both versions
+   installed via a scratch online `forge build`; all four arms re-run fresh. Arm-neutral.
+
+7. Spec-authoring retry: candidate contract name is the decompiler's
+   `DecompiledContract`; specs initially named the reference contract and failed
+   harness artifact matching. Fixed in-spec (no arm data involved); arms re-run.
+
+8. Candidate-compile solk correction: the decompiler emits `require(bool, CustomError())`,
+   rejected by solc 0.8.22 but accepted by 0.8.30; the erc20 spec's candidate compile
+   version set to 0.8.30 (reference side unaffected - it is deployed bytecode). Symmetric.
+
+9. Harness fallback-binding capability (weak area confirmed live): the harness marked
+   fallback-only candidates unbound because no named ABI selector exists; bindings now
+   accept a compiled ABI whose fallback entry receives all selectors. Capability fix,
+   symmetric; arms re-run (still no verdict influence - the earlier runs never left
+   the unbound state).

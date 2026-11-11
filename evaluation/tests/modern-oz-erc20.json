@@ -1,0 +1,238 @@
+{
+ "compare_events": false,
+ "strict_evidence": true,
+ "fixture": "modern-oz-erc20",
+ "contract": "DecompiledContract",
+ "notes": "holdout bake-off spec (frozen): runtime-only deployment => constructor storage empty on BOTH sides; parity is still the verdict instrument. OZ semantics exercised from zero state. Candidate compile solc set to the repo-standard 0.8.30: the decompiler emits require(bool, CustomError()) which solc 0.8.22 rejects; toolchain choice, symmetric across arms (deviation 8).",
+ "reference_runtime": "evaluation/fixtures/modern-oz-erc20/runtime.hex",
+ "reference_abi": "evaluation/fixtures/modern-oz-erc20/abi.json",
+ "solc_version": "0.8.30",
+ "bindings": {
+  "allowance": {
+   "reference_signature": "allowance(address,address)",
+   "candidate_signature": "Unresolved_dd62ed3e(address)",
+   "candidate_signatures": {
+    "v0": "Unresolved_dd62ed3e(address)"
+   }
+  },
+  "approve": {
+   "reference_signature": "approve(address,uint256)",
+   "candidate_signature": "Unresolved_095ea7b3(address,uint256)",
+   "candidate_signatures": {
+    "v0": "Unresolved_095ea7b3(address,uint256)"
+   }
+  },
+  "balanceOf": {
+   "reference_signature": "balanceOf(address)",
+   "candidate_signature": "unresolved_70a08231(address)",
+   "candidate_signatures": {
+    "v0": "unresolved_70a08231(address)"
+   }
+  },
+  "decimals": {
+   "reference_signature": "decimals()",
+   "candidate_signature": "unresolved_313ce567()",
+   "candidate_signatures": {
+    "v0": "unresolved_313ce567()"
+   }
+  },
+  "name": {
+   "reference_signature": "name()",
+   "candidate_signature": "unresolved_06fdde03()",
+   "candidate_signatures": {
+    "v0": "unresolved_06fdde03()"
+   }
+  },
+  "symbol": {
+   "reference_signature": "symbol()",
+   "candidate_signature": "unresolved_95d89b41()",
+   "candidate_signatures": {
+    "v0": "unresolved_95d89b41()"
+   }
+  },
+  "totalSupply": {
+   "reference_signature": "totalSupply()",
+   "candidate_signature": "unresolved_18160ddd()",
+   "candidate_signatures": {
+    "v0": "unresolved_18160ddd()"
+   }
+  },
+  "transfer": {
+   "reference_signature": "transfer(address,uint256)",
+   "candidate_signature": "Unresolved_a9059cbb(address,uint256)",
+   "candidate_signatures": {
+    "v0": "Unresolved_a9059cbb(address,uint256)"
+   }
+  },
+  "transferFrom": {
+   "reference_signature": "transferFrom(address,address,uint256)",
+   "candidate_signature": "Unresolved_23b872dd(address)",
+   "candidate_signatures": {
+    "v0": "Unresolved_23b872dd(address)"
+   }
+  }
+ },
+ "setup": [],
+ "probes": [
+  {
+   "name": "initial_state",
+   "steps": [
+    {
+     "call": "name"
+    },
+    {
+     "call": "symbol"
+    },
+    {
+     "call": "decimals"
+    },
+    {
+     "call": "totalSupply"
+    },
+    {
+     "call": "balanceOf",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "approve_then_allowance",
+   "steps": [
+    {
+     "call": "approve",
+     "args": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "100"
+     ],
+     "send": true
+    },
+    {
+     "call": "allowance",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "transfer_zero_value",
+   "steps": [
+    {
+     "call": "transfer",
+     "args": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "0"
+     ],
+     "send": true
+    },
+    {
+     "call": "balanceOf",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+     ]
+    },
+    {
+     "call": "balanceOf",
+     "args": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "allowance_overwrite",
+   "steps": [
+    {
+     "call": "approve",
+     "args": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "5"
+     ],
+     "send": true
+    },
+    {
+     "call": "approve",
+     "args": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "9"
+     ],
+     "send": true
+    },
+    {
+     "call": "allowance",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "transfer_insufficient",
+   "steps": [
+    {
+     "call": "transfer",
+     "args": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "7"
+     ],
+     "send": true
+    },
+    {
+     "call": "balanceOf",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "transferFrom_self_approved",
+   "steps": [
+    {
+     "call": "approve",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "50"
+     ],
+     "send": true
+    },
+    {
+     "call": "transferFrom",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "50"
+     ],
+     "send": true
+    },
+    {
+     "call": "balanceOf",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+     ]
+    },
+    {
+     "call": "balanceOf",
+     "args": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+     ]
+    },
+    {
+     "call": "allowance",
+     "args": [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+     ]
+    }
+   ]
+  }
+ ],
+ "withheld": [
+  "transfer_insufficient",
+  "transferFrom_self_approved"
+ ]
+}

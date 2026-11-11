@@ -1,0 +1,9 @@
+{
+  "label": "llm1",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "592d291d5175f9fda4b96348ad55afea192ebb50169956dd0881e879a097f132",
+  "stderr": "Error: Compiler run failed:\nError (9322): No matching declaration found after argument-dependent lookup.\n  --> src/Candidate.sol:43:9:\n   |\n43 |         require(msg.sender, CustomError_e602df05());\n   |         ^^^^^^^\nNote: Candidate: function require(bool)\nNote: Candidate: function require(bool, string memory)\nNote: Candidate: function require(bool, error)\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 7.20ms\n"
+}

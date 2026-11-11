@@ -675,3 +675,16 @@ Harness upgrade the fixture forced: failed calls record `gas_used` via `debug_tr
 evidence (excluded from equality - implementation detail). Suite 178/178. Both deltas
 reviewer-passed (codex); findings fixed: optional-trace robustness, overload-safe rewrite
 keying, span-order application, audit dir hygiene.
+
+### Holdout bake-off: deterministic seed rules generalize (2026-11-11, sealed)
+
+`fresh-holdout-v1/`: paired V0 (`413ad23`) vs V1 (`6d89c7d`) on two untouched
+fixtures imported for the trial (modern-oz-erc20, modern-block-reader; tevm
+1785ae30, provenance + integrity verified, 12/12 fixtures PASS). Frozen
+procedure with 9 logged deviations, sealed reveal. Result: **success criterion
+met** - erc20 V1 compiles and matches 2/4 feedback (V0: no compile, 0/4
+anywhere); block-reader structural win (V1 seed compiles; verdict tie). The
+holdouts also confirmed live the fallback-coverage weak area (harness capability
+fix, deviation 9) and left two precise, evidence-backed toolchain leads
+(abi.encode in value fallbacks; guard-proven arity extension) recorded as
+labeled v2 follow-ups. Suite 183/183.

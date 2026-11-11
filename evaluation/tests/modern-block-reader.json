@@ -1,0 +1,31 @@
+{
+ "compare_events": false,
+ "strict_evidence": true,
+ "fixture": "modern-block-reader",
+ "contract": "DecompiledContract",
+ "notes": "holdout bake-off spec (frozen): single-dispatch fallback contract; block-env reads are stable under read-mode eth_call within one harness pass",
+ "reference_runtime": "evaluation/fixtures/modern-block-reader/runtime.hex",
+ "reference_abi": "evaluation/fixtures/modern-block-reader/abi.json",
+ "solc_version": "0.8.27",
+ "bindings": {
+  "getBlockInfo": {
+   "reference_signature": "getBlockInfo()",
+   "candidate_signature": "getBlockInfo()",
+   "candidate_signatures": {
+    "v0": "getBlockInfo()"
+   }
+  }
+ },
+ "setup": [],
+ "probes": [
+  {
+   "name": "getBlockInfo",
+   "steps": [
+    {
+     "call": "getBlockInfo"
+    }
+   ]
+  }
+ ],
+ "withheld": []
+}
