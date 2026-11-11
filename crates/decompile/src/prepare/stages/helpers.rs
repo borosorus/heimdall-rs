@@ -82,3 +82,36 @@ pub(crate) fn state_declaration_match(header: &str) -> Option<(String, String)> 
 pub(crate) fn collapse_whitespace(text: &str) -> String {
     WHITESPACE_RUN.replace_all(text, " ").trim().to_string()
 }
+
+/// Top-level comma-separated arguments between `open_paren` and its match.
+///
+/// Mirrors `prepare_candidate._split_top_level`.
+pub(crate) fn split_top_level(masked: &str, open_paren: usize) -> Option<Vec<String>> {
+    let bytes = masked.as_bytes();
+    let mut depth = 1usize;
+    let mut index = open_paren + 1;
+    let mut start = index;
+    let mut parts: Vec<String> = Vec::new();
+    while index < bytes.len() && depth > 0 {
+        match bytes[index] {
+            b'(' => depth += 1,
+            b')' => {
+                depth -= 1;
+                if depth == 0 {
+                    break;
+                }
+            }
+            b',' if depth == 1 => {
+                parts.push(masked[start..index].to_string());
+                start = index + 1;
+            }
+            _ => {}
+        }
+        index += 1;
+    }
+    if depth != 0 {
+        return None;
+    }
+    parts.push(masked[start..index].to_string());
+    Some(parts)
+}

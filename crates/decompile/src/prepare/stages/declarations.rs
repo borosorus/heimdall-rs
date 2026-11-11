@@ -13,8 +13,8 @@ use std::collections::BTreeSet;
 use crate::prepare::{
     parser::{is_space, mask_strings_and_comments, parse_contract, ParseError, ParsedSource},
     stages::helpers::{
-        body_open_line_end, header_params, mask, state_declaration_match, RE_IDENTIFIER,
-        RE_LITERAL, RE_VAR_NAME,
+        body_open_line_end, header_params, mask, split_top_level, state_declaration_match,
+        RE_IDENTIFIER, RE_LITERAL, RE_VAR_NAME,
     },
     Stage, StageEdit, StageFinding,
 };
@@ -99,39 +99,6 @@ fn insertion_offset(
         };
     }
     offset
-}
-
-/// Top-level comma-separated arguments between `open_paren` and its match.
-///
-/// Mirrors `prepare_candidate._split_top_level`.
-fn split_top_level(masked: &str, open_paren: usize) -> Option<Vec<String>> {
-    let bytes = masked.as_bytes();
-    let mut depth = 1usize;
-    let mut index = open_paren + 1;
-    let mut start = index;
-    let mut parts: Vec<String> = Vec::new();
-    while index < bytes.len() && depth > 0 {
-        match bytes[index] {
-            b'(' => depth += 1,
-            b')' => {
-                depth -= 1;
-                if depth == 0 {
-                    break;
-                }
-            }
-            b',' if depth == 1 => {
-                parts.push(masked[start..index].to_string());
-                start = index + 1;
-            }
-            _ => {}
-        }
-        index += 1;
-    }
-    if depth != 0 {
-        return None;
-    }
-    parts.push(masked[start..index].to_string());
-    Some(parts)
 }
 
 /// Source-derived type of a call argument.

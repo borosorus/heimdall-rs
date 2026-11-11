@@ -22,7 +22,10 @@ use tracing::debug;
 
 use crate::prepare::{
     parser::ParseError,
-    stages::{declarations, placeholders, selfref, vars},
+    stages::{
+        arity, declarations, fallback_shape, mutability, packed_scalars, placeholders, selfref,
+        slot_aliases, truthiness, vars,
+    },
 };
 
 /// A single recorded source edit.
@@ -73,6 +76,12 @@ const PREPARE_STAGES: &[(&str, StageFn)] = &[
     ("declare_missing_symbols", declarations::run),
     ("split_selfref_initializers", selfref::run),
     ("declare_undefined_vars", vars::run),
+    ("align_function_mutability", mutability::run),
+    ("align_arities", arity::run),
+    ("unify_storage_views", slot_aliases::run),
+    ("recover_packed_scalar_storage", packed_scalars::run),
+    ("relax_truthiness_requires", truthiness::run),
+    ("repair_fallback_shape", fallback_shape::run),
 ];
 
 /// Runs the full preparation ladder over `source`.
@@ -113,6 +122,12 @@ mod tests {
                 "declare_missing_symbols",
                 "split_selfref_initializers",
                 "declare_undefined_vars",
+                "align_function_mutability",
+                "align_arities",
+                "unify_storage_views",
+                "recover_packed_scalar_storage",
+                "relax_truthiness_requires",
+                "repair_fallback_shape",
             ]
         );
     }

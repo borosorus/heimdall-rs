@@ -4,8 +4,14 @@
 //! each stage is a pure `&str -> Stage` source transform whose edits carry
 //! their evidence and whose abstentions are findings, never guesses.
 
+pub(crate) mod arity;
 pub(crate) mod declarations;
+pub(crate) mod fallback_shape;
 pub(crate) mod helpers;
+pub(crate) mod mutability;
+pub(crate) mod packed_scalars;
 pub(crate) mod placeholders;
 pub(crate) mod selfref;
+pub(crate) mod slot_aliases;
+pub(crate) mod truthiness;
 pub(crate) mod vars;
