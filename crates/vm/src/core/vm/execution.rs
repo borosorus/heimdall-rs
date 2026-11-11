@@ -4,6 +4,15 @@ use super::super::{
     log::Log, memory::Memory, opcodes::WrappedOpcode, stack::Stack, storage::Storage,
 };
 
+/// [`ExecutionStepLimitExceeded`] is returned when a bounded execution exhausts its instruction
+/// budget without reaching a terminal state.
+#[derive(Debug, thiserror::Error)]
+#[error("execution exceeded its instruction budget of {max_steps} steps")]
+pub struct ExecutionStepLimitExceeded {
+    /// The instruction budget that was exceeded.
+    pub max_steps: u64,
+}
+
 /// [`ExecutionResult`] is the result of a single contract execution.
 #[derive(Clone, Debug)]
 pub struct ExecutionResult {

@@ -29,10 +29,15 @@ use heimdall_common::{
 };
 use heimdall_disassembler::{disassemble, DisassemblerArgsBuilder};
 use heimdall_vm::{
-    core::vm::VM,
+    core::vm::{ExecutionStepLimitExceeded, VM},
     ext::selectors::{find_function_selectors, resolve_selectors},
 };
 use std::time::{Duration, Instant};
+
+/// Maximum number of instructions executed when extracting a constant value from a
+/// pure, argument-less function. Bounds contracts with unbounded loops; wall-clock
+/// timeouts are deliberately avoided to keep decompiler output deterministic.
+const CONSTANT_EXTRACTION_STEP_LIMIT: u64 = 1_000_000;
 
 use crate::{
     core::{
@@ -267,7 +272,24 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
             // if the function is constant, we can get the exact val
             if analyzed_function.is_constant() && !analyzed_function.fallback {
                 evm_clone.reset();
-                let x = evm_clone.call(&decode_hex(&selector).expect("invalid selector"), 0)?;
+                // bounded execution: contracts with unbounded loops (e.g. `while (true)`)
+                // would otherwise spin forever during constant-value extraction
+                let x = match evm_clone.call_with_step_limit(
+                    &decode_hex(&selector).expect("invalid selector"),
+                    0,
+                    CONSTANT_EXTRACTION_STEP_LIMIT,
+                ) {
+                    Ok(x) => x,
+                    Err(e) if e.downcast_ref::<ExecutionStepLimitExceeded>().is_some() => {
+                        warn!(
+                            "constant extraction for selector {} exceeded its step budget ({}); \
+                             skipping constant value",
+                            selector, CONSTANT_EXTRACTION_STEP_LIMIT
+                        );
+                        return Ok(analyzed_function);
+                    }
+                    Err(e) => return Err(e.into()),
+                };
 
                 let returns_param_type = analyzed_function
                     .returns
@@ -275,17 +297,34 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
                     .map(|ret_type| to_type(&ret_type.without_location().to_string()))
                     .unwrap_or(DynSolType::Bytes);
 
-                let decoded = returns_param_type
-                    .abi_decode(&x.returndata)
-                    .map(|decoded| match decoded {
-                        DynSolValue::String(s) => format!("\"{s}\""),
-                        DynSolValue::Uint(x, _) => x.to_string(),
-                        DynSolValue::Int(x, _) => x.to_string(),
-                        token => format!("0x{token:?}"),
-                    })
-                    .unwrap_or_else(|_| encode_hex(&x.returndata));
+                // only a successful RETURN (exitcode 0) carries a constant value; a REVERT's
+                // returndata is its revert payload (e.g. a panic or custom error), not a return.
+                // empty returndata (e.g. STOP) carries no value either: the function is rendered
+                // from its analyzed body instead
+                let decoded = if x.exitcode == 0 && !x.returndata.is_empty() {
+                    Some(
+                        returns_param_type
+                            .abi_decode(&x.returndata)
+                            .map(|decoded| match decoded {
+                                DynSolValue::String(s) => format!("\"{s}\""),
+                                DynSolValue::Uint(x, _) => x.to_string(),
+                                DynSolValue::Int(x, _) => x.to_string(),
+                                token => format!("0x{token:?}"),
+                            })
+                            .unwrap_or_else(|_| match returns_param_type {
+                                // a raw hex literal is an int_const in Solidity and does not
+                                // convert to `bytes`; the hex"..." literal form does
+                                DynSolType::Bytes => {
+                                    format!("hex\"{}\"", encode_hex(&x.returndata))
+                                }
+                                _ => format!("0x{}", encode_hex(&x.returndata)),
+                            }),
+                    )
+                } else {
+                    None
+                };
 
-                analyzed_function.constant_value = Some(decoded);
+                analyzed_function.constant_value = decoded;
             }
 
             Ok::<_, Error>(analyzed_function)

@@ -22,7 +22,7 @@ use super::super::{
 };
 
 use super::{
-    execution::{ExecutionResult, Instruction, State},
+    execution::{ExecutionResult, ExecutionStepLimitExceeded, Instruction, State},
     handlers,
 };
 
@@ -717,6 +717,48 @@ impl VM {
 
         self.execute()
     }
+
+    /// Executes provided calldata until finished, or until `max_steps` instructions have been
+    /// executed, whichever comes first.
+    ///
+    /// Identical to [`VM::call`], except that execution is bounded: if more than `max_steps`
+    /// instructions are executed without reaching a terminal state, an
+    /// [`ExecutionStepLimitExceeded`] error is returned. This bounds contracts with
+    /// unbounded loops, which would otherwise spin forever.
+    pub fn call_with_step_limit(
+        &mut self,
+        calldata: &[u8],
+        value: u128,
+        max_steps: u64,
+    ) -> Result<ExecutionResult> {
+        // reset the VM temp state
+        self.reset();
+        calldata.clone_into(&mut self.calldata);
+        self.value = value;
+
+        let mut steps_remaining = max_steps;
+        while self.bytecode.len() >= self.instruction as usize {
+            if steps_remaining == 0 {
+                return Err(ExecutionStepLimitExceeded { max_steps }.into());
+            }
+            steps_remaining -= 1;
+
+            self.step()?;
+
+            if self.exitcode != 255 || !self.returndata.is_empty() {
+                break;
+            }
+        }
+
+        Ok(ExecutionResult {
+            gas_used: self.gas_used,
+            gas_remaining: self.gas_remaining,
+            returndata: self.returndata.to_owned(),
+            exitcode: self.exitcode,
+            events: self.events.clone(),
+            instruction: self.instruction,
+        })
+    }
 }
 
 #[cfg(test)]
@@ -727,7 +769,7 @@ mod tests {
     use heimdall_common::utils::strings::decode_hex;
 
     use super::VM;
-    use crate::core::hardfork::HardFork;
+    use crate::core::{hardfork::HardFork, vm::ExecutionStepLimitExceeded};
 
     // creates a new test VM with calldata.
     fn new_test_vm(bytecode: &str) -> VM {
@@ -756,6 +798,64 @@ mod tests {
 
         assert!(vm.returndata.is_empty());
         assert_eq!(vm.exitcode, 10);
+    }
+
+    #[test]
+    fn test_call_with_step_limit_matches_call_on_terminating_code() {
+        let bytecode = "0x600a600a01"; // PUSH1 0x0a; PUSH1 0x0a; ADD (falls off the end)
+        let mut unbounded = new_test_vm(bytecode);
+        let unbounded = unbounded.call(&[], 0).expect("unbounded call failed");
+        let mut bounded = new_test_vm(bytecode);
+        let bounded = bounded.call_with_step_limit(&[], 0, 100).expect("bounded call failed");
+
+        assert_eq!(unbounded.exitcode, bounded.exitcode);
+        assert_eq!(unbounded.returndata, bounded.returndata);
+        assert_eq!(unbounded.gas_used, bounded.gas_used);
+        assert_eq!(unbounded.instruction, bounded.instruction);
+    }
+
+    #[test]
+    fn test_call_with_step_limit_bounds_infinite_loop() {
+        // 0x00: JUMPDEST; PUSH1 0x00; JUMP -> 0x00 (infinite loop)
+        let mut vm = new_test_vm("0x5b600056");
+
+        // any finite budget must terminate with the typed exhaustion error
+        let err = vm
+            .call_with_step_limit(&[], 0, 50)
+            .expect_err("infinite loop must exhaust the step budget");
+        let exceeded = err
+            .downcast_ref::<ExecutionStepLimitExceeded>()
+            .expect("expected ExecutionStepLimitExceeded");
+        assert_eq!(exceeded.max_steps, 50);
+    }
+
+    #[test]
+    fn test_call_with_step_limit_exact_budget_boundary() {
+        // PUSH1 0x01; STOP -> exactly two steps
+        let mut vm = new_test_vm("0x600100");
+        let ok = vm.call_with_step_limit(&[], 0, 2).expect("two steps must fit a budget of two");
+        assert_eq!(ok.exitcode, 10);
+
+        let mut vm = new_test_vm("0x600100");
+        let err =
+            vm.call_with_step_limit(&[], 0, 1).expect_err("one step must not fit a budget of one");
+        assert!(err.downcast_ref::<ExecutionStepLimitExceeded>().is_some());
+
+        // a zero budget executes nothing and is reported as exhausted
+        let mut vm = new_test_vm("0x600100");
+        let err = vm.call_with_step_limit(&[], 0, 0).expect_err("zero budget must exhaust");
+        assert!(err.downcast_ref::<ExecutionStepLimitExceeded>().is_some());
+    }
+
+    #[test]
+    fn test_revert_with_data_surfaces_in_result() {
+        // PUSH1 0x0a; PUSH1 0x00; MSTORE; PUSH1 0x01; PUSH1 0x1f; REVERT
+        // -> Ok result, exitcode 1 (REVERT), returndata = byte 31 of the padded word (0x0a)
+        let mut vm = new_test_vm("0x600a6000526001601ffd");
+        let result = vm.call(&[], 0).expect("revert must be a successful execution");
+
+        assert_eq!(result.exitcode, 1);
+        assert_eq!(result.returndata, vec![0x0a]);
     }
 
     #[test]

@@ -10,4 +10,4 @@ mod execution;
 pub mod handlers;
 
 pub use self::core::VM;
-pub use execution::{ExecutionResult, Instruction, State};
+pub use execution::{ExecutionResult, ExecutionStepLimitExceeded, Instruction, State};

@@ -107,7 +107,9 @@ pub(crate) async fn build_source(
     // add functions
     for f in functions.iter().filter(|f| {
         let collapsible_getter = is_collapsible_getter(f, functions, storage_variables);
-        let standalone_constant = f.is_constant() && f.maybe_getter_for.is_none();
+        // a constant whose value extraction failed is rendered as a regular function
+        let standalone_constant =
+            f.is_constant() && f.constant_value.is_some() && f.maybe_getter_for.is_none();
         !f.fallback &&
             (analyzer_type == AnalyzerType::Yul || (!collapsible_getter && !standalone_constant))
     }) {
@@ -338,7 +340,7 @@ fn get_constants(functions: &[AnalyzedFunction]) -> Vec<String> {
     let mut output: Vec<String> = functions
         .iter()
         .filter_map(|f| {
-            if f.is_constant() && f.maybe_getter_for.is_none() {
+            if f.is_constant() && f.constant_value.is_some() && f.maybe_getter_for.is_none() {
                 Some(format!(
                     "{} public constant {} = {};",
                     f.returns

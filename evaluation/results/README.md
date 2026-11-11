@@ -620,5 +620,36 @@ gas loop under `--include-sol --skip-resolving`) - a real deterministic-baseline
 recorded as such; its 13-probe error-path spec is staged (`tests/modern-errors.json`) pending a
 decompile strategy (per-function window or non-include-sol variant).
 
+### Decompile hang root-caused and fixed (2026-11-11)
+
+The modern-errors timeout was not symexec: instrumented stage markers showed all 13
+`symbolic_exec_selector` calls completing in <250 us; the spin sat in constant-value extraction,
+where the decompiler re-executes each pure argument-less function via `VM::call`, whose loop
+(`crates/vm/src/core/vm/core.rs`) had no step/gas/deadline bound - `errorOutOfGas()`'s
+`while (true)` self-loop at pc 0x369 never returns, so extraction spun forever (99% CPU, flat
+RSS; reproduced with plain and `--include-sol` variants; `--timeout` irrelevant since it only
+bounds symexec).
+
+Fix (bounded constant extraction, deterministic by construction):
+`VM::call_with_step_limit` + typed `ExecutionStepLimitExceeded` (vm crate, existing `call` /
+`execute` untouched); the decompiler extracts with a fixed 1,000,000-instruction budget and on
+exhaustion warns and keeps the function with `constant_value = None`. Companion rendering guards
+in `source.rs` require `constant_value.is_some()` so exhausted functions render as normal
+functions instead of being suppressed or emitted as `constant x = ;`. Extraction now also treats
+only successful `RETURN` (exitcode 0) with nonempty returndata as a constant - revert payloads
+and empty returns keep the function body (fixes malformed `bytes x = <bare hex>;` decls via
+`hex"..."` literals). Reviewer round (codex): no new blocking defects; the exitcode guard was
+adopted from its one minor finding.
+
+Verification: heimdall-vm 163 lib + 34 integration green (+4 new tests: budget parity, infinite
+loop, exact boundary incl. zero budget, revert-data surface); heimdall-core test_decompile 15
+pass / 1 ignored (RPC-gated); nightly fmt and clippy clean on touched files. modern-errors
+decompile: 900s+ hang -> **0.3 s, rc=0**, byte-identical across runs, 13/13 functions in the ABI,
+`errorOutOfGas` retained with its body (`modern-errors-decompile-unblocked/`); emitted source
+compiles as far as any raw decompilation (body-level warts are the repair stages' input, same as
+the known-good fixtures). Regression: modern-simple outputs byte-identical pre/post (abi plain +
+sol, decompiled.sol; sha256-verified against pre-change binary).
+
 Generalization scorecard: parity machinery verified on 2 external fixtures; full pipeline
-(compile-seed + harness) green on 1 new external fixture; 1 decompile-timeout finding.
+(compile-seed + harness) green on 1 new external fixture; decompile-timeout finding root-caused,
+fixed, and verified (0 blocked fixtures remain).
