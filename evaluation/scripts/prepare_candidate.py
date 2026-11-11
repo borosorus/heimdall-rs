@@ -607,7 +607,13 @@ def _prune_param_docs(unit_text: str, dropped: list[str]) -> str:
 
 
 def _replace_params(unit_text: str, params: list[tuple[str, str]]) -> str:
-    """Return ``unit_text`` with the header's parameter list replaced."""
+    """Return ``unit_text`` with the header's parameter list replaced.
+
+    The ``@custom:signature`` provenance comment is synced in the same edit: it
+    names the canonical signature every consumer (binding derivation, selector
+    resolution) reads, and a stale comment desynchronizes selector identity
+    from the compiled ABI.
+    """
     masked = _mask_strings_and_comments(unit_text, 0, len(unit_text))
     open_match = re.search(r"\bfunction\s+[A-Za-z_]\w*\s*\(", masked)
     if not open_match:
@@ -627,7 +633,24 @@ def _replace_params(unit_text: str, params: list[tuple[str, str]]) -> str:
     rendered = ", ".join(
         f"{type_text} {name}".strip() if name else type_text for type_text, name in params
     )
-    return unit_text[:start] + rendered + unit_text[index - 1 :]
+    replaced = unit_text[:start] + rendered + unit_text[index - 1 :]
+    signature_comment = re.search(
+        r"(?m)^(\s*///\s*@custom:signature\s+)([^\n]*)$", replaced
+    )
+    if signature_comment:
+        name_match = re.search(r"\bfunction\s+([A-Za-z_]\w*)", masked)
+        # keep the comment's own suffix (visibility/mutability/returns as the
+        # comment stated them); only its parameter list is refreshed
+        old_content = signature_comment.group(2)
+        close = old_content.find(")")
+        suffix = old_content[close + 1 :] if close >= 0 else ""
+        renamed = f"{name_match.group(1)}({rendered}){suffix}"
+        replaced = (
+            replaced[: signature_comment.start(2)]
+            + renamed
+            + replaced[signature_comment.end(2) :]
+        )
+    return replaced
 
 
 _VIEW_CASTS = {
@@ -1116,6 +1139,12 @@ def repair_fallback_shape(source: str) -> Stage:
                 "fallback(bytes calldata) external payable returns (bytes memory)",
                 1,
             )
+            # ABI-canonical encoding for the bytes-memory return this rule just
+            # added: the decompiler lost the ABI wrapper, and packed length differs
+            # from ABI for address (20 vs 32) and dynamic members. Basis: the
+            # sealed modern-block-reader divergence (fresh-holdout-v1, 116B packed
+            # vs 128B ABI); the harness re-validation is the per-fixture gate.
+            new_text = new_text.replace("return abi.encodePacked(", "return abi.encode(")
         if new_text == text:
             continue
         pieces.append(source[last : match.start()])

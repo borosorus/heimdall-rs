@@ -1,0 +1,103 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "b240033f213176b7857c4801c2bd3c64aaac78caf7519027e8fbfdc8f31c02fc",
+  "blocked_probes": 0,
+  "bound_reference_selectors": [
+    "0x00819439"
+  ],
+  "candidate_compile": true,
+  "candidate_label": "v1",
+  "candidate_sha256": "9ba4f7c8a58711918cfe5a4b2664fbf5895c42ea137ab748ac9a5a97769ff2e5",
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "executed_probes": 1,
+  "feedback_probes": [
+    "getBlockInfo"
+  ],
+  "fixture": "modern-block-reader",
+  "llm1_compile": true,
+  "llm1_sha256": "9ba4f7c8a58711918cfe5a4b2664fbf5895c42ea137ab748ac9a5a97769ff2e5",
+  "max_tokens": null,
+  "model": null,
+  "planned_probes": 1,
+  "repair_attempts": [],
+  "repair_error": null,
+  "run_id": "fresh-holdout-v2/modern-block-reader-v1",
+  "schema_version": 2,
+  "seed": null,
+  "selected": "llm1",
+  "selected_feedback_failing": [
+    "getBlockInfo"
+  ],
+  "selected_feedback_matched": 0,
+  "selected_feedback_total": 1,
+  "selected_reason": "no repair requested",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 0,
+  "selected_withheld_total": 0,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.27",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 1,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "b240033f213176b7857c4801c2bd3c64aaac78caf7519027e8fbfdc8f31c02fc",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 0
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 1,
+      "feedback_failing": [
+        "getBlockInfo"
+      ],
+      "feedback_matched": 0,
+      "feedback_total": 1,
+      "interface": {
+        "candidate_only": [],
+        "candidate_selector_count": 0,
+        "matched": 0,
+        "missing": [
+          "0x00819439"
+        ],
+        "reference_selector_count": 1
+      },
+      "label": "llm1",
+      "semantic_failing": [
+        "getBlockInfo"
+      ],
+      "setup_steps": 0,
+      "source_sha256": "9ba4f7c8a58711918cfe5a4b2664fbf5895c42ea137ab748ac9a5a97769ff2e5",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 0,
+      "withheld_total": 0
+    }
+  ],
+  "temperature": null,
+  "timeout_seconds": null,
+  "unbound_reference_selectors": [],
+  "withheld_probes": []
+}

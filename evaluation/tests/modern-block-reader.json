@@ -12,7 +12,8 @@
    "reference_signature": "getBlockInfo()",
    "candidate_signature": "getBlockInfo()",
    "candidate_signatures": {
-    "v0": "getBlockInfo()"
+    "v1": "getBlockInfo()",
+    "v2": "getBlockInfo()"
    }
   }
  },

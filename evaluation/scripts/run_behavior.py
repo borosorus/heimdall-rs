@@ -333,6 +333,7 @@ def call_step(
         "status": 0,
         "return_data": None,
         "revert_data": None,
+        "gas_used": None,
         "logs": [],
     }
     try:
@@ -353,11 +354,16 @@ def call_step(
         raise HarnessError(f"timed out waiting for receipt {tx_hash}")
 
     status = int(receipt.get("status", "0x0"), 16)
+    gas_used = receipt.get("gasUsed")
     observation.update(
         {
             "call_ok": status == 1,
             "ok": status == 1,
             "status": status,
+            # gas burned by the executed transaction: evidence that the send-mode
+            # outcome happened on-chain, including for reverts (receipts carry no
+            # revert payload). Excluded from equality, as on the read path.
+            "gas_used": hex(int(gas_used, 16)) if isinstance(gas_used, str) else None,
             "logs": normalize_logs(receipt.get("logs", [])),
             "contract_balance": rpc.call("eth_getBalance", [to, "latest"]),
             "tx_hash": tx_hash,

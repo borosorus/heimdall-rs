@@ -688,3 +688,18 @@ holdouts also confirmed live the fallback-coverage weak area (harness capability
 fix, deviation 9) and left two precise, evidence-backed toolchain leads
 (abi.encode in value fallbacks; guard-proven arity extension) recorded as
 labeled v2 follow-ups. Suite 183/183.
+
+### Holdout v2 (labeled): provenance sync + ABI-canonical fallback returns (2026-11-11)
+
+`fresh-holdout-v2/`: paired v1(`6d89c7d`) vs v2 re-run of the holdout bake-off.
+block-reader 0/1 -> **1/1** (rule-added fallback returns now emit `abi.encode`);
+erc20 unchanged on fb with the withheld gain shared via the new harness send-path
+evidence (receipt gas). Root cause of the v1 erc2 binding misses corrected in the
+record: declarations were extended all along - the `@custom:signature` provenance
+comments were stale; comment sync is now part of every signature rewrite. Tune
+no-regression PASS; modern-errors seed byte-identical (sealed 11/11+2/2 stands);
+suite 188/188. Reviewer: 3 P2s adopted (suffix-preserving comment sync; evidence
+basis documented in-code; send path tested through `call_step` with a fake RPC).
+Open leads consolidated in `roadmap-deterministic.md` (top: typed storage-flow
+map -> mapping-getter synthesis; local-optimum flag on regex patches for the
+residual erc20 class).

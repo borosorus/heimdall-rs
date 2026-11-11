@@ -264,3 +264,55 @@ class PromptTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class SendPathEvidenceTest(unittest.TestCase):
+    def test_failed_send_record_receipt_gas_as_evidence(self):
+        receipts = iter([
+            {
+                "status": "0x0",
+                "gasUsed": "0x5208",
+                "logs": [],
+            }
+        ])
+
+        class FakeRpc:
+            def call(self, method, params=None):
+                if method == "eth_sendTransaction":
+                    return "0xhash"
+                if method == "eth_getTransactionReceipt":
+                    return next(receipts, None)
+                if method == "eth_getBalance":
+                    return "0x0"
+                raise AssertionError(f"unexpected {method}")
+
+        observation = run_behavior.call_step(
+            FakeRpc(), "0x" + "11" * 20, "0xdeadbeef", "0x" + "22" * 20, 0, True
+        )
+        self.assertEqual(observation["gas_used"], "0x5208")
+        self.assertFalse(observation["ok"])
+        pair = [observation]
+        self.assertTrue(run_behavior.sequence_matches(pair, pair, strict_evidence=True))
+
+    def test_missing_receipt_gas_leaves_send_unverified(self):
+        receipts = iter([{"status": "0x0", "gasUsed": None, "logs": []}])
+
+        class FakeRpc:
+            def call(self, method, params=None):
+                if method == "eth_sendTransaction":
+                    return "0xhash"
+                if method == "eth_getTransactionReceipt":
+                    return next(receipts, None)
+                if method == "eth_getBalance":
+                    return "0x0"
+                raise AssertionError(f"unexpected {method}")
+
+        observation = run_behavior.call_step(
+            FakeRpc(), "0x" + "11" * 20, "0xdeadbeef", "0x" + "22" * 20, 0, True
+        )
+        self.assertIsNone(observation["gas_used"])
+        pair = [observation]
+        self.assertFalse(run_behavior.sequence_matches(pair, pair, strict_evidence=True))
+
+
+if __name__ == "__main__":
+    unittest.main()

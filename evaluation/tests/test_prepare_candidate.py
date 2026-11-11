@@ -451,6 +451,60 @@ class SeedRuleTests(unittest.TestCase):
         staged = prepare.prepare_stages(source)[-1].source
         self.assertIn("require(arg0 != address(0), E());", staged)
 
+    def test_arity_extend_syncs_signature_comment(self):
+        source = (
+            "contract C {\n"
+            "    /// @custom:selector    0x23b872dd\n"
+            "    /// @custom:signature   Unresolved_23b872dd(address arg0) public pure\n"
+            "    /// @param              arg0 [\"address\", \"uint160\"]\n"
+            "    function Unresolved_23b872dd(address arg0) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x60);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn(
+            "function Unresolved_23b872dd(address arg0, uint256 arg1, uint256 arg2) public pure {",
+            staged,
+        )
+        # provenance must name the same canonical signature as the declaration
+        self.assertIn(
+            "/// @custom:signature   Unresolved_23b872dd(address arg0, uint256 arg1, uint256 arg2) public pure",
+            staged,
+        )
+        self.assertNotIn(
+            "/// @custom:signature   Unresolved_23b872dd(address arg0) public pure", staged
+        )
+
+    def test_arity_trim_syncs_signature_comment(self):
+        source = (
+            "contract C {\n"
+            "    /// @custom:signature   f(uint256 arg0, uint256 arg1) public pure\n"
+            "    function f(uint256 arg0, uint256 arg1) public pure returns (uint256) {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x20);\n"
+            "        return arg0;\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("function f(uint256 arg0) public pure returns (uint256) {", staged)
+        self.assertIn("/// @custom:signature   f(uint256 arg0) public pure", staged)
+
+    def test_fallback_value_return_encodes_not_packs(self):
+        source = (
+            "contract C {\n"
+            "    fallback() external payable {\n"
+            "        require(msg.data.length >= 0x04);\n"
+            "        require(0x819439 == msg.data[0] >> 0xe0);\n"
+            "        return abi.encodePacked(block.number, address(block.coinbase));\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("fallback(bytes calldata) external payable returns (bytes memory)", staged)
+        self.assertIn("return abi.encode(block.number, address(block.coinbase));", staged)
+        self.assertNotIn("abi.encodePacked", staged)
+
     def test_fallback_without_return_value_is_untouched(self):
         source = (
             "contract C {\n"
