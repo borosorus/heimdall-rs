@@ -1,0 +1,187 @@
+{
+  "all_ok": true,
+  "expectations": {
+    "ispaused-flip": [
+      "initial_config",
+      "pause_blocks_deposit",
+      "unpause_allows_deposit"
+    ],
+    "limits-revert": [
+      "initial_config"
+    ],
+    "owner-rename": [
+      "initial_config"
+    ],
+    "owner-xor": [
+      "initial_config"
+    ],
+    "setup-revert": "*",
+    "supply-drift": [
+      "deposit_100",
+      "withdraw_50"
+    ]
+  },
+  "label": "seed-v2",
+  "positive": "/home/minix/codes/heimdall-rs/evaluation/results/synthetic-large-enum-final/synthetic-large/candidate-FINAL.sol",
+  "recorded_baseline_metrics": "/home/minix/codes/heimdall-rs/evaluation/results/synthetic-large-enum-final/synthetic-large/harness-final-perfect/synthetic-large/metrics.json",
+  "runs": {
+    "ispaused-flip": {
+      "compile_ok": true,
+      "expectation_violations": [],
+      "mutant": "ispaused-flip",
+      "ok": true,
+      "result_dir": "/home/minix/codes/heimdall-rs/evaluation/results/verdict-audit-v1/ispaused-flip/synthetic-large",
+      "verdict": {
+        "approve_transfer_from": true,
+        "burn_100": true,
+        "deposit_100": true,
+        "deposit_above_max": true,
+        "deposit_below_min": true,
+        "initial_config": false,
+        "pause_blocks_deposit": false,
+        "preview_fee": true,
+        "set_fee_max": true,
+        "set_limits_invalid": true,
+        "transfer_100": true,
+        "transfer_from_unapproved_spender": true,
+        "transfer_insufficient": true,
+        "unpause_allows_deposit": false,
+        "withdraw_50": true,
+        "withdraw_too_much": true
+      }
+    },
+    "limits-revert": {
+      "compile_ok": true,
+      "expectation_violations": [],
+      "mutant": "limits-revert",
+      "ok": true,
+      "result_dir": "/home/minix/codes/heimdall-rs/evaluation/results/verdict-audit-v1/limits-revert/synthetic-large",
+      "verdict": {
+        "approve_transfer_from": true,
+        "burn_100": true,
+        "deposit_100": true,
+        "deposit_above_max": true,
+        "deposit_below_min": true,
+        "initial_config": false,
+        "pause_blocks_deposit": true,
+        "preview_fee": true,
+        "set_fee_max": true,
+        "set_limits_invalid": false,
+        "transfer_100": true,
+        "transfer_from_unapproved_spender": true,
+        "transfer_insufficient": true,
+        "unpause_allows_deposit": true,
+        "withdraw_50": true,
+        "withdraw_too_much": true
+      }
+    },
+    "owner-rename": {
+      "compile_ok": true,
+      "expectation_violations": [],
+      "mutant": "owner-rename",
+      "ok": true,
+      "result_dir": "/home/minix/codes/heimdall-rs/evaluation/results/verdict-audit-v1/owner-rename/synthetic-large",
+      "verdict": {
+        "approve_transfer_from": true,
+        "burn_100": true,
+        "deposit_100": true,
+        "deposit_above_max": true,
+        "deposit_below_min": true,
+        "initial_config": false,
+        "pause_blocks_deposit": true,
+        "preview_fee": true,
+        "set_fee_max": true,
+        "set_limits_invalid": true,
+        "transfer_100": true,
+        "transfer_from_unapproved_spender": true,
+        "transfer_insufficient": true,
+        "unpause_allows_deposit": true,
+        "withdraw_50": true,
+        "withdraw_too_much": true
+      }
+    },
+    "owner-xor": {
+      "compile_ok": true,
+      "expectation_violations": [],
+      "mutant": "owner-xor",
+      "ok": true,
+      "result_dir": "/home/minix/codes/heimdall-rs/evaluation/results/verdict-audit-v1/owner-xor/synthetic-large",
+      "verdict": {
+        "approve_transfer_from": true,
+        "burn_100": true,
+        "deposit_100": true,
+        "deposit_above_max": true,
+        "deposit_below_min": true,
+        "initial_config": false,
+        "pause_blocks_deposit": true,
+        "preview_fee": true,
+        "set_fee_max": true,
+        "set_limits_invalid": true,
+        "transfer_100": true,
+        "transfer_from_unapproved_spender": true,
+        "transfer_insufficient": true,
+        "unpause_allows_deposit": true,
+        "withdraw_50": true,
+        "withdraw_too_much": true
+      }
+    },
+    "positive": {
+      "compile_ok": true,
+      "feedback_passes": 12,
+      "feedback_total": 12,
+      "result_dir": "/home/minix/codes/heimdall-rs/evaluation/results/verdict-audit-v1/positive/synthetic-large",
+      "withheld_passes": 4
+    },
+    "setup-revert": {
+      "compile_ok": true,
+      "expectation_violations": [],
+      "mutant": "setup-revert",
+      "ok": true,
+      "result_dir": "/home/minix/codes/heimdall-rs/evaluation/results/verdict-audit-v1/setup-revert/synthetic-large",
+      "verdict": {
+        "approve_transfer_from": false,
+        "burn_100": false,
+        "deposit_100": false,
+        "deposit_above_max": false,
+        "deposit_below_min": false,
+        "initial_config": false,
+        "pause_blocks_deposit": false,
+        "preview_fee": false,
+        "set_fee_max": false,
+        "set_limits_invalid": false,
+        "transfer_100": false,
+        "transfer_from_unapproved_spender": false,
+        "transfer_insufficient": false,
+        "unpause_allows_deposit": false,
+        "withdraw_50": false,
+        "withdraw_too_much": false
+      }
+    },
+    "supply-drift": {
+      "compile_ok": true,
+      "expectation_violations": [],
+      "mutant": "supply-drift",
+      "ok": true,
+      "result_dir": "/home/minix/codes/heimdall-rs/evaluation/results/verdict-audit-v1/supply-drift/synthetic-large",
+      "verdict": {
+        "approve_transfer_from": true,
+        "burn_100": true,
+        "deposit_100": false,
+        "deposit_above_max": true,
+        "deposit_below_min": true,
+        "initial_config": true,
+        "pause_blocks_deposit": true,
+        "preview_fee": true,
+        "set_fee_max": true,
+        "set_limits_invalid": true,
+        "transfer_100": true,
+        "transfer_from_unapproved_spender": true,
+        "transfer_insufficient": true,
+        "unpause_allows_deposit": true,
+        "withdraw_50": false,
+        "withdraw_too_much": true
+      }
+    }
+  },
+  "spec": "/home/minix/codes/heimdall-rs/evaluation/tests/synthetic-large.json"
+}

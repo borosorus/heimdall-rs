@@ -80,6 +80,39 @@ class ComparisonTests(unittest.TestCase):
         self.assertFalse(run_behavior.configured_match(result, True))
 
 
+class StrictEvidenceTests(unittest.TestCase):
+    @staticmethod
+    def failed_no_evidence():
+        return observation(ok=False, return_data=None, revert_data=None)
+
+    @staticmethod
+    def failed_with_revert(data: str):
+        return observation(ok=False, return_data=None, revert_data=data)
+
+    def test_default_mode_keeps_history_compatible_failed_parity(self):
+        # two evidence-less failures match unless strict evidence is requested
+        self.assertTrue(
+            run_behavior.sequence_matches([self.failed_no_evidence()], [self.failed_no_evidence()])
+        )
+
+    def test_strict_mode_demands_evidence_from_failed_steps(self):
+        pair = [self.failed_no_evidence()]
+        self.assertFalse(run_behavior.sequence_matches(pair, pair, strict_evidence=True))
+
+    def test_strict_mode_accepts_equal_revert_payloads(self):
+        pair = [self.failed_with_revert("0x4e487b71")]
+        self.assertTrue(run_behavior.sequence_matches(pair, pair, strict_evidence=True))
+
+    def test_strict_mode_accept_successful_empty_return(self):
+        pair = [observation(return_data="0x")]
+        self.assertTrue(run_behavior.sequence_matches(pair, pair, strict_evidence=True))
+
+    def test_combined_threads_strict_flag(self):
+        empty = [self.failed_no_evidence()]
+        self.assertTrue(run_behavior.combined_semantic_match([], [], empty, empty))
+        self.assertFalse(run_behavior.combined_semantic_match([], [], empty, empty, strict_evidence=True))
+
+
 class BindingSelectionTests(unittest.TestCase):
     def test_candidate_label_selects_matching_signature(self):
         binding = {

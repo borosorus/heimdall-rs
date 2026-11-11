@@ -412,11 +412,35 @@ def semantic_view(observation: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def sequence_matches(reference: list[dict[str, Any]], candidate: list[dict[str, Any]]) -> bool:
-    return len(reference) == len(candidate) and all(
+def _view_evidence_complete(view: dict[str, Any]) -> bool:
+    """A view carries evidence when it states an outcome, not merely absence of one.
+
+    A failed observation with no return and no revert payload proves nothing about
+    the candidate (lost revert reason, RPC hiccup); under strict comparison such
+    steps cannot earn parity.
+    """
+    if view.get("unbound"):
+        return True
+    return bool(view.get("ok") or view.get("return_data") or view.get("revert_data"))
+
+
+def sequence_matches(
+    reference: list[dict[str, Any]],
+    candidate: list[dict[str, Any]],
+    strict_evidence: bool = False,
+) -> bool:
+    equal = len(reference) == len(candidate) and all(
         semantic_view(left) == semantic_view(right)
         for left, right in zip(reference, candidate)
     )
+    if not equal:
+        return False
+    if strict_evidence:
+        return all(
+            _view_evidence_complete(semantic_view(observation))
+            for observation in [*reference, *candidate]
+        )
+    return True
 
 
 def setup_ok(observations: list[dict[str, Any]]) -> bool:
@@ -431,15 +455,16 @@ def combined_semantic_match(
     setup_candidate: list[dict[str, Any]],
     reference: list[dict[str, Any]],
     candidate: list[dict[str, Any]],
+    strict_evidence: bool = False,
 ) -> bool:
     # A probe whose reference setup reverts proves nothing about the candidate:
     # both sides can fail identically from default state. Such probes are
     # reported with semantic_match false, never as passes.
     if setup_reference and not setup_ok(setup_reference):
         return False
-    return sequence_matches(setup_reference, setup_candidate) and sequence_matches(
-        reference, candidate
-    )
+    return sequence_matches(
+        setup_reference, setup_candidate, strict_evidence
+    ) and sequence_matches(reference, candidate, strict_evidence)
 
 
 def prompt_view(observation: dict[str, Any], include_logs: bool) -> dict[str, Any]:
@@ -604,7 +629,11 @@ def run_probes(
             "setup_reference": setup_reference,
             "setup_candidate": setup_candidate,
             "semantic_match": combined_semantic_match(
-                setup_reference, setup_candidate, reference, candidate
+                setup_reference,
+                setup_candidate,
+                reference,
+                candidate,
+                strict_evidence=bool(spec.get("strict_evidence", False)),
             ),
             "event_match": combined_event_match(
                 setup_reference, setup_candidate, reference, candidate
