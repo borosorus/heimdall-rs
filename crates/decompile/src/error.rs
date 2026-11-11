@@ -7,6 +7,9 @@ pub enum Error {
     /// Error during the disassembly process
     #[error("Disassembly error: {0}")]
     DisassemblyError(#[from] heimdall_disassembler::Error),
+    /// Error while applying the deterministic source preparation passes
+    #[error("Preparation error: {0}")]
+    PreparationError(String),
     /// Generic internal error
     #[error("Internal error: {0}")]
     Eyre(#[from] eyre::Report),

@@ -62,7 +62,8 @@ use tracing::{debug, info, warn};
 pub struct DecompileResult {
     /// The final decompiled source code in Solidity or Yul format (if requested)
     pub source: Option<String>,
-    /// The deterministic source before optional LLM post-processing (if requested)
+    /// The deterministic source before optional LLM post-processing (if
+    /// requested), after the optional preparation passes
     pub baseline_source: Option<String>,
     /// Report describing the optional LLM post-processing pass
     pub llm_postprocess: LlmPostprocessReport,
@@ -109,6 +110,11 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
     if !args.include_solidity && args.llm_postprocess {
         return Err(Error::Eyre(eyre!(
             "llm postprocessing requires including solidity source code. please enable the '--include-sol' flag."
+        )));
+    }
+    if args.prepare && !args.include_solidity {
+        return Err(Error::Eyre(eyre!(
+            "source preparation requires including solidity source code. please enable the '--include-sol' flag."
         )));
     }
 
@@ -473,6 +479,7 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
         &all_resolved_events,
         &abi,
         &storage_variables,
+        args.prepare,
         llm_config.as_ref(),
     )
     .await?;

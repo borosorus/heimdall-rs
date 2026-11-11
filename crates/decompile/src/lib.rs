@@ -10,6 +10,7 @@ mod error;
 
 mod core;
 mod interfaces;
+mod prepare;
 mod utils;
 
 // re-export the public interface

@@ -65,6 +65,13 @@ pub struct DecompilerArgs {
     #[clap(long = "include-yul")]
     pub include_yul: bool,
 
+    /// Apply the deterministic source-preparation passes (compilability and
+    /// behavior-preserving repairs) to the recovered Solidity source.
+    /// No-op for Yul output; has no effect without '--include-sol'.
+    #[clap(long)]
+    #[builder(default)]
+    pub prepare: bool,
+
     /// The output directory to write the output to or 'print' to print to the console
     #[clap(long = "output", short = 'o', default_value = "output", hide_default_value = true)]
     pub output: String,
@@ -211,6 +218,7 @@ impl DecompilerArgsBuilder {
             indexed_log_to_block: Some(None),
             include_solidity: Some(false),
             include_yul: Some(false),
+            prepare: Some(false),
             output: Some(String::new()),
             name: Some(String::new()),
             timeout: Some(10000),
@@ -300,5 +308,18 @@ mod tests {
         assert!(enabled.indexed_log_check);
         assert_eq!(enabled.indexed_log_from_block, Some(10));
         assert_eq!(enabled.indexed_log_to_block, Some(20));
+    }
+
+    #[test]
+    fn prepare_flag_defaults_off_and_requires_solidity_output() {
+        let defaults = DecompilerArgs::try_parse_from(["decompile", "0x00"]).unwrap();
+        assert!(!defaults.prepare);
+        let library = DecompilerArgsBuilder::new().target("0x00".to_string()).build().unwrap();
+        assert!(!library.prepare);
+        assert!(DecompilerArgs::try_parse_from(["decompile", "0x00", "--prepare"]).is_ok());
+        let enabled =
+            DecompilerArgs::try_parse_from(["decompile", "0x00", "--prepare", "--include-sol"])
+                .unwrap();
+        assert!(enabled.prepare);
     }
 }

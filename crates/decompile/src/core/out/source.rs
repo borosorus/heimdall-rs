@@ -46,7 +46,8 @@ async fn annotate_contract(
 pub(crate) struct BuiltSource {
     /// The final source, which is baseline output when LLM post-processing did not apply.
     pub source: String,
-    /// The deterministic source before any LLM post-processing.
+    /// The deterministic source after the optional preparation passes and
+    /// before any LLM post-processing.
     pub baseline_source: String,
     /// Audit report for the optional LLM pass.
     pub report: LlmPostprocessReport,
@@ -64,6 +65,7 @@ pub(crate) async fn build_source(
     all_resolved_logs: &HashMap<String, ResolvedLog>,
     abi: &JsonAbi,
     storage_variables: &HashMap<String, StorageVariable>,
+    prepare_source: bool,
     llm_config: Option<&LlmConfig>,
 ) -> Result<Option<BuiltSource>> {
     // we can get the AnalyzerType from the first function, since they are all the same
@@ -163,6 +165,16 @@ pub(crate) async fn build_source(
                 .unwrap_or_else(|| format!("unresolved_{}", f.selector));
             source = source.replace(getter_for_storage_variable, &resolved_name);
         });
+
+    // apply the deterministic preparation passes when requested; the prepared
+    // source is still fully deterministic, so it remains the baseline. Only
+    // the Solidity representation has contract structure to prepare.
+    if prepare_source && analyzer_type == AnalyzerType::Solidity {
+        let prepared = crate::prepare::prepare(&source)
+            .map_err(|error| crate::Error::PreparationError(error.to_string()))?;
+        debug!(stages = prepared.stages.len(), "source preparation applied");
+        source = prepared.source;
+    }
 
     // preserve the deterministic source so evaluation can compare it with any LLM candidate
     let baseline_source = source.clone();
@@ -628,6 +640,7 @@ mod tests {
             &HashMap::new(),
             &JsonAbi::new(),
             &HashMap::new(),
+            false,
             llm_config,
         )
         .await
@@ -653,6 +666,39 @@ mod tests {
         assert!(!without_llm.report.requested);
         assert_eq!(without_llm.source, without_llm.baseline_source);
         assert_eq!(without_llm.source, built.baseline_source);
+    }
+
+    async fn build_with_prepare(functions: &[AnalyzedFunction], prepare: bool) -> BuiltSource {
+        build_source(
+            functions,
+            &HashMap::new(),
+            &HashMap::new(),
+            &JsonAbi::new(),
+            &HashMap::new(),
+            prepare,
+            None,
+        )
+        .await
+        .expect("failed to build source")
+        .expect("source is empty")
+    }
+
+    #[tokio::test]
+    async fn prepare_flag_applies_the_ladder_inside_build() {
+        // plumbing test: flag -> hook -> ladder -> baseline semantics. Source
+        // parity itself is pinned by the committed-fixture test in
+        // prepare::tests::matches_the_python_reference_ladder.
+        let functions = fixture(AnalyzerType::Solidity);
+        let plain = build_with_prepare(&functions, false).await;
+        let prepared = build_with_prepare(&functions, true).await;
+
+        // the flag-off path is byte-identical to the unflagged pipeline
+        assert_eq!(plain.source, plain.baseline_source);
+        // the prepared source is exactly the ladder over the plain source, and
+        // it is the baseline the LLM pass would see
+        let expected = crate::prepare::prepare(&plain.source).expect("prepare failed");
+        assert_eq!(prepared.source, expected.source);
+        assert_eq!(prepared.baseline_source, prepared.source);
     }
 
     /// Returns the emitted function names, in the order they appear in the source.
