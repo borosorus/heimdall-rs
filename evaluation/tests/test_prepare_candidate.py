@@ -309,6 +309,7 @@ class PipelineTest(unittest.TestCase):
             [
                 "placeholders",
                 "declarations",
+                "selfref",
                 "vars",
                 "mutability",
                 "arity",

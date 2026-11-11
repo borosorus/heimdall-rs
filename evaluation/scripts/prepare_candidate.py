@@ -373,12 +373,16 @@ def _split_self_referential_initializers(source: str, masked: str) -> tuple[str,
     return "".join(out), edits
 
 
-def declare_undefined_vars(source: str) -> Stage:
-    """Tier 3: declare ``var_*`` identifiers used but never declared."""
+def split_selfref_initializers(source: str) -> Stage:
+    """Stage: split self-referential ``var_*`` initializers (see helper above)."""
     masked = _mask_strings_and_comments(source, 0, len(source))
-    source, split_edits = _split_self_referential_initializers(source, masked)
-    if split_edits:
-        masked = _mask_strings_and_comments(source, 0, len(source))
+    source, edits = _split_self_referential_initializers(source, masked)
+    return Stage("selfref", "self-referential initializers", source, edits)
+
+
+def declare_undefined_vars(source: str) -> Stage:
+    """Tier: declare ``var_*`` identifiers used but never declared."""
+    masked = _mask_strings_and_comments(source, 0, len(source))
     used = set(re.findall(r"\b(var_[a-z]+)\b", masked))
     declared = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", masked))
     declared |= {
@@ -386,10 +390,8 @@ def declare_undefined_vars(source: str) -> Stage:
         for m in re.finditer(r"\b(uint\d*|address|bool|bytes\d*)\s+(var_[a-z]+)\s*=[^=]", masked)
     }  # typed local definitions declare; bare assignment targets do not
     undeclared = sorted(used - declared)
-    edits: list[dict[str, Any]] = list(split_edits)
+    edits: list[dict[str, Any]] = []
     if not undeclared:
-        if not edits:
-            return Stage("vars", "undefined var_* state", source, edits)
         return Stage("vars", "undefined var_* state", source, edits)
     parsed = parse_contract(source, None)
     offset = _body_open_line_end(source, parsed.body_start)
@@ -1003,19 +1005,27 @@ def _all_slot_decls(masked: str, source: str | None = None) -> dict[str, tuple[s
     return found
 
 
-def prepare_stages(source: str) -> list[Stage]:
-    """Run every deterministic tier; returns the cumulative stage ladder."""
+PREPARE_STAGES = (
+    normalize_placeholders,
+    declare_missing_symbols,
+    split_selfref_initializers,
+    declare_undefined_vars,
+    align_function_mutability,
+    align_arities,
+    unify_storage_views,
+    recover_packed_scalar_storage,
+)
+
+
+def prepare_stages(source: str, transforms: tuple | None = None) -> list[Stage]:
+    """Run every deterministic tier; returns the cumulative stage ladder.
+
+    `transforms` subset override exists for ablation runs; production callers use
+    the full default ladder.
+    """
     stages: list[Stage] = []
     current = source
-    for transform in (
-        normalize_placeholders,
-        declare_missing_symbols,
-        declare_undefined_vars,
-        align_function_mutability,
-        align_arities,
-        unify_storage_views,
-        recover_packed_scalar_storage,
-    ):
+    for transform in transforms if transforms is not None else PREPARE_STAGES:
         try:
             stage = transform(current)
         except ParseError as error:

@@ -1,0 +1,144 @@
+{
+ "v0_root": "/tmp/heim-eval/v0",
+ "solc": "0.8.30",
+ "cases": {
+  "modern-simple": {
+   "source": "evaluation/results/behavior-repair-v4/modern-simple/baseline.sol",
+   "contract": "DecompiledContract",
+   "v0": {
+    "ok": true,
+    "rc": 0,
+    "compiled": true,
+    "candidate_sha256": "32336596461ebfa96c2a426817bc296003563ce9a9069aae64bc962e1d64e852",
+    "edit_count": 1,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-simple/v0/prep-evidence.json"
+   },
+   "v1": {
+    "ok": true,
+    "rc": 0,
+    "compiled": true,
+    "candidate_sha256": "32336596461ebfa96c2a426817bc296003563ce9a9069aae64bc962e1d64e852",
+    "edit_count": 1,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-simple/v1/prep-evidence.json"
+   },
+   "both_versions_ran": true,
+   "compile_no_regression": true,
+   "output_changed": false
+  },
+  "modern-advanced": {
+   "source": "evaluation/results/modern-advanced-whole-v1/modern-advanced/baseline.sol",
+   "contract": "DecompiledContract",
+   "v0": {
+    "ok": true,
+    "rc": 2,
+    "compiled": false,
+    "candidate_sha256": "95b97072a441dd95d7bdfccd9fa1ea9cdb87703a9efd4846cf4c8d39d29c5285",
+    "edit_count": 10,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-advanced/v0/prep-evidence.json"
+   },
+   "v1": {
+    "ok": true,
+    "rc": 2,
+    "compiled": false,
+    "candidate_sha256": "d5bae36d420efd704180f3b6aeadd847e568251856d09d1e1f9b7bf2f0150ba6",
+    "edit_count": 12,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-advanced/v1/prep-evidence.json"
+   },
+   "both_versions_ran": true,
+   "compile_no_regression": true,
+   "output_changed": true
+  },
+  "sender-creator": {
+   "source": "evaluation/results/sender-creator-seed/harness-final/sender-creator/baseline.sol",
+   "contract": "DecompiledContract",
+   "v0": {
+    "ok": true,
+    "rc": 0,
+    "compiled": true,
+    "candidate_sha256": "36e55b9e7a034677443adf4510420fb80ac733f6454d2fc143a15108414cd052",
+    "edit_count": 0,
+    "evidence": "/tmp/heim-eval/v0cmp3/sender-creator/v0/prep-evidence.json"
+   },
+   "v1": {
+    "ok": true,
+    "rc": 0,
+    "compiled": true,
+    "candidate_sha256": "36e55b9e7a034677443adf4510420fb80ac733f6454d2fc143a15108414cd052",
+    "edit_count": 0,
+    "evidence": "/tmp/heim-eval/v0cmp3/sender-creator/v1/prep-evidence.json"
+   },
+   "both_versions_ran": true,
+   "compile_no_regression": true,
+   "output_changed": false
+  },
+  "modern-math-helper": {
+   "source": "evaluation/results/modern-math-helper-unitloop-v1/modern-math-helper/verify/modern-math-helper/baseline.sol",
+   "contract": "DecompiledContract",
+   "v0": {
+    "ok": true,
+    "rc": 2,
+    "compiled": false,
+    "candidate_sha256": "b7edfa2147a77150756ce97be23736b7be9706a248d8884859da23b7afb3c545",
+    "edit_count": 1,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-math-helper/v0/prep-evidence.json"
+   },
+   "v1": {
+    "ok": true,
+    "rc": 2,
+    "compiled": false,
+    "candidate_sha256": "b7edfa2147a77150756ce97be23736b7be9706a248d8884859da23b7afb3c545",
+    "edit_count": 1,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-math-helper/v1/prep-evidence.json"
+   },
+   "both_versions_ran": true,
+   "compile_no_regression": true,
+   "output_changed": false
+  },
+  "synthetic-large": {
+   "source": "evaluation/results/synthetic-large-enum-final/synthetic-large/harness-final-perfect/synthetic-large/baseline.sol",
+   "contract": "DecompiledContract",
+   "v0": {
+    "ok": true,
+    "rc": 2,
+    "compiled": false,
+    "candidate_sha256": "1ad459dbcaba9f6d1c29a45994d40663e904608cd2cd9d1194f224fd00488fbc",
+    "edit_count": 18,
+    "evidence": "/tmp/heim-eval/v0cmp3/synthetic-large/v0/prep-evidence.json"
+   },
+   "v1": {
+    "ok": true,
+    "rc": 2,
+    "compiled": false,
+    "candidate_sha256": "1ad459dbcaba9f6d1c29a45994d40663e904608cd2cd9d1194f224fd00488fbc",
+    "edit_count": 18,
+    "evidence": "/tmp/heim-eval/v0cmp3/synthetic-large/v1/prep-evidence.json"
+   },
+   "both_versions_ran": true,
+   "compile_no_regression": true,
+   "output_changed": false
+  },
+  "modern-errors": {
+   "source": "evaluation/results/modern-errors-decompile-unblocked/modern-errors/modern-errors-decompiled.sol",
+   "contract": "DecompiledContract",
+   "v0": {
+    "ok": true,
+    "rc": 2,
+    "compiled": false,
+    "candidate_sha256": "4e63cff0927f05839bfff28713aef7a63a034656d6efff7f3c90a8f6e8197a25",
+    "edit_count": 4,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-errors/v0/prep-evidence.json"
+   },
+   "v1": {
+    "ok": true,
+    "rc": 0,
+    "compiled": true,
+    "candidate_sha256": "10d3973d2d068dcb780168b4e900703513fe6fa4cc53151b6fe6634e3852741c",
+    "edit_count": 6,
+    "evidence": "/tmp/heim-eval/v0cmp3/modern-errors/v1/prep-evidence.json"
+   },
+   "both_versions_ran": true,
+   "compile_no_regression": true,
+   "output_changed": true
+  }
+ }
+}

@@ -1,0 +1,234 @@
+{
+ "source_sha256": "de536146d9f8d38c22f8da2be9f476d8b5c0dc3478e9e1bbf509fbbf4a65a696",
+ "solc": "0.8.30",
+ "stage_order": [
+  "normalize_placeholders",
+  "declare_missing_symbols",
+  "split_selfref_initializers",
+  "declare_undefined_vars",
+  "align_function_mutability",
+  "align_arities",
+  "unify_storage_views",
+  "recover_packed_scalar_storage"
+ ],
+ "variants": [
+  {
+   "variant": "full",
+   "stages": [
+    "placeholders",
+    "declarations",
+    "selfref",
+    "vars",
+    "mutability",
+    "arity",
+    "slot-aliases",
+    "packed-scalars"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "declarations": 3,
+    "selfref": 1,
+    "vars": 1,
+    "mutability": 1,
+    "arity": 0,
+    "slot-aliases": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "10d3973d2d068dcb780168b4e900703513fe6fa4cc53151b6fe6634e3852741c",
+   "compiled": true,
+   "compile_returncode": 0
+  },
+  {
+   "variant": "minus-normalize_placeholders",
+   "stages": [
+    "declarations",
+    "selfref",
+    "vars",
+    "mutability",
+    "arity",
+    "slot-aliases",
+    "packed-scalars"
+   ],
+   "edits": {
+    "declarations": 3,
+    "selfref": 1,
+    "vars": 1,
+    "mutability": 1,
+    "arity": 0,
+    "slot-aliases": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "10d3973d2d068dcb780168b4e900703513fe6fa4cc53151b6fe6634e3852741c",
+   "compiled": true,
+   "compile_returncode": 0
+  },
+  {
+   "variant": "minus-declare_missing_symbols",
+   "stages": [
+    "placeholders",
+    "selfref",
+    "vars",
+    "mutability",
+    "arity",
+    "slot-aliases",
+    "packed-scalars"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "selfref": 1,
+    "vars": 1,
+    "mutability": 1,
+    "arity": 0,
+    "slot-aliases": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "95bbddfdb89b12c53f9973fcf2c1351cf8be0864eb1ff65d42038b08de89cd46",
+   "compiled": false,
+   "compile_returncode": 1
+  },
+  {
+   "variant": "minus-split_selfref_initializers",
+   "stages": [
+    "placeholders",
+    "declarations",
+    "vars",
+    "mutability",
+    "arity",
+    "slot-aliases",
+    "packed-scalars"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "declarations": 3,
+    "vars": 1,
+    "mutability": 1,
+    "arity": 0,
+    "slot-aliases": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "ef3f5507f00a8d8ed70f77cdcf46e2eb825f2fb6cb17f3b46ac5d79e430d550b",
+   "compiled": false,
+   "compile_returncode": 1
+  },
+  {
+   "variant": "minus-declare_undefined_vars",
+   "stages": [
+    "placeholders",
+    "declarations",
+    "selfref",
+    "mutability",
+    "arity",
+    "slot-aliases",
+    "packed-scalars"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "declarations": 3,
+    "selfref": 1,
+    "mutability": 0,
+    "arity": 0,
+    "slot-aliases": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "d0c433b0f9818a8f4117ec31e36bfeaf997043a18fc0690bae05ecd17d4230eb",
+   "compiled": false,
+   "compile_returncode": 1
+  },
+  {
+   "variant": "minus-align_function_mutability",
+   "stages": [
+    "placeholders",
+    "declarations",
+    "selfref",
+    "vars",
+    "arity",
+    "slot-aliases",
+    "packed-scalars"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "declarations": 3,
+    "selfref": 1,
+    "vars": 1,
+    "arity": 0,
+    "slot-aliases": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "cb0ff6f50f7ade798ce8a67bb6adf1698cfee96ba6cf4a3c0c800fade79eacb1",
+   "compiled": false,
+   "compile_returncode": 1
+  },
+  {
+   "variant": "minus-align_arities",
+   "stages": [
+    "placeholders",
+    "declarations",
+    "selfref",
+    "vars",
+    "mutability",
+    "slot-aliases",
+    "packed-scalars"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "declarations": 3,
+    "selfref": 1,
+    "vars": 1,
+    "mutability": 1,
+    "slot-aliases": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "10d3973d2d068dcb780168b4e900703513fe6fa4cc53151b6fe6634e3852741c",
+   "compiled": true,
+   "compile_returncode": 0
+  },
+  {
+   "variant": "minus-unify_storage_views",
+   "stages": [
+    "placeholders",
+    "declarations",
+    "selfref",
+    "vars",
+    "mutability",
+    "arity",
+    "packed-scalars"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "declarations": 3,
+    "selfref": 1,
+    "vars": 1,
+    "mutability": 1,
+    "arity": 0,
+    "packed-scalars": 0
+   },
+   "candidate_sha256": "10d3973d2d068dcb780168b4e900703513fe6fa4cc53151b6fe6634e3852741c",
+   "compiled": true,
+   "compile_returncode": 0
+  },
+  {
+   "variant": "minus-recover_packed_scalar_storage",
+   "stages": [
+    "placeholders",
+    "declarations",
+    "selfref",
+    "vars",
+    "mutability",
+    "arity",
+    "slot-aliases"
+   ],
+   "edits": {
+    "placeholders": 0,
+    "declarations": 3,
+    "selfref": 1,
+    "vars": 1,
+    "mutability": 1,
+    "arity": 0,
+    "slot-aliases": 0
+   },
+   "candidate_sha256": "10d3973d2d068dcb780168b4e900703513fe6fa4cc53151b6fe6634e3852741c",
+   "compiled": true,
+   "compile_returncode": 0
+  }
+ ]
+}
