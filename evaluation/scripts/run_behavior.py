@@ -241,12 +241,16 @@ def compile_candidate(
         return compile_record
 
     artifact_path, artifact = artifacts[0]
+    creation = artifact.get("bytecode")
     compile_record.update(
         {
             "ok": True,
             "artifact": str(artifact_path.relative_to(work_dir)),
             "abi": artifact["abi"],
             "deployed_bytecode": artifact["deployedBytecode"]["object"],
+            # creation code: present unless the artifact predates it; required
+            # only by creation-mode deployment, which validates it itself
+            "creation_bytecode": creation.get("object") if isinstance(creation, dict) else None,
         }
     )
     return compile_record
@@ -336,6 +340,89 @@ def trace_failed_call_gas(rpc: Rpc, call_params: dict) -> str | None:
         return None
 
 
+CONSTRUCTOR_SENDER = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+
+
+def deploy_with_constructor(rpc: Rpc, creation_code: str, constructor_args: str) -> dict[str, Any]:
+    """Deploy creation code (+ constructor args) via an unsigned setup transaction.
+
+    Used by creation-mode deployment so the constructor runs on-chain and its
+    state writes and immutables are real for both sides. Returns the receipt;
+    the caller reads `contractAddress` from it.
+    """
+    if not (isinstance(creation_code, str) and creation_code.startswith("0x") and len(creation_code) > 2):
+        raise HarnessError("creation-mode deployment requires the contract creation bytecode")
+    tx_hash = rpc.call(
+        "eth_sendTransaction",
+        [
+            {
+                "from": CONSTRUCTOR_SENDER,
+                "data": creation_code + (constructor_args or "0x").removeprefix("0x"),
+                "gas": hex(30_000_000),
+            }
+        ],
+    )
+    for _ in range(200):
+        receipt = rpc.call("eth_getTransactionReceipt", [tx_hash])
+        if receipt is not None:
+            return receipt
+        time.sleep(0.05)
+    raise HarnessError(f"timed out waiting for deployment receipt {tx_hash}")
+
+
+GAS_LADDER_FRACTION = 2  # second probe runs at half the first cap
+
+
+def classify_failed_call(rpc: Rpc, call_params: dict) -> str | None:
+    """Classify an exceptional halt by its gas behavior under a two-step ladder.
+
+    ``determinate``: identical consumption under both caps - a fixed halt point
+    (invalid opcode, assert). ``gas-bound``: the tighter cap was exhausted - a
+    loop-style halt that consumes whatever budget exists. None when the ladder
+    cannot run or the half cap falls below a determinate halt's need.
+    """
+    cap = call_params.get("gas")
+    if not isinstance(cap, str) or not cap.startswith("0x"):
+        return None
+    try:
+        full = int(cap, 16)
+        half = full // GAS_LADDER_FRACTION
+    except ValueError:
+        return None
+    if half <= 21000:
+        return None
+    gas_full = trace_failed_call_gas(rpc, call_params)
+    if gas_full is None:
+        return None
+    half_params = dict(call_params, gas=hex(half))
+    gas_half = trace_failed_call_gas(rpc, half_params)
+    if gas_half is None:
+        return None
+    return classify_from_used(
+        int(gas_full, 16), int(gas_half, 16), full - 21000, half - 21000
+    )
+
+
+def classify_from_used(
+    used_full: int, used_half: int, full_budget: int, half_budget: int
+) -> str | None:
+    """Pure decision behind [`classify_failed_call`].
+
+    The 1% exhaustion tolerance absorbs tracer noise; it is a heuristic
+    threshold, not a derived constant. A `gas-bound` verdict requires BOTH
+    caps exhausted: a loop burns whatever budget exists. Half-exhausted with
+    headroom on the full cap is ambiguous (an expensive determinate halt looks
+    identical) and stays unclassified.
+    """
+    if used_full == used_half:
+        return "determinate"
+    half_exhausted = used_half >= half_budget - (half_budget // 100)
+    full_exhausted = used_full >= full_budget - (full_budget // 100)
+    if half_exhausted and full_exhausted:
+        return "gas-bound"
+    return None
+
+
 def call_step(
     rpc: Rpc,
     to: str,
@@ -370,6 +457,15 @@ def call_step(
             "revert_data": revert_data,
             # evidence only for failed calls; successful calls carry their payload
             "gas_used": None if call_ok else trace_failed_call_gas(rpc, call_params),
+            # behavior class of the halt (gas-bound loop vs determinate halt);
+            # silent failures only - payload-bearing reverts are already
+            # discriminated by their data. Part of the compared view: equal
+            # outcomes must halt alike
+            "gas_class": (
+                None
+                if call_ok or revert_data
+                else classify_failed_call(rpc, call_params)
+            ),
             "logs": [],
             "contract_balance": rpc.call("eth_getBalance", [to, "latest"]),
         }
@@ -481,6 +577,9 @@ def semantic_view(observation: dict[str, Any]) -> dict[str, Any]:
         "return_data": (observation.get("return_data") or "").lower() or None,
         "revert_data": (observation.get("revert_data") or "").lower() or None,
         "contract_balance": observation.get("contract_balance"),
+        # halt class only exists on failed observations; absent on both sides
+        # compares equal, so historical records are unaffected
+        "gas_class": observation.get("gas_class"),
     }
 
 
@@ -499,6 +598,7 @@ def _observation_evidence_complete(observation: dict[str, Any]) -> bool:
         or observation.get("return_data")
         or observation.get("revert_data")
         or observation.get("gas_used")
+        or observation.get("gas_class")
     )
 
 
@@ -1003,6 +1103,7 @@ def evaluate_stage(
     selector_key: str,
     stage_index: int,
     result_dir: Path,
+    reference_addr: str | None = None,
 ) -> dict[str, Any]:
     work_dir = result_dir / "work" / label
     compile_record = compile_candidate(
@@ -1028,8 +1129,16 @@ def evaluate_stage(
     stage["bindings"] = stage_bindings
     stage["interface"] = interface_report(reference_selectors, candidate_selectors)
 
-    candidate_addr = stage_address(stage_index)
-    rpc.call("anvil_setCode", [candidate_addr, compile_record["deployed_bytecode"]])
+    deployment = spec.get("deployment") or {}
+    if deployment.get("mode") == "creation":
+        creation = compile_record.get("creation_bytecode")
+        if not creation:
+            raise HarnessError("creation-mode deployment but the compiled artifact has no creation bytecode")
+        receipt = deploy_with_constructor(rpc, creation, deployment.get("candidate_args", deployment.get("constructor_args", "0x")))
+        candidate_addr = receipt["contractAddress"]
+    else:
+        candidate_addr = stage_address(stage_index)
+        rpc.call("anvil_setCode", [candidate_addr, compile_record["deployed_bytecode"]])
     rpc.call("anvil_setBalance", [candidate_addr, "0x0"])
     stage["address"] = candidate_addr
     # event identity tables for BOTH sides: run_probes always collects the
@@ -1059,7 +1168,7 @@ def evaluate_stage(
         rpc,
         spec,
         stage_bindings,
-        REF_ADDR,
+        reference_addr or REF_ADDR,
         candidate_addr,
         rpc.call("eth_accounts"),
         event_topics=event_tables,
@@ -1136,14 +1245,49 @@ def main() -> int:
     anvil = Anvil()
     try:
         rpc = anvil.rpc
-        rpc.call("anvil_setCode", [REF_ADDR, reference_runtime])
-        rpc.call("anvil_setBalance", [REF_ADDR, "0x0"])
+        deployment = spec.get("deployment") or {}
+        if deployment.get("mode") == "creation":
+            # constructor-covering mode: both sides run their creation code with
+            # the spec's constructor arguments; state set by the constructor and
+            # immutables are then exercised by the very same probes as before
+            reference_creation = deployment["reference_creation_bytecode"]
+            if not reference_creation.startswith("0x"):
+                # a path relative to the repo: the fixture's stored creation code
+                reference_creation = (repo_root() / reference_creation).read_text(encoding="utf-8").strip()
+            reference_receipt = deploy_with_constructor(
+                rpc,
+                reference_creation,
+                deployment.get("constructor_args", "0x"),
+            )
+            reference_addr = reference_receipt["contractAddress"]
+        else:
+            rpc.call("anvil_setCode", [REF_ADDR, reference_runtime])
+            reference_addr = REF_ADDR
+        rpc.call("anvil_setBalance", [reference_addr, "0x0"])
         baseline_stage = evaluate_stage(
-            rpc, spec, bindings, reference_selectors, baseline_source, "baseline", "baseline", 0, result_dir
+            rpc,
+            spec,
+            bindings,
+            reference_selectors,
+            baseline_source,
+            "baseline",
+            "baseline",
+            0,
+            result_dir,
+            reference_addr=reference_addr,
         )
         stages.append(baseline_stage)
         llm1_stage = evaluate_stage(
-            rpc, spec, bindings, reference_selectors, candidate_source, "llm1", "candidate", 1, result_dir
+            rpc,
+            spec,
+            bindings,
+            reference_selectors,
+            candidate_source,
+            "llm1",
+            "candidate",
+            1,
+            result_dir,
+            reference_addr=reference_addr,
         )
         stages.append(llm1_stage)
         selected_stage = llm1_stage

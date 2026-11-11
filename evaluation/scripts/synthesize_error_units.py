@@ -112,10 +112,20 @@ def replace_unit_body(source: str, unit, new_body: str) -> str:
 
 
 def variant_order(observation: dict) -> list[tuple[str, str]]:
-    """Fixed variant order for silent failures; the caller accepts on parity."""
+    """Variant order for a failing unit; observation-driven only.
+
+    A recorded halt class picks the mechanism directly (gas-bound -> burn loop,
+    determinate -> invalid opcode); without one the historical fixed order
+    applies and the harness accepts on parity as before.
+    """
     kind, args = classify(observation)
     if kind == "revert-payload":
         return [("revert-payload", raw_revert_body(args["payload"]))]
+    gas_class = observation.get("gas_class")
+    if gas_class == "gas-bound":
+        return [("gas-burn", SILENT_FAILURE_VARIANTS["gas-burn"])]
+    if gas_class == "determinate":
+        return [("invalid-opcode", SILENT_FAILURE_VARIANTS["invalid-opcode"])]
     return list(SILENT_FAILURE_VARIANTS.items())
 
 

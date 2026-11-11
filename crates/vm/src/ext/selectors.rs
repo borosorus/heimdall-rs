@@ -107,14 +107,26 @@ pub fn find_function_selectors(evm: &VM, assembly: &str) -> HashMap<String, u128
     function_selectors
 }
 
+/// maximum instructions spent resolving a single entry point; bounds contracts
+/// whose dispatcher prefix loops without a matching `JUMPI` (termination guard,
+/// mirroring `VM::call_with_step_limit`)
+pub const RESOLVE_ENTRY_POINT_STEP_LIMIT: u64 = 1_000_000;
+
 /// resolve a selector's function entry point from the EVM bytecode
 // TODO: update resolve_entry_point logic to support vyper
 pub fn resolve_entry_point(vm: &mut VM, selector: &str) -> u128 {
     let mut handled_jumps = HashSet::new();
+    let mut steps_remaining = RESOLVE_ENTRY_POINT_STEP_LIMIT;
 
     // execute the EVM call to find the entry point for the given selector
     vm.calldata = decode_hex(selector).expect("Failed to decode selector.");
     while vm.bytecode.len() >= vm.instruction as usize {
+        if steps_remaining == 0 {
+            // budget exhausted without a matching dispatch: unresolved
+            return 0;
+        }
+        steps_remaining -= 1;
+
         let call = match vm.step() {
             Ok(call) => call,
             Err(_) => break, // the call failed, so we can't resolve the selector
@@ -195,4 +207,28 @@ where
     info!("resolved {} signatures from {} selectors", signatures.len(), selector_count);
     debug!("signature resolution took {:?}", start_time.elapsed());
     signatures
+}
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_entry_point;
+    use crate::core::vm::VM;
+    use heimdall_common::utils::strings::decode_hex;
+
+    #[test]
+    fn test_resolve_entry_point_bounds_dispatcher_loops() {
+        // JUMPDEST; PUSH1 0x00; JUMP -> a dispatcher prefix that loops forever
+        // without ever reaching a matching JUMPI: must terminate unresolved
+        let mut vm = VM::new(
+            &decode_hex("0x5b600056").expect("failed to decode bytecode"),
+            &decode_hex("0xFFFFFFFF").expect("failed to decode calldata"),
+            "0x6865696d64616c6c000000000061646472657373".parse().expect("address"),
+            "0x6865696d64616c6c0000000000006f726967696e".parse().expect("address"),
+            "0x6865696d64616c6c00000000000063616c6c6572".parse().expect("address"),
+            0,
+            9999999999,
+        );
+        let entry = resolve_entry_point(&mut vm, "ffffffff");
+        assert_eq!(entry, 0);
+    }
 }

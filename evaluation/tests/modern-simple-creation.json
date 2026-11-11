@@ -1,0 +1,91 @@
+{
+ "fixture": "modern-simple",
+ "reference_runtime": "evaluation/fixtures/modern-simple/runtime.hex",
+ "reference_abi": "evaluation/fixtures/modern-simple/abi.json",
+ "solc_version": "0.8.22",
+ "bindings": {
+  "set": {
+   "reference_signature": "set(uint256)",
+   "baseline_signature": "Unresolved_60fe47b1(uint256)",
+   "candidate_signature": "Unresolved_60fe47b1(uint256)",
+   "candidate_signatures": {
+    "creation-v1": "Unresolved_60fe47b1(uint256)"
+   }
+  },
+  "get": {
+   "reference_signature": "get()",
+   "baseline_signature": "unresolved_6d4ce63c()",
+   "candidate_signature": "unresolved_6d4ce63c()",
+   "candidate_signatures": {
+    "creation-v1": "unresolved_6d4ce63c()"
+   }
+  }
+ },
+ "probes": [
+  {
+   "name": "initial_get",
+   "steps": [
+    {
+     "call": "get"
+    }
+   ]
+  },
+  {
+   "name": "set_zero_get",
+   "steps": [
+    {
+     "call": "set",
+     "args": [
+      "0"
+     ],
+     "send": true
+    },
+    {
+     "call": "get"
+    }
+   ]
+  },
+  {
+   "name": "set_123_get",
+   "steps": [
+    {
+     "call": "set",
+     "args": [
+      "123"
+     ],
+     "send": true
+    },
+    {
+     "call": "get"
+    }
+   ]
+  },
+  {
+   "name": "set_42_get",
+   "steps": [
+    {
+     "call": "set",
+     "args": [
+      "42"
+     ],
+     "send": true
+    },
+    {
+     "call": "get"
+    }
+   ]
+  }
+ ],
+ "withheld": [
+  "set_42_get"
+ ],
+ "compare_events": false,
+ "notes": "creation-deployment demonstration (roadmap lead 7): both sides deployed via constructor tx with value 7; initial_get therefore reads constructor state, impossible under runtime-only deployment",
+ "deployment": {
+  "mode": "creation",
+  "reference_creation_bytecode": "evaluation/fixtures/modern-simple/creation.bin",
+  "constructor_args": "0x0000000000000000000000000000000000000000000000000000000000000007",
+  "candidate_args": "0x0000000000000000000000000000000000000000000000000000000000000007"
+ },
+ "strict_evidence": true
+}

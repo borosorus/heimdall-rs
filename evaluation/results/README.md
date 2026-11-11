@@ -741,3 +741,18 @@ staleness bug (stale v3 sig after signature rewrites) is now prevented by the
 mandatory mechanical per-arm derivation. Reviewer: 1 P1 + 2 P2 adopted; final
 code re-verified against the sealed verdict. Suite 201/201. Roadmap: 0-4 done;
 remaining 5-8 (gas probes, vm walk bound, constructor coverage, Rust port).
+
+### Leads 5-7: gas-class verdicts, bounded dispatch walk, creation deployment (2026-11-11)
+
+- Gas-class (modern-errors-gasclass/): two-cap ladder classifies silent halts;
+  the class joined the compared view; modern-errors 11/11+2/2 re-sealed with
+  class-matched halt bodies - the OOG/invalid caveat is now a measurement.
+- vm (sibling of the 40198f5 fix): resolve_entry_point walk bounded (1M-step
+  budget, unresolved-on-exhaustion); dispatcher-loop unit test; both fixture
+  decompiles byte-identical; heimdall-vm 164 lib + 34 integration green.
+- Creation deployment (creation-deploy-v1/): deployment.mode=creation runs both
+  sides' constructors; reference initial_get=7 proves constructor state is
+  verdict-visible; the candidate's 0 localizes constructor-body loss (new
+  roadmap item). Context-equivalence limitation documented.
+Reviewers: 3 P2s adopted (both-caps gas-bound rule, silent-only classification,
+creation-context caveat documented). Suite 205/205; verdict audit PASS.

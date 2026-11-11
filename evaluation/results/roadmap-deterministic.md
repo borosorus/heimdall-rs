@@ -29,15 +29,16 @@ paired run, sealed reveal, numbers never merged across labels.
    fallback; the exposed layout defect (missing `indexed`) repaired
    observation-side; erc20 4/4+2/2 WITH events. Remaining event nicety
    (alias renaming) is cosmetic - LLM-era territory.
-5. **Gas-budget probes for exceptional halts.** modern-errors OOG vs invalid are
-   observation-equivalent at current depth (recorded in its README). A
-   deterministic gas-limit ladder separates them and tightens synthesis acceptance.
-6. **Bound `resolve_entry_point`'s walk** (crates/vm/src/ext/selectors.rs). Same
-   latent class as the fixed constant-extraction hang; termination guarantee, no
-   verdict points claimed.
-7. **Constructor / immutable coverage.** Runtime-only deployment leaves
-    constructor state unexercised (recorded limitation). New fixture class with
-    creation-code deployment; broadest generality, unestimable gain.
+5. **DONE (gas-class, ../modern-errors-gasclass/)**: two-cap ladder classifies
+   silent halts (determinate/gas-bound); class is verdict-visible; modern-errors
+   11/11+2/2 holds with class-matched bodies - the caveat became a measurement.
+6. **DONE (sibling of 40198f5, crates/vm/src/ext/selectors.rs)**:
+   RESOLVE_ENTRY_POINT_STEP_LIMIT; dispatcher-prefix loops terminate unresolved
+   (unit-tested); fixture outputs byte-identical.
+7. **Capability DONE (creation-deploy v1, ../creation-deploy-v1/)**: creation
+   mode deploys both sides via constructor tx; constructor state verdict-visible
+   (reference initial_get=7 measured). Follow-ups: 7a constructor-body
+   synthesis; 7b context-equivalent deployment (reviewer-noted).
 8. **Rust port of the hardened deterministic pipeline** (production contribution;
     upstreamable slice: bounded execution already landed as `40198f5`).
 

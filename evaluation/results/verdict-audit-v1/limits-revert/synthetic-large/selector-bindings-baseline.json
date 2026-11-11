@@ -12,6 +12,7 @@
         "seed-v1": "Unresolved_dd62ed3e(address,uint256)",
         "seed-v2": "Unresolved_dd62ed3e(address,uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xdd62ed3e",
       "reference_signature": "allowance(address,address)",
       "unavailable_reason": "baseline selector 0xdd62ed3e is not in the compiled ABI"
@@ -28,6 +29,7 @@
         "seed-v1": "Unresolved_095ea7b3(address,uint256)",
         "seed-v2": "Unresolved_095ea7b3(address,uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x095ea7b3",
       "reference_signature": "approve(address,uint256)",
       "unavailable_reason": "baseline selector 0x095ea7b3 is not in the compiled ABI"
@@ -44,6 +46,7 @@
         "seed-v1": "unresolved_70a08231(address)",
         "seed-v2": "unresolved_70a08231(address)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x70a08231",
       "reference_signature": "balanceOf(address)",
       "unavailable_reason": "baseline selector 0x70a08231 is not in the compiled ABI"
@@ -60,6 +63,7 @@
         "seed-v1": "Unresolved_42966c68(uint256)",
         "seed-v2": "Unresolved_42966c68(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x42966c68",
       "reference_signature": "burn(uint256)",
       "unavailable_reason": "baseline selector 0x42966c68 is not in the compiled ABI"
@@ -76,6 +80,7 @@
         "seed-v1": "Unresolved_b6b55f25(uint256)",
         "seed-v2": "Unresolved_b6b55f25(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xb6b55f25",
       "reference_signature": "deposit(uint256)",
       "unavailable_reason": "baseline selector 0xb6b55f25 is not in the compiled ABI"
@@ -92,6 +97,7 @@
         "seed-v1": "unresolved_ddca3f43()",
         "seed-v2": "unresolved_ddca3f43()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xddca3f43",
       "reference_signature": "fee()",
       "unavailable_reason": "baseline selector 0xddca3f43 is not in the compiled ABI"
@@ -108,6 +114,7 @@
         "seed-v1": "Unresolved_c23f85d6(address)",
         "seed-v2": "Unresolved_c23f85d6(address)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xc23f85d6",
       "reference_signature": "getStats(address)",
       "unavailable_reason": "baseline selector 0xc23f85d6 is not in the compiled ABI"
@@ -124,6 +131,7 @@
         "seed-v1": "Unresolved_c4d66de8(address)",
         "seed-v2": "Unresolved_c4d66de8(address)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xc4d66de8",
       "reference_signature": "initialize(address)",
       "unavailable_reason": "baseline selector 0xc4d66de8 is not in the compiled ABI"
@@ -140,6 +148,7 @@
         "seed-v1": "Unresolved_b187bd26()",
         "seed-v2": "Unresolved_b187bd26()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xb187bd26",
       "reference_signature": "isPaused()",
       "unavailable_reason": "baseline selector 0xb187bd26 is not in the compiled ABI"
@@ -156,6 +165,7 @@
         "seed-v1": "Unresolved_0b663fe2(uint256)",
         "seed-v2": "Unresolved_0b663fe2(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x0b663fe2",
       "reference_signature": "isWithinLimits(uint256)",
       "unavailable_reason": "baseline selector 0x0b663fe2 is not in the compiled ABI"
@@ -172,6 +182,7 @@
         "seed-v1": "Unresolved_860aefcf()",
         "seed-v2": "Unresolved_860aefcf()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x860aefcf",
       "reference_signature": "limits()",
       "unavailable_reason": "baseline selector 0x860aefcf is not in the compiled ABI"
@@ -188,6 +199,7 @@
         "seed-v1": "Unresolved_40c10f19(address,uint256)",
         "seed-v2": "Unresolved_40c10f19(address,uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x40c10f19",
       "reference_signature": "mint(address,uint256)",
       "unavailable_reason": "baseline selector 0x40c10f19 is not in the compiled ABI"
@@ -204,6 +216,7 @@
         "seed-v1": "unresolved_06fdde03()",
         "seed-v2": "unresolved_06fdde03()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x06fdde03",
       "reference_signature": "name()",
       "unavailable_reason": "baseline selector 0x06fdde03 is not in the compiled ABI"
@@ -220,6 +233,7 @@
         "seed-v1": "Unresolved_8da5cb5b()",
         "seed-v2": "Unresolved_8da5cb5b()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x8da5cb5b",
       "reference_signature": "owner()",
       "unavailable_reason": "baseline selector 0x8da5cb5b is not in the compiled ABI"
@@ -236,6 +250,7 @@
         "seed-v1": "Unresolved_8456cb59()",
         "seed-v2": "Unresolved_8456cb59()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x8456cb59",
       "reference_signature": "pause()",
       "unavailable_reason": "baseline selector 0x8456cb59 is not in the compiled ABI"
@@ -252,6 +267,7 @@
         "seed-v1": "Unresolved_ef8b30f7(uint256)",
         "seed-v2": "Unresolved_ef8b30f7(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xef8b30f7",
       "reference_signature": "previewDeposit(uint256)",
       "unavailable_reason": "baseline selector 0xef8b30f7 is not in the compiled ABI"
@@ -268,6 +284,7 @@
         "seed-v1": "Unresolved_69fe0e2d(uint256)",
         "seed-v2": "Unresolved_69fe0e2d(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x69fe0e2d",
       "reference_signature": "setFee(uint256)",
       "unavailable_reason": "baseline selector 0x69fe0e2d is not in the compiled ABI"
@@ -284,6 +301,7 @@
         "seed-v1": "Unresolved_c4590d3f(uint256)",
         "seed-v2": "Unresolved_c4590d3f(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xc4590d3f",
       "reference_signature": "setLimits(uint256,uint256)",
       "unavailable_reason": "baseline selector 0xc4590d3f is not in the compiled ABI"
@@ -300,6 +318,7 @@
         "seed-v1": "Unresolved_c47f0027(uint256)",
         "seed-v2": "Unresolved_c47f0027(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xc47f0027",
       "reference_signature": "setName(string)",
       "unavailable_reason": "baseline selector 0xc47f0027 is not in the compiled ABI"
@@ -316,6 +335,7 @@
         "seed-v1": "Unresolved_18160ddd()",
         "seed-v2": "Unresolved_18160ddd()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x18160ddd",
       "reference_signature": "totalSupply()",
       "unavailable_reason": "baseline selector 0x18160ddd is not in the compiled ABI"
@@ -332,6 +352,7 @@
         "seed-v1": "Unresolved_a9059cbb(address,uint256)",
         "seed-v2": "Unresolved_a9059cbb(address,uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xa9059cbb",
       "reference_signature": "transfer(address,uint256)",
       "unavailable_reason": "baseline selector 0xa9059cbb is not in the compiled ABI"
@@ -348,6 +369,7 @@
         "seed-v1": "Unresolved_23b872dd(address,uint256,uint256)",
         "seed-v2": "Unresolved_23b872dd(address,uint256,uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x23b872dd",
       "reference_signature": "transferFrom(address,address,uint256)",
       "unavailable_reason": "baseline selector 0x23b872dd is not in the compiled ABI"
@@ -364,6 +386,7 @@
         "seed-v1": "Unresolved_f2fde38b(address)",
         "seed-v2": "Unresolved_f2fde38b(address)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0xf2fde38b",
       "reference_signature": "transferOwnership(address)",
       "unavailable_reason": "baseline selector 0xf2fde38b is not in the compiled ABI"
@@ -380,6 +403,7 @@
         "seed-v1": "Unresolved_3f4ba83a()",
         "seed-v2": "Unresolved_3f4ba83a()"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x3f4ba83a",
       "reference_signature": "unpause()",
       "unavailable_reason": "baseline selector 0x3f4ba83a is not in the compiled ABI"
@@ -396,6 +420,7 @@
         "seed-v1": "Unresolved_2e1a7d4d(uint256)",
         "seed-v2": "Unresolved_2e1a7d4d(uint256)"
       },
+      "fallback_dispatch": false,
       "reference_selector": "0x2e1a7d4d",
       "reference_signature": "withdraw(uint256)",
       "unavailable_reason": "baseline selector 0x2e1a7d4d is not in the compiled ABI"

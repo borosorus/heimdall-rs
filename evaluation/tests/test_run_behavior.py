@@ -357,3 +357,35 @@ class CanonicalEventTest(unittest.TestCase):
         self.assertFalse(
             run_behavior.event_matches(logs, [{"logs": [{"topics": ["0xcd"], "data": "0x1"}]}])
         )
+
+
+class GasClassTest(unittest.TestCase):
+    def test_equal_consumption_is_determinate(self):
+        self.assertEqual(
+            run_behavior.classify_from_used(50_000, 50_000, 2_000_000, 1_000_000), "determinate"
+        )
+
+    def test_both_caps_exhausted_is_gas_bound(self):
+        # a loop burns whatever budget exists: both caps hit
+        self.assertEqual(
+            run_behavior.classify_from_used(2_000_000, 990_000, 2_000_000, 1_000_000), "gas-bound"
+        )
+
+    def test_half_exhausted_with_full_headroom_is_unclassified(self):
+        # expensive determinate halt looks identical to a loop at the half cap
+        self.assertIsNone(
+            run_behavior.classify_from_used(1_200_000, 990_000, 2_000_000, 1_000_000)
+        )
+
+    def test_class_is_part_of_the_compared_view(self):
+        a = observation(ok=False, return_data=None, revert_data=None, gas_used="0x1", gas_class="gas-bound")
+        b = observation(ok=False, return_data=None, revert_data=None, gas_used="0x9999", gas_class="gas-bound")
+        c = observation(ok=False, return_data=None, revert_data=None, gas_used="0x1", gas_class="determinate")
+        self.assertTrue(run_behavior.sequence_matches([a], [b], strict_evidence=True))
+        self.assertFalse(run_behavior.sequence_matches([a], [c], strict_evidence=True))
+
+    def test_class_only_for_silent_failures(self):
+        # payload-bearing reverts compare by data; class absence matches
+        payload = observation(ok=False, return_data=None, revert_data="0x08c379a0", gas_class=None)
+        self.assertTrue(run_behavior.sequence_matches([payload], [payload], strict_evidence=True))
+

@@ -1,0 +1,374 @@
+{
+  "initial_get": {
+    "candidate": [
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0xe092b891",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0x6d4ce63c",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000007",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "set_123_get": {
+    "candidate": [
+      {
+        "call": "set",
+        "call_ok": true,
+        "calldata": "0x2aed481d000000000000000000000000000000000000000000000000000000000000007b",
+        "contract_balance": "0x0",
+        "gas_used": "0xb187",
+        "logs": [
+          {
+            "data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "topics": [
+              "0xde5b76f200a84051a501608fc5b233761f4c06a1afec97e5c23839b6738fb2d0"
+            ]
+          }
+        ],
+        "mode": "send",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "tx_hash": "0xdc1c11482e93410c33f371bcaa3bb93e87815849022a8c7ba620f413b8620eb5",
+        "value": "0"
+      },
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0xe092b891",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+          "event": "012c78e2",
+          "topics": []
+        }
+      ],
+      []
+    ],
+    "events_reference": [
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+          "event": "012c78e2",
+          "topics": []
+        }
+      ],
+      []
+    ],
+    "reference": [
+      {
+        "call": "set",
+        "call_ok": true,
+        "calldata": "0x60fe47b1000000000000000000000000000000000000000000000000000000000000007b",
+        "contract_balance": "0x0",
+        "gas_used": "0x6c88",
+        "logs": [
+          {
+            "data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+            "topics": [
+              "0x012c78e2b84325878b1bd9d250d772cfe5bda7722d795f45036fa5e1e6e303fc"
+            ]
+          }
+        ],
+        "mode": "send",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "tx_hash": "0x16cf9b1ac07b9493f678a0551691eab0aeb9e3c2c650fdc0c2440d5e32793bf4",
+        "value": "0"
+      },
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0x6d4ce63c",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000007b",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "set_42_get": {
+    "candidate": [
+      {
+        "call": "set",
+        "call_ok": true,
+        "calldata": "0x2aed481d000000000000000000000000000000000000000000000000000000000000002a",
+        "contract_balance": "0x0",
+        "gas_used": "0xb187",
+        "logs": [
+          {
+            "data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+            "topics": [
+              "0xde5b76f200a84051a501608fc5b233761f4c06a1afec97e5c23839b6738fb2d0"
+            ]
+          }
+        ],
+        "mode": "send",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "tx_hash": "0x9e9eaf03bf09c9df5825178c6a70bec904ed6f1e53b8ea8a9450f23ea6b153ed",
+        "value": "0"
+      },
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0xe092b891",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+          "event": "012c78e2",
+          "topics": []
+        }
+      ],
+      []
+    ],
+    "events_reference": [
+      [
+        {
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+          "event": "012c78e2",
+          "topics": []
+        }
+      ],
+      []
+    ],
+    "reference": [
+      {
+        "call": "set",
+        "call_ok": true,
+        "calldata": "0x60fe47b1000000000000000000000000000000000000000000000000000000000000002a",
+        "contract_balance": "0x0",
+        "gas_used": "0x6c88",
+        "logs": [
+          {
+            "data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+            "topics": [
+              "0x012c78e2b84325878b1bd9d250d772cfe5bda7722d795f45036fa5e1e6e303fc"
+            ]
+          }
+        ],
+        "mode": "send",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "tx_hash": "0x60f1de63ec8018f1edd6b075f4168a754fc7493d301cd2481c887d3e514acab6",
+        "value": "0"
+      },
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0x6d4ce63c",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "set_zero_get": {
+    "candidate": [
+      {
+        "call": "set",
+        "call_ok": true,
+        "calldata": "0x2aed481d0000000000000000000000000000000000000000000000000000000000000000",
+        "contract_balance": "0x0",
+        "gas_used": "0x63bf",
+        "logs": [
+          {
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "topics": [
+              "0xde5b76f200a84051a501608fc5b233761f4c06a1afec97e5c23839b6738fb2d0"
+            ]
+          }
+        ],
+        "mode": "send",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "tx_hash": "0x6ec1cf6fe33d131ea0782afcb277a97aea1ec6bb4c8c8e450d2b4fad8c1faa60",
+        "value": "0"
+      },
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0xe092b891",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      [
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "event": "012c78e2",
+          "topics": []
+        }
+      ],
+      []
+    ],
+    "events_reference": [
+      [
+        {
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "event": "012c78e2",
+          "topics": []
+        }
+      ],
+      []
+    ],
+    "reference": [
+      {
+        "call": "set",
+        "call_ok": true,
+        "calldata": "0x60fe47b10000000000000000000000000000000000000000000000000000000000000000",
+        "contract_balance": "0x0",
+        "gas_used": "0x59bc",
+        "logs": [
+          {
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "topics": [
+              "0x012c78e2b84325878b1bd9d250d772cfe5bda7722d795f45036fa5e1e6e303fc"
+            ]
+          }
+        ],
+        "mode": "send",
+        "ok": true,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "tx_hash": "0x003c7863b889e03cda2ae592366ef1775fe1ad6a040a17840eb3eb798ef091cd",
+        "value": "0"
+      },
+      {
+        "call": "get",
+        "call_ok": true,
+        "calldata": "0x6d4ce63c",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  }
+}
