@@ -988,6 +988,149 @@ def recover_packed_scalar_storage(source: str) -> Stage:
     return Stage("packed-scalars", "packed scalar storage recovery", replacement, edits, findings)
 
 
+def relax_truthiness_requires(source: str) -> Stage:
+    """Stage: rewrite ``require(<addr expr>...)`` truthiness tests into explicit compares.
+
+    The decompiler renders ``x != 0`` style guards as ``require(x, ...)`` when the
+    truthiness context is lost; Solidity has no implicit address/uint-to-bool
+    conversion. Only unambiguous shapes are rewritten: ``msg.sender`` compares
+    against ``address(0)``, declared uint/int locals against ``0``; everything
+    else is an abstention.
+    """
+    masked = _mask_strings_and_comments(source, 0, len(source))
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    declared_uint = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", masked))
+    parsed = parse_contract(source, None)
+
+    def param_kind(offset: int, name: str) -> str | None:
+        """(address|uint|int)-ness of `name` in the function enclosing `offset`."""
+        for unit in parsed.functions:
+            if unit.start <= offset < unit.end:
+                for type_text, param in _header_params(
+                    _mask_strings_and_comments(unit.header, 0, len(unit.header))
+                ):
+                    if param == name:
+                        if type_text.startswith("address"):
+                            return "address"
+                        if re.fullmatch(r"u?int\d*", type_text):
+                            return "uint"
+                return None
+        return None
+
+    # one combined pass over both truthiness shapes (require(...expr..., and
+    # if(...expr...)): separate passes would emit overlapping replacements.
+    # Nonzero int constants 0/1 fold to false/true; address/uint-typed
+    # expressions get explicit compares; everything else abstains.
+    for match in re.finditer(
+        r"(?P<kw>\brequire\b|\bif\b)\s*\(\s*"
+        r"(?P<expr>[A-Za-z_][\w.]*|0x[0-9a-fA-F]+|\d+)\s*"
+        r"(?P<comma>,|\))",
+        masked,
+    ):
+        keyword = match.group("kw")
+        expr = match.group("expr")
+        comma = match.group("comma") == ","
+        if re.fullmatch(r"0x[0-9a-fA-F]+|\d+", expr) and keyword == "if":
+            value = int(expr, 0)
+            if value == 0:
+                cmp_ = "false"
+            elif value == 1:
+                cmp_ = "true"
+            else:
+                continue  # keep larger constants visible rather than folding them
+        elif expr == "msg.sender":
+            cmp_ = "msg.sender != address(0)"
+        elif re.fullmatch(r"var_[a-z]+", expr) and expr in declared_uint:
+            cmp_ = f"{expr} != 0"
+        elif re.fullmatch(r"[A-Za-z_]\w*", expr):
+            kind = param_kind(match.start(), expr)
+            if kind == "address":
+                cmp_ = f"{expr} != address(0)"
+            elif kind == "uint":
+                cmp_ = f"{expr} != 0"
+            else:
+                continue
+        else:
+            continue
+        start, end = match.span()
+        replacement = f"{keyword}({cmp_}{',' if comma else ')'}"
+        pieces.append(source[last:start])
+        pieces.append(replacement)
+        last = end
+        edits.append(
+            _record(
+                "truthiness-guard",
+                f"{keyword}({expr}...) -> {keyword}({cmp_}...)",
+                "truthiness condition without implicit bool conversion",
+            )
+        )
+    if not pieces:
+        return Stage("truthiness", "truthiness require guards", source, edits)
+    pieces.append(source[last:])
+    return Stage("truthiness", "truthiness require guards", "".join(pieces), edits)
+
+
+def repair_fallback_shape(source: str) -> Stage:
+    """Stage: make decompiled fallback dispatch compile.
+
+    Two shapes, both accepted only where unambiguous: the selector self-check
+    ``<int const> == msg.data[0] >> 0xe0`` (a bytes/int compare the decompiler
+    emits for single-function dispatchers) becomes a words-wide selector compare;
+    a value-returning fallback gains ``returns (bytes memory)``. For static
+    arguments abi.encodePacked output equals abi.encode output, so the packed
+    return is kept verbatim. The contract parser does not emit fallback units,
+    so spans are located here directly.
+    """
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    for match in re.finditer(r"fallback\(\)\s*external\s*payable", source):
+        body_open = source.find("{", match.end())
+        depth = 0
+        end = None
+        for i in range(body_open, len(source)):
+            if source[i] == "{":
+                depth += 1
+            elif source[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        if end is None:
+            continue
+        text = source[match.start() : end]
+        new_text, n_sel = re.subn(
+            r"require\((0x[0-9a-fA-F]+) == msg\.data\[0\] >> 0xe0\)",
+            r"require(uint32(bytes4(msg.data[0:4])) == \1)",
+            text,
+        )
+        added_returns = "returns" not in match.group(0) and bool(
+            re.search(r"return\s+abi\.encodePacked\(", new_text)
+        )
+        if added_returns:
+            # solc 5570: a value-returning fallback must take the calldata argument
+            new_text = new_text.replace(
+                match.group(0),
+                "fallback(bytes calldata) external payable returns (bytes memory)",
+                1,
+            )
+        if new_text == text:
+            continue
+        pieces.append(source[last : match.start()])
+        pieces.append(new_text)
+        last = end
+        if n_sel:
+            edits.append(_record("fallback-selector-compare", "bytes/int compare -> words selector compare", "single-dispatch fallback selector check"))
+        if added_returns:
+            edits.append(_record("fallback-returns", "fallback gains returns (bytes memory)", "value-returning fallback"))
+    if not pieces:
+        return Stage("fallback-shape", "fallback dispatch shape", source, edits)
+    pieces.append(source[last:])
+    return Stage("fallback-shape", "fallback dispatch shape", "".join(pieces), edits)
+
+
 def _all_slot_decls(masked: str, source: str | None = None) -> dict[str, tuple[str, str]]:
     """Every slot-commented state declaration as name -> (type, slot).
 
@@ -1014,6 +1157,8 @@ PREPARE_STAGES = (
     align_arities,
     unify_storage_views,
     recover_packed_scalar_storage,
+    relax_truthiness_requires,
+    repair_fallback_shape,
 )
 
 

@@ -315,6 +315,8 @@ class PipelineTest(unittest.TestCase):
                 "arity",
                 "slot-aliases",
                 "packed-scalars",
+                "truthiness",
+                "fallback-shape",
             ],
         )
         final = stages[-1].source
@@ -397,6 +399,69 @@ class SeedRuleTests(unittest.TestCase):
         )
         staged = prepare.prepare_stages(source)[-1].source
         self.assertIn("function f() public view returns (uint256) {", staged)
+
+    def test_truthiness_require_on_msg_sender_is_rewritten(self):
+        source = (
+            "contract C {\n"
+            "    error E();\n"
+            "    function f() public view {\n"
+            "        require(msg.sender, E());\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("require(msg.sender != address(0), E());", staged)
+
+    def test_truthiness_require_abstains_on_unknown_expr(self):
+        source = (
+            "contract C {\n"
+            "    error E();\n"
+            "    function f(string memory s) public pure {\n"
+            "        require(s, E());\n"
+            "        return;\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("require(s, E());", staged)
+
+    def test_fallback_selector_check_and_return_shape(self):
+        source = (
+            "contract C {\n"
+            "    fallback() external payable {\n"
+            "        require(msg.data.length >= 0x04);\n"
+            "        require(0x819439 == msg.data[0] >> 0xe0);\n"
+            "        return abi.encodePacked(block.number, block.timestamp);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("fallback(bytes calldata) external payable returns (bytes memory)", staged)
+        self.assertIn("require(uint32(bytes4(msg.data[0:4])) == 0x819439);", staged)
+
+    def test_truthiness_require_on_address_param_is_rewritten(self):
+        source = (
+            "contract C {\n"
+            "    error E();\n"
+            "    function f(address arg0) public pure {\n"
+            "        require(arg0, E());\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("require(arg0 != address(0), E());", staged)
+
+    def test_fallback_without_return_value_is_untouched(self):
+        source = (
+            "contract C {\n"
+            "    event Done();\n"
+            "    fallback() external payable {\n"
+            "        emit Done();\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("fallback() external payable {", staged)
 
 
 class PackedScalarTest(unittest.TestCase):

@@ -1,0 +1,33 @@
+{
+ "schema_version": 1,
+ "fixture_id": "modern-block-reader",
+ "contract": "BlockReader",
+ "summary": "block environment reads (number, timestamp, coinbase, basefee)",
+ "source_provenance": {
+  "repository": "https://github.com/evmts/tevm",
+  "commit": "1785ae300bac2afe9209a20c536b20e24a58b36b",
+  "source_path": "test/test-utils/src/BlockReader.s.sol",
+  "compiled_artifact_path": "test/test-utils/src/BlockReader.s.sol.ts",
+  "license": "MIT"
+ },
+ "compilation": {
+  "pragma": "^0.8.0",
+  "compiler_version_from_bytecode_metadata": "0.8.27",
+  "exact_solc_version": null,
+  "optimizer": null,
+  "via_ir": null,
+  "reproducible_compilation_verified": false
+ },
+ "runtime": {
+  "kind": "deployed_runtime_bytecode",
+  "filename": "runtime.hex",
+  "byte_length": 286,
+  "sha256": "2d8ea2396bf591c52cc3a39ad19dd6f27b0ab0aadac13232f45811f7d8797f4b"
+ },
+ "abi": {
+  "filename": "abi.json",
+  "function_count": 1
+ },
+ "provenance_status": "published Solidity source and generated runtime in same repo; not independently recompiled",
+ "evaluation_warning": "Published runtime code is copied from Tevm generated contract TypeScript, not locally compiled for this import. Compiler settings are unknown. Treat as a published paired seed, not bitwise reproducible golden."
+}

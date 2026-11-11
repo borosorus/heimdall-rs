@@ -38,3 +38,31 @@ deviations, not silently.
 ## Deviation log
 
 (appended below as deviations happen; none at freeze time)
+
+## Deviations / clarifications (recorded BEFORE first candidate run)
+
+1. "read-mode probes" clarified: probes follow the standard template per-step mode -
+   send steps for state transitions, read steps for observations and revert-payload
+   checks (verdict-audit-v1 contract); `strict_evidence: true` unchanged.
+2. compile-repair fallback dropped for this bake-off: seed-or-bust, identically for
+   both versions. A version whose seed does not compile scores zero matched probes;
+   that is a recorded outcome, not an error. Removes a discretionary asymmetry.
+3. The reference decompile (arm input) is produced once by the pinned release binary
+   and shared by both arms; candidate bindings are derived mechanically from its
+   @custom:selector provenance before any prepare/harness run.
+
+4. Binding derivation refinement (still pre-verdict): candidate signatures are
+   extracted mechanically from EACH ARM'S post-prepare source (@custom:selector
+   comments for explicit functions; `unresolved_<sel>` public-var getters mapped to
+   their own declared-name signatures; the block-reader fallback bound to the
+   reference signature, justified by the decompiled fallback's own embedded
+   `0x819439` check). Both arms' signatures enter the spec's
+   `candidate_signatures` as labels `v0`/`v1`; no verdict is observed beforehand.
+
+5. V1 toolchain completion (pre-verdict): arming the holdout prep exposed two more
+   arm-symmetric wart classes via solc diagnostics only - truthiness guards
+   (`require(<addr>/<uint>)`, `if(<const>/<addr>/<uint>)`) and the single-dispatch
+   fallback shape (bytes/int selector compare; value-returning fallback signature).
+   Rules added; NO candidate or reference verdict observed during this work. Final
+   frozen pair for all runs: V0 = 413ad23, V1 = HEAD at first harness run (sha
+   recorded in the result JSON). Both arms re-prepped from the shared decompile.

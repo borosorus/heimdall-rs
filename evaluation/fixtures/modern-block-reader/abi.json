@@ -1,0 +1,26 @@
+[
+ {
+  "type": "function",
+  "inputs": [],
+  "name": "getBlockInfo",
+  "stateMutability": "view",
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256"
+   },
+   {
+    "name": "",
+    "type": "address"
+   },
+   {
+    "name": "",
+    "type": "uint256"
+   }
+  ]
+ }
+]

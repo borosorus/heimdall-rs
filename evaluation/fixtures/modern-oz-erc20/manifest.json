@@ -1,0 +1,33 @@
+{
+ "schema_version": 1,
+ "fixture_id": "modern-oz-erc20",
+ "contract": "TestERC20",
+ "summary": "OpenZeppelin ERC20 surface (approvals, transfers, allowance semantics)",
+ "source_provenance": {
+  "repository": "https://github.com/evmts/tevm",
+  "commit": "1785ae300bac2afe9209a20c536b20e24a58b36b",
+  "source_path": "test/test-utils/src/OZ.s.sol",
+  "compiled_artifact_path": "test/test-utils/src/OZ.s.sol.ts",
+  "license": "MIT"
+ },
+ "compilation": {
+  "pragma": "^0.8.0",
+  "compiler_version_from_bytecode_metadata": "0.8.22",
+  "exact_solc_version": null,
+  "optimizer": null,
+  "via_ir": null,
+  "reproducible_compilation_verified": false
+ },
+ "runtime": {
+  "kind": "deployed_runtime_bytecode",
+  "filename": "runtime.hex",
+  "byte_length": 3579,
+  "sha256": "e93be6b0ecfb1b32d4efb9af25f4f4c78d021a03ea8b4253a4f48239814f146e"
+ },
+ "abi": {
+  "filename": "abi.json",
+  "function_count": 9
+ },
+ "provenance_status": "published Solidity source and generated runtime in same repo; not independently recompiled",
+ "evaluation_warning": "Published runtime code is copied from Tevm generated contract TypeScript, not locally compiled for this import. Compiler settings are unknown. Treat as a published paired seed, not bitwise reproducible golden."
+}
