@@ -8,11 +8,10 @@ paired run, sealed reveal, numbers never merged across labels.
 
 ## Ranked
 
-0. **Stateful guard synthesis (2a, spun out of the v3 residual)**: the erc20
-   transferFrom withheld divergence is a stateful send body (reference reverts on
-   zero-balance transfer; candidate stub succeeds). Synthesize the guard
-   condition from the same map (balance/allowance checks over the slot-annotated
-   mappings); acceptance unchanged: harness parity on a labeled re-run.
+0. **Stateful guard synthesis - DONE (v4, `fresh-holdout-v4/`)**: guard
+   transplantation from guarding-and-mutating siblings; erc20 withheld now
+   2/2 - the fixture is fully perfect (4/4 + 2/2, zero LLM). Reviewer-hardened
+   (precedent pairing, body allowlist, header-scoped mutability).
 1. **Typed storage-flow evidence map - DONE as infrastructure (v3)**; now the
    shared substrate: one inferred model connecting calldata words -> mapping
    keys -> slot-annotated storage, consumed by synthesis (2), guard synthesis

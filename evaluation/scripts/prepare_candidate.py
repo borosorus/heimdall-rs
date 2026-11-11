@@ -1234,6 +1234,109 @@ def synthesize_storage_getters(source: str) -> Stage:
     return Stage("storage-getters", "storage-getter synthesis", result, edits)
 
 
+_GUARD_PRECEDENT_RE = re.compile(r"\b([A-Za-z_]\w*)\[([^\]]+)\] >= ([A-Za-z_]\w*)")
+_MUTATION_RE = re.compile(r"\b([A-Za-z_]\w*)\[[^\]]+\] [-+]=")
+_REQUIRE_LINE_RE = re.compile(r"^[ \t]*require\([^;]*;[ \t]*$")
+
+
+def synthesize_send_guards(source: str) -> Stage:
+    """Stage: transplant balance-guard precedents onto stateless send stubs.
+
+    A send-path stub (body = ``require(...)`` lines only, allowlist-grammar
+    checked) gains the guard its sibling functions apply to the SAME storage:
+    a precedent sibling both guard-checks a mapping (``M[x] >= y``) and
+    mutates that same mapping by indexed assignment (``M[x] -= / +=``). When
+    exactly one mapping has such a precedent, a stub whose signature can
+    address it (an address-class and a scalar param) receives
+    ``require(M[<first address param>] >= <last scalar param>);``.
+
+    Role mapping is positional and recorded (first address-like param = the
+    account, last scalar = the amount); the plain-require form claims nothing
+    about revert payloads. Mutability is relaxed via masked spans only, so
+    string literals are untouched. Uniqueness is required everywhere; the
+    harness revalidation on a labeled run is the acceptance gate.
+    """
+    flow = storage_flow.build_storage_flow(source)
+    mappings = {d.name for d in flow.declarations if d.nesting_depth() == 1}
+    parsed = parse_contract(source, None)
+
+    # sibling precedent: same function guards AND mutates the same mapping
+    guarded_by: dict[str, set[str]] = {}
+    for unit in parsed.functions:
+        unit_masked = _mask_strings_and_comments(
+            source[unit.start : unit.end], 0, len(source[unit.start : unit.end])
+        )
+        guards = {m.group(1) for m in _GUARD_PRECEDENT_RE.finditer(unit_masked)}
+        mutations = {m.group(1) for m in _MUTATION_RE.finditer(unit_masked)}
+        for name in guards & mutations & mappings:
+            guarded_by.setdefault(name, set()).add(unit.name)
+
+    edits: list[dict[str, Any]] = []
+    rewrites: list[tuple[int, int, str]] = []
+    for unit in parsed.functions:
+        unit_text = source[unit.start : unit.end]
+        unit_masked = _mask_strings_and_comments(unit_text, 0, len(unit_text))
+        header_len = len(unit.header)
+        body = unit_text[header_len:]
+        body_masked = unit_masked[header_len:]
+        # allowlist grammar: the body interior (between the braces) is
+        # require-lines only; brace span from the masked text so one-line
+        # `...;}` tails are handled
+        open_brace = body_masked.find("{")
+        close_brace = body_masked.rfind("}")
+        if open_brace < 0 or close_brace <= open_brace:
+            continue
+        interior_masked = body_masked[open_brace + 1 : close_brace]
+        body_lines = [line for line in interior_masked.splitlines() if line.strip()]
+        if not body_lines or not all(_REQUIRE_LINE_RE.match(line) for line in body_lines):
+            continue
+        params = _header_params(_mask_strings_and_comments(unit.header, 0, len(unit.header)))
+        address_params = [n for t, n in params if t.startswith("address")]
+        scalar_params = [n for t, n in params if re.fullmatch(r"uint\d*", t)]
+        if not address_params or not scalar_params:
+            continue
+        unique = {name: next(iter(sibs)) for name, sibs in guarded_by.items() if len(sibs) == 1}
+        if len(unique) != 1:
+            edits.append(
+                _record(
+                    "send-guard-abstain",
+                    f"{unit.name}: {len(unique)} guarded-and-mutated mappings",
+                    "guard precedent must be unique",
+                )
+            )
+            continue
+        mapping_name, precedent = next(iter(unique.items()))
+        guard = f"require({mapping_name}[{address_params[0]}] >= {scalar_params[-1]});"
+        if guard in body_masked:
+            continue
+        # insert after the last existing require line in the stub prologue
+        require_end = None
+        for rm in re.finditer(r"^[ \t]*require\([^;]*;\n?", body_masked, re.MULTILINE):
+            require_end = rm.end()
+        if require_end is None:
+            continue
+        new_body = body[:require_end] + f"        {guard}\n" + body[require_end:]
+        # the injected guard reads state: relax pure->view in the header, whose
+        # span covers the declaration AND its provenance comment and contains no
+        # string literals; the body's tokens are untouched by construction
+        new_header = re.sub(r"\bpure\b", "view", unit_text[:header_len])
+        new_unit = new_header + new_body
+        rewrites.append((unit.start, unit.end, new_unit))
+        edits.append(
+            _record(
+                "send-guard",
+                f"{unit.name} += {guard} (precedent {precedent} on {mapping_name})",
+                "sibling guards and mutates the same mapping; role mapping positional",
+            )
+        )
+    if not rewrites:
+        return Stage("send-guards", "send-guard transplantation", source, edits)
+    result = source
+    for start, end, replacement in sorted(rewrites, reverse=True):
+        result = result[:start] + replacement + result[end:]
+    return Stage("send-guards", "send-guard transplantation", result, edits)
+
+
 def _all_slot_decls(masked: str, source: str | None = None) -> dict[str, tuple[str, str]]:
     """Every slot-commented state declaration as name -> (type, slot).
 
@@ -1263,6 +1366,7 @@ PREPARE_STAGES = (
     relax_truthiness_requires,
     repair_fallback_shape,
     synthesize_storage_getters,
+    synthesize_send_guards,
 )
 
 

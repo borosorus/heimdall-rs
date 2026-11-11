@@ -716,3 +716,16 @@ tune parity PASS. Reviewer: 5 findings adopted (exact-tier demotion, bridge
 restriction, memory locations, intN canon; comment-sync pinned by test). Withheld
 stays 1/2 - the residual is a stateful send body, spun out as roadmap lead 0
 (stateful guard synthesis). Suite 192/192.
+### Holdout v4: send-guard transplantation - erc20 fully perfect (2026-11-11)
+
+`fresh-holdout-v4/`: roadmap lead 0 sealed. The new `send-guards` prepare stage
+transplants balance guards from sibling functions that guard AND mutate the same
+slot-annotated mapping onto require-only send stubs (positional role rule
+recorded; allowlist body grammar; header-scoped mutability). Sealed: erc20
+withheld 1/2 -> **2/2 - the fixture is fully perfect (4/4 fb + 2/2 wh, zero
+LLM)**; block-reader and modern-errors byte-neutral; tune parity PASS. Reviewer:
+1 P1 + 3 P2 adopted (same-mutation precedent pairing; brace-span allowlist -
+which caught a real one-line-`}` grammar hole live; per-sibling uniqueness;
+string-safe mutability scope); post-fix seeds byte-identical to the sealed-run
+seeds. Suite 195/195. Roadmap: leads 0-2 done; next of kin: 3 (typed calldata
+inference), 4 (events), 5 (gas probes).

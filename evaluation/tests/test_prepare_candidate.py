@@ -318,6 +318,7 @@ class PipelineTest(unittest.TestCase):
                 "truthiness",
                 "fallback-shape",
                 "storage-getters",
+                "send-guards",
             ],
         )
         final = stages[-1].source
@@ -585,6 +586,65 @@ class SeedRuleTests(unittest.TestCase):
         )
         staged = prepare.prepare_stages(source)[-1].source
         self.assertIn("function nameOf(address arg0) public view returns (string memory) {", staged)
+
+    def test_send_guard_transplanted_from_guarding_sibling(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => uint256) public balances; // storage slot: 0x00\n"
+            "    function transfer(address arg0, uint256 arg1) public payable returns (bool) {\n"
+            "        require(balances[msg.sender] >= arg1);\n"
+            "        balances[msg.sender] -= arg1;\n"
+            "        return true;\n"
+            "    }\n"
+            "    function transferFrom(address arg0, address arg1, uint256 arg2) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x60);\n"
+            "        require(true);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        self.assertIn("require(balances[arg0] >= arg2);", staged)
+        stages = prepare.prepare_stages(source)
+        record = next(e for e in stages[-1].edits if e["kind"] == "send-guard")
+        # recorded precedent names the sibling and the mapping
+        self.assertIn("precedent transfer on balances", record["detail"])
+
+    def test_send_guard_abstains_without_guarding_sibling(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => uint256) public balances; // storage slot: 0x00\n"
+            "    function transferFrom(address arg0, address arg1, uint256 arg2) public pure {\n"
+            "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x60);\n"
+            "        require(true);\n"
+            "    }\n"
+            "}\n"
+        )
+        stages = prepare.prepare_stages(source)
+        staged = stages[-1].source
+        # no sibling guards+mutates balances: the stub stays untouched
+        self.assertNotIn("require(balances[arg0] >= arg2);", staged)
+        record = next(e for e in stages[-1].edits if e["kind"] == "send-guard-abstain")
+        self.assertIn("0 guarded-and-mutated mappings", record["detail"])
+
+    def test_send_guard_skips_functions_with_bodies(self):
+        source = (
+            "contract C {\n"
+            "    mapping(address => uint256) public balances; // storage slot: 0x00\n"
+            "    function transfer(address arg0, uint256 arg1) public payable returns (bool) {\n"
+            "        require(balances[msg.sender] >= arg1);\n"
+            "        balances[msg.sender] -= arg1;\n"
+            "        return true;\n"
+            "    }\n"
+            "    function sweep(address arg0) public payable returns (bool) {\n"
+            "        require(balances[arg0] >= 1);\n"
+            "        balances[arg0] -= 1;\n"
+            "        return true;\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)[-1].source
+        # both functions already carry guards; nothing qualifies as a stub
+        self.assertNotIn("precedent", staged)
 
 
 class PackedScalarTest(unittest.TestCase):
