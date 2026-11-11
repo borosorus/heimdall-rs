@@ -112,6 +112,17 @@ class StrictEvidenceTests(unittest.TestCase):
         self.assertTrue(run_behavior.combined_semantic_match([], [], empty, empty))
         self.assertFalse(run_behavior.combined_semantic_match([], [], empty, empty, strict_evidence=True))
 
+    def test_traced_gas_counts_as_evidence_for_silent_failures(self):
+        traced = observation(ok=False, return_data=None, revert_data=None, gas_used="0x1e8480")
+        pair = [traced]
+        self.assertTrue(run_behavior.sequence_matches(pair, pair, strict_evidence=True))
+
+    def test_gas_is_excluded_from_equality(self):
+        # gas consumption is implementation detail: different gas, same verdict
+        a = observation(ok=False, return_data=None, revert_data=None, gas_used="0x1")
+        b = observation(ok=False, return_data=None, revert_data=None, gas_used="0x9999")
+        self.assertTrue(run_behavior.sequence_matches([a], [b], strict_evidence=True))
+
 
 class BindingSelectionTests(unittest.TestCase):
     def test_candidate_label_selects_matching_signature(self):

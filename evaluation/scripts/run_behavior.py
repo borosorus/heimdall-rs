@@ -272,6 +272,22 @@ def normalize_logs(logs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
+def trace_failed_call_gas(rpc: Rpc, call_params: dict) -> str | None:
+    """Gas used by a failed eth_call, via debug_traceCall; None when unavailable.
+
+    A concrete gas figure is evidence that the exceptional halt really executed on
+    this node. It is recorded for the evidence check only - gas consumption is an
+    implementation detail and deliberately excluded from equality comparison.
+    Tracing is optional: any failure to trace degrades to None, never aborts.
+    """
+    try:
+        result = rpc.call("debug_traceCall", [call_params, "latest", {"tracer": "callTracer"}])
+        gas = result.get("gasUsed") if isinstance(result, dict) else None
+        return hex(int(gas, 16)) if isinstance(gas, str) else None
+    except (HarnessError, RpcError, KeyError, TypeError, ValueError):
+        return None
+
+
 def call_step(
     rpc: Rpc,
     to: str,
@@ -304,6 +320,8 @@ def call_step(
             "status": 1 if call_ok else 0,
             "return_data": return_data,
             "revert_data": revert_data,
+            # evidence only for failed calls; successful calls carry their payload
+            "gas_used": None if call_ok else trace_failed_call_gas(rpc, call_params),
             "logs": [],
             "contract_balance": rpc.call("eth_getBalance", [to, "latest"]),
         }
@@ -412,16 +430,22 @@ def semantic_view(observation: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _view_evidence_complete(view: dict[str, Any]) -> bool:
-    """A view carries evidence when it states an outcome, not merely absence of one.
+def _observation_evidence_complete(observation: dict[str, Any]) -> bool:
+    """An observation carries evidence when it states an outcome, not absence of one.
 
-    A failed observation with no return and no revert payload proves nothing about
-    the candidate (lost revert reason, RPC hiccup); under strict comparison such
-    steps cannot earn parity.
+    A failed observation with no return, no revert payload, and no execution trace
+    proves nothing about the candidate (lost revert reason, RPC hiccup); under
+    strict comparison such steps cannot earn parity. A recorded gas figure from
+    the failed-call trace is evidence that the halt executed.
     """
-    if view.get("unbound"):
+    if observation.get("unbound"):
         return True
-    return bool(view.get("ok") or view.get("return_data") or view.get("revert_data"))
+    return bool(
+        observation.get("ok")
+        or observation.get("return_data")
+        or observation.get("revert_data")
+        or observation.get("gas_used")
+    )
 
 
 def sequence_matches(
@@ -437,7 +461,7 @@ def sequence_matches(
         return False
     if strict_evidence:
         return all(
-            _view_evidence_complete(semantic_view(observation))
+            _observation_evidence_complete(observation)
             for observation in [*reference, *candidate]
         )
     return True

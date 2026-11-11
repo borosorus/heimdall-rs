@@ -576,5 +576,5 @@
   "solc_version": "0.8.30",
   "source_sha256": "50f63f159431298c93b9aeea0f9cbe87e3f4e4261e51a7d8d3201472baf8c922",
   "stderr": "",
-  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 34.50ms\nCompiler run successful with warnings:\nWarning (2018): Function state mutability can be restricted to pure\n   --> src/Candidate.sol:129:5:\n    |\n129 |     function Unresolved_860aefcf() public view returns (uint256, uint256) {\n    |     ^ (Relevant source part starts here and spans across multiple lines).\n\n"
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 32.82ms\nCompiler run successful with warnings:\nWarning (2018): Function state mutability can be restricted to pure\n   --> src/Candidate.sol:129:5:\n    |\n129 |     function Unresolved_860aefcf() public view returns (uint256, uint256) {\n    |     ^ (Relevant source part starts here and spans across multiple lines).\n\n"
 }

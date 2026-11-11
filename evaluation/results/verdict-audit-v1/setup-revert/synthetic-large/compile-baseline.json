@@ -576,5 +576,5 @@
   "solc_version": "0.8.30",
   "source_sha256": "305e899848c92df7778a934d11bbaf1a71333a836715e94415a51ba8db967f77",
   "stderr": "",
-  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 32.23ms\nCompiler run successful!\n"
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 34.25ms\nCompiler run successful!\n"
 }

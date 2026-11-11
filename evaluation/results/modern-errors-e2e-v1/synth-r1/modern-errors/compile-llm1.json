@@ -1,0 +1,124 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "Unresolved_58df7f77",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_6ab639f2",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_6e798b85",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_728b2fc4",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_7b41bf2f",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_8f05ba67",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_900a9c45",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_b3456cd6",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_b641db83",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_be8cdacd",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_c06a97cb",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_eca9a83d",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Unresolved_f5ba8315",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_00000000",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_ae6e59ae",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_c2bb947c",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CustomError_f052b721",
+      "type": "error"
+    }
+  ],
+  "artifact": "out/Candidate.sol/DecompiledContract.json",
+  "deployed_bytecode": "0x608060405234801561000f575f5ffd5b50600436106100cd575f3560e01c8063d3cc29e61161008a578063f4c40c8711610064578063f4c40c871461012b578063f6b6689714610135578063fc46a5671461013f578063fde2f6be14610149576100cd565b8063d3cc29e61461010d578063d53f9d5e14610117578063e08ddd4714610121576100cd565b80632ce3e56b146100d15780633f60ac86146100db5780635edae15a146100e55780639439a143146100ef578063bca5fae8146100f9578063c67e6ccd14610103575b5f5ffd5b6100d9610153565b005b6100e36101a3565b005b6100ed6101a7565b005b6100f76101d4565b005b610101610224565b005b61010b610228565b005b610115610231565b005b61011f610281565b005b6101296102bc565b005b61013361030c565b005b61013d610347565b005b610147610474565b005b61015161047d565b005b6040517ff052b721000000000000000000000000000000000000000000000000000000005f8201527c64000000000000000000000000000000000000000000000000000000006020820152602481fd5b5f5ffd5b6040517fc2bb947c000000000000000000000000000000000000000000000000000000005f820152600481fd5b6040517f4e487b71000000000000000000000000000000000000000000000000000000005f8201527c12000000000000000000000000000000000000000000000000000000006020820152602481fd5b5f5ffd5b5b600161022957565b6040517f4e487b71000000000000000000000000000000000000000000000000000000005f8201527c11000000000000000000000000000000000000000000000000000000006020820152602481fd5b6040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102b390610527565b60405180910390fd5b6040517f4e487b71000000000000000000000000000000000000000000000000000000005f8201527c01000000000000000000000000000000000000000000000000000000006020820152602481fd5b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161033e9061058f565b60405180910390fd5b6040517fae6e59ae000000000000000000000000000000000000000000000000000000005f8201527c609c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb60208201527f9a3cb6580000000000000000000000000000000000000000000000000000000060408201527ca00000000000000000000000000000000000000000000000000000000060608201527c14536f6d657468696e672077656e742077726f6e67000000000000000060808201525f60a08201527c020000000000000000000000000000000000000000000000000000000060c08201527c010000000000000000000000000000000000000000000000000000000060e08201527c020000000000000000000000000000000000000000000000000000000061010082015261010481fd5b5b600161047557565b6040517f4e487b71000000000000000000000000000000000000000000000000000000005f8201527c32000000000000000000000000000000000000000000000000000000006020820152602481fd5b5f82825260208201905092915050565b7f54686973206973206120737472696e67206572726f72206d65737361676500005f82015250565b5f610511601e836104cd565b915061051c826104dd565b602082019050919050565b5f6020820190508181035f83015261053e81610505565b9050919050565b7f52657175697265206661696c65642077697468206d65737361676500000000005f82015250565b5f610579601b836104cd565b915061058482610545565b602082019050919050565b5f6020820190508181035f8301526105a68161056d565b905091905056fea2646970667358221220cbd19db86a69efc31bb300fe4b595e6423c47d79bc21c7c39f9cba7c727cc53064736f6c634300081e0033",
+  "label": "llm1",
+  "ok": true,
+  "returncode": 0,
+  "solc_version": "0.8.30",
+  "source_sha256": "e4fc31b13aace307163ede83366767b3d3892448c7518b8f545f2eacf0e1e99e",
+  "stderr": "",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 8.44ms\nCompiler run successful with warnings:\nWarning (6133): Statement has no effect.\n  --> src/Candidate.sol:58:13:\n   |\n58 |             keccak256(\"consume gas\");\n   |             ^^^^^^^^^^^^^^^^^^^^^^^^\n\nWarning (6133): Statement has no effect.\n   --> src/Candidate.sol:111:13:\n    |\n111 |             keccak256(\"consume gas\");\n    |             ^^^^^^^^^^^^^^^^^^^^^^^^\n\nWarning (2018): Function state mutability can be restricted to pure\n  --> src/Candidate.sol:28:5:\n   |\n28 |     function Unresolved_58df7f77() public view {\n   |     ^ (Relevant source part starts here and spans across multiple lines).\n\nWarning (2018): Function state mutability can be restricted to pure\n  --> src/Candidate.sol:91:5:\n   |\n91 |     function Unresolved_b3456cd6() public view {\n   |     ^ (Relevant source part starts here and spans across multiple lines).\n\n"
+}

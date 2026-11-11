@@ -653,3 +653,25 @@ sol, decompiled.sol; sha256-verified against pre-change binary).
 Generalization scorecard: parity machinery verified on 2 external fixtures; full pipeline
 (compile-seed + harness) green on 1 new external fixture; decompile-timeout finding root-caused,
 fixed, and verified (0 blocked fixtures remain).
+
+### Verdict audit + first deterministic end-to-end perfection on modern-errors (2026-11-11)
+
+Plan (planner-reviewed): verdict audit -> tune-fixture run -> deterministic rule
+generalization -> frozen paired bake-off on untouched fixtures; deterministic correctness
+first, LLM-value question explicitly deferred.
+
+`verdict-audit-v1/`: first negative controls for the harness verdicts - six preregistered
+mutants of the perfect synthetic-large candidate each flip exactly their predicted verdicts;
+positive control reproduces 12/12+4/4. Established: read-mode probes carry revert payloads
+(send-mode receipts are reason-blind); `strict_evidence` spec flag makes evidence-less
+failures unverified instead of parity-eligible.
+
+`modern-errors-e2e-v1/`: the full deterministic chain - decompile (post-`40198f5`), seed
+repairs (two new general rules: selfref-initializer split, pure->view mutability alignment),
+observation, template synthesis from reference observations only (constant-payload reverts,
+gas-burn variant accepted on parity), harness. **11/11 feedback + 2/2 withheld under
+`strict_evidence`, zero LLM calls at any stage**, reproduced across runs; audit re-run PASS.
+Harness upgrade the fixture forced: failed calls record `gas_used` via `debug_traceCall` as
+evidence (excluded from equality - implementation detail). Suite 178/178. Both deltas
+reviewer-passed (codex); findings fixed: optional-trace robustness, overload-safe rewrite
+keying, span-order application, audit dir hygiene.

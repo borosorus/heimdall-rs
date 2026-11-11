@@ -1,0 +1,496 @@
+{
+  "ok_errorOutOfGas": {
+    "candidate": [
+      {
+        "call": "errorOutOfGas",
+        "call_ok": false,
+        "calldata": "0xc67e6ccd",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "errorOutOfGas",
+        "call_ok": false,
+        "calldata": "0xb641db83",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "ok_errorWithInvalidOpcode": {
+    "candidate": [
+      {
+        "call": "errorWithInvalidOpcode",
+        "call_ok": false,
+        "calldata": "0xfc46a567",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "errorWithInvalidOpcode",
+        "call_ok": false,
+        "calldata": "0x728b2fc4",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_panicWithArithmeticOverflow": {
+    "candidate": [
+      {
+        "call": "panicWithArithmeticOverflow",
+        "call_ok": false,
+        "calldata": "0xd3cc29e6",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000011",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "panicWithArithmeticOverflow",
+        "call_ok": false,
+        "calldata": "0xeca9a83d",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000011",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_panicWithArrayOutOfBounds": {
+    "candidate": [
+      {
+        "call": "panicWithArrayOutOfBounds",
+        "call_ok": false,
+        "calldata": "0xfde2f6be",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000032",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "panicWithArrayOutOfBounds",
+        "call_ok": false,
+        "calldata": "0x58df7f77",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000032",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_panicWithAssertFailure": {
+    "candidate": [
+      {
+        "call": "panicWithAssertFailure",
+        "call_ok": false,
+        "calldata": "0xe08ddd47",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000001",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "panicWithAssertFailure",
+        "call_ok": false,
+        "calldata": "0x6e798b85",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000001",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_panicWithDivisionByZero": {
+    "candidate": [
+      {
+        "call": "panicWithDivisionByZero",
+        "call_ok": false,
+        "calldata": "0x9439a143",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000012",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "panicWithDivisionByZero",
+        "call_ok": false,
+        "calldata": "0x7b41bf2f",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x4e487b710000000000000000000000000000000000000000000000000000000000000012",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_revertWithCustomErrorMultipleParams": {
+    "candidate": [
+      {
+        "call": "revertWithCustomErrorMultipleParams",
+        "call_ok": false,
+        "calldata": "0xf6b66897",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0xae6e59ae00000000000000000000000000000000000000000000000000000000000000609c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb65800000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000014536f6d657468696e672077656e742077726f6e67000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "revertWithCustomErrorMultipleParams",
+        "call_ok": false,
+        "calldata": "0xb3456cd6",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0xae6e59ae00000000000000000000000000000000000000000000000000000000000000609c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb65800000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000014536f6d657468696e672077656e742077726f6e67000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_revertWithCustomErrorSingleParam": {
+    "candidate": [
+      {
+        "call": "revertWithCustomErrorSingleParam",
+        "call_ok": false,
+        "calldata": "0x2ce3e56b",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0xf052b7210000000000000000000000000000000000000000000000000000000000000064",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "revertWithCustomErrorSingleParam",
+        "call_ok": false,
+        "calldata": "0xf5ba8315",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0xf052b7210000000000000000000000000000000000000000000000000000000000000064",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_revertWithRequireAndMessage": {
+    "candidate": [
+      {
+        "call": "revertWithRequireAndMessage",
+        "call_ok": false,
+        "calldata": "0xf4c40c87",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b52657175697265206661696c65642077697468206d6573736167650000000000",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "revertWithRequireAndMessage",
+        "call_ok": false,
+        "calldata": "0x8f05ba67",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b52657175697265206661696c65642077697468206d6573736167650000000000",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_revertWithRequireNoMessage": {
+    "candidate": [
+      {
+        "call": "revertWithRequireNoMessage",
+        "call_ok": false,
+        "calldata": "0x3f60ac86",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "revertWithRequireNoMessage",
+        "call_ok": false,
+        "calldata": "0x6ab639f2",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_revertWithSimpleCustomError": {
+    "candidate": [
+      {
+        "call": "revertWithSimpleCustomError",
+        "call_ok": false,
+        "calldata": "0x5edae15a",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0xc2bb947c",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "revertWithSimpleCustomError",
+        "call_ok": false,
+        "calldata": "0x900a9c45",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0xc2bb947c",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_revertWithStringError": {
+    "candidate": [
+      {
+        "call": "revertWithStringError",
+        "call_ok": false,
+        "calldata": "0xd53f9d5e",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001e54686973206973206120737472696e67206572726f72206d6573736167650000",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "revertWithStringError",
+        "call_ok": false,
+        "calldata": "0xbe8cdacd",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001e54686973206973206120737472696e67206572726f72206d6573736167650000",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "rv_revertWithoutMessage": {
+    "candidate": [
+      {
+        "call": "revertWithoutMessage",
+        "call_ok": false,
+        "calldata": "0xbca5fae8",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "reference": [
+      {
+        "call": "revertWithoutMessage",
+        "call_ok": false,
+        "calldata": "0xc06a97cb",
+        "contract_balance": "0x0",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  }
+}

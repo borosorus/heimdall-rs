@@ -163,8 +163,15 @@ def main() -> int:
     feedback = [p["name"] for p in spec["probes"] if p["name"] not in withheld]
     positive_source = args.positive.read_text(encoding="utf-8")
 
+    # clear previous RUN outputs but keep curated files (README.md) intact
     if args.audit_dir.exists():
-        shutil.rmtree(args.audit_dir)
+        for child in args.audit_dir.iterdir():
+            if child.name == "README.md":
+                continue
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
     args.audit_dir.mkdir(parents=True, exist_ok=True)
     mutants_dir = args.audit_dir / "mutants"
     mutants_dir.mkdir(exist_ok=True)

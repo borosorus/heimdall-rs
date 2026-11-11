@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "de536146d9f8d38c22f8da2be9f476d8b5c0dc3478e9e1bbf509fbbf4a65a696",
+  "stderr": "Error: Compiler run failed:\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:57:16:\n   |\n57 |         revert CustomError_c2bb947c();\n   |                ^^^^^^^^^^^^^^^^^^^^\n\nError (7576): Undeclared identifier. \"var_b\" is not (or not yet) visible at this point.\n  --> src/Candidate.sol:64:29:\n   |\n64 |             uint256 var_b = var_b + 0x60;\n   |                             ^^^^^\n\nError (7576): Undeclared identifier. Did you mean \"var_b\"?\n  --> src/Candidate.sol:65:21:\n   |\n65 |             if (0 < var_c) {\n   |                     ^^^^^\n\nError (7576): Undeclared identifier. Did you mean \"var_b\"?\n  --> src/Candidate.sol:66:33:\n   |\n66 |                 require(0x01 >= var_c, CustomError_ae6e59ae());\n   |                                 ^^^^^\n\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:66:40:\n   |\n66 |                 require(0x01 >= var_c, CustomError_ae6e59ae());\n   |                                        ^^^^^^^^^^^^^^^^^^^^\n\nError (7576): Undeclared identifier.\n  --> src/Candidate.sol:96:16:\n   |\n96 |         revert CustomError_f052b721();\n   |                ^^^^^^^^^^^^^^^^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 3.00ms\n"
+}
