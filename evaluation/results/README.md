@@ -756,3 +756,13 @@ remaining 5-8 (gas probes, vm walk bound, constructor coverage, Rust port).
   roadmap item). Context-equivalence limitation documented.
 Reviewers: 3 P2s adopted (both-caps gas-bound rule, silent-only classification,
 creation-context caveat documented). Suite 205/205; verdict audit PASS.
+
+### 7a/7b: constructor synthesis + context-equivalent creation deployment (2026-11-11)
+
+creation-deploy-v1 extended: synthesize_constructor.py rebuilds constructor
+bodies from observation x storage-map correlation (position agreement across
+observations; ambiguity recorded), taking the creation demo to 4/4 fb + 1/1 wh;
+the harness anchors+rewinds chain state around every stage deployment (fresh
+anchor per rewind, checked revert) making creation-mode context identical
+across stages and runs (address+block proven in metrics). Reviewer: 1H+1M+1L
+adopted. Suite 205/205. Deterministic roadmap: only the Rust port (8) remains.

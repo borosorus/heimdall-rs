@@ -1,0 +1,47 @@
+{
+  "bindings": {
+    "get": {
+      "available": true,
+      "baseline_selector": "0xe092b891",
+      "baseline_signature": "unresolved_6d4ce63c()",
+      "candidate_label": "synth-e",
+      "candidate_selector": "0xe092b891",
+      "candidate_signature": "unresolved_6d4ce63c()",
+      "candidate_signatures": {
+        "creation-v1": "unresolved_6d4ce63c()"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0x6d4ce63c",
+      "reference_signature": "get()",
+      "unavailable_reason": null
+    },
+    "set": {
+      "available": true,
+      "baseline_selector": "0x2aed481d",
+      "baseline_signature": "Unresolved_60fe47b1(uint256)",
+      "candidate_label": "synth-e",
+      "candidate_selector": "0x2aed481d",
+      "candidate_signature": "Unresolved_60fe47b1(uint256)",
+      "candidate_signatures": {
+        "creation-v1": "Unresolved_60fe47b1(uint256)"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0x60fe47b1",
+      "reference_signature": "set(uint256)",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x2aed481d",
+      "0xe092b891"
+    ],
+    "candidate_selector_count": 2,
+    "matched": 0,
+    "missing": [
+      "0x60fe47b1",
+      "0x6d4ce63c"
+    ],
+    "reference_selector_count": 2
+  }
+}

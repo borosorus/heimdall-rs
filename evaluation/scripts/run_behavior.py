@@ -1134,8 +1134,15 @@ def evaluate_stage(
         creation = compile_record.get("creation_bytecode")
         if not creation:
             raise HarnessError("creation-mode deployment but the compiled artifact has no creation bytecode")
+        # context equivalence: main rewinds to the anchor state before this
+        # stage, so every stage deploys from identical chain state (same
+        # sender nonce => address, same block)
         receipt = deploy_with_constructor(rpc, creation, deployment.get("candidate_args", deployment.get("constructor_args", "0x")))
         candidate_addr = receipt["contractAddress"]
+        stage["deployment_context"] = {
+            "address": candidate_addr,
+            "block_number": rpc.call("eth_blockNumber"),
+        }
     else:
         candidate_addr = stage_address(stage_index)
         rpc.call("anvil_setCode", [candidate_addr, compile_record["deployed_bytecode"]])
@@ -1240,12 +1247,27 @@ def main() -> int:
     attempts: list[dict[str, Any]] = []
     repair_error: str | None = None
     selected_stage: dict[str, Any] | None = None
+
+    def _rewind_to_anchor() -> None:
+        """Restore the post-reference chain state and re-anchor it.
+
+        Snapshot semantics: reverting to the anchor invalidates later
+        snapshots, so a fresh anchor is taken after every rewind; the
+        chain state is identical each time (same reference deployment).
+        """
+        nonlocal deployment_snapshot
+        if deployment_snapshot is None:
+            return
+        if not rpc.call("evm_revert", [deployment_snapshot]):
+            raise HarnessError("failed to restore the deployment anchor snapshot")
+        deployment_snapshot = str(rpc.call("evm_snapshot"))
     selected_label = "none"
     selected_reason = "llm1 did not compile"
     anvil = Anvil()
     try:
         rpc = anvil.rpc
         deployment = spec.get("deployment") or {}
+        deployment_snapshot = None
         if deployment.get("mode") == "creation":
             # constructor-covering mode: both sides run their creation code with
             # the spec's constructor arguments; state set by the constructor and
@@ -1260,7 +1282,12 @@ def main() -> int:
                 deployment.get("constructor_args", "0x"),
             )
             reference_addr = reference_receipt["contractAddress"]
+            # context anchor: every stage redeploys from this exact chain state,
+            # so all sides share deployment context (reviewer finding on
+            # creation-mode address/block divergence)
+            deployment_snapshot = rpc.call("evm_snapshot")
         else:
+            deployment_snapshot = None
             rpc.call("anvil_setCode", [REF_ADDR, reference_runtime])
             reference_addr = REF_ADDR
         rpc.call("anvil_setBalance", [reference_addr, "0x0"])
@@ -1276,7 +1303,9 @@ def main() -> int:
             result_dir,
             reference_addr=reference_addr,
         )
+        _rewind_to_anchor()  # restore the anchor for the NEXT stage
         stages.append(baseline_stage)
+        _rewind_to_anchor()  # identical chain state for this stage's deployment
         llm1_stage = evaluate_stage(
             rpc,
             spec,
@@ -1486,6 +1515,11 @@ def main() -> int:
         "selected_unbound_calls": selected_stage.get("unbound_calls", []),
         "repair_attempts": attempts,
         "repair_error": repair_error,
+        # creation-mode deployment context per stage: address equality across
+        # stages is the context-equivalence evidence (reviewer follow-up 7b)
+        "deployment_context": {
+            stage["label"]: stage.get("deployment_context") for stage in stages
+        },
     }
     write_json(result_dir / "metrics.json", metrics)
 

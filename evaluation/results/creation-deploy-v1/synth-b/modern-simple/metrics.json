@@ -1,0 +1,106 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "9ca40782ee166154a0174f0cf52e4eb81a75e67bbdb809f16a6088398e027b20",
+  "blocked_probes": 0,
+  "bound_reference_selectors": [
+    "0x60fe47b1",
+    "0x6d4ce63c"
+  ],
+  "candidate_compile": true,
+  "candidate_label": "ctor-synth-b",
+  "candidate_sha256": "e055cd0f147495cf2e16cd9d43298a73e7e4fe20cab2bd5839416f77e27406be",
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "executed_probes": 4,
+  "feedback_probes": [
+    "initial_get",
+    "set_zero_get",
+    "set_123_get"
+  ],
+  "fixture": "modern-simple",
+  "llm1_compile": true,
+  "llm1_sha256": "e055cd0f147495cf2e16cd9d43298a73e7e4fe20cab2bd5839416f77e27406be",
+  "max_tokens": null,
+  "model": null,
+  "planned_probes": 4,
+  "repair_attempts": [],
+  "repair_error": null,
+  "run_id": "creation-deploy-v1/synth-b",
+  "schema_version": 2,
+  "seed": null,
+  "selected": "llm1",
+  "selected_feedback_failing": [],
+  "selected_feedback_matched": 3,
+  "selected_feedback_total": 3,
+  "selected_reason": "no repair requested",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 1,
+  "selected_withheld_total": 1,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.22",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 3,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "9ca40782ee166154a0174f0cf52e4eb81a75e67bbdb809f16a6088398e027b20",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 1
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 7,
+      "feedback_failing": [],
+      "feedback_matched": 3,
+      "feedback_total": 3,
+      "interface": {
+        "candidate_only": [
+          "0x2aed481d",
+          "0xe092b891"
+        ],
+        "candidate_selector_count": 2,
+        "matched": 0,
+        "missing": [
+          "0x60fe47b1",
+          "0x6d4ce63c"
+        ],
+        "reference_selector_count": 2
+      },
+      "label": "llm1",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "e055cd0f147495cf2e16cd9d43298a73e7e4fe20cab2bd5839416f77e27406be",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 1,
+      "withheld_total": 1
+    }
+  ],
+  "temperature": null,
+  "timeout_seconds": null,
+  "unbound_reference_selectors": [],
+  "withheld_probes": [
+    "set_42_get"
+  ]
+}

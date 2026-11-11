@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.22",
+  "source_sha256": "9ca40782ee166154a0174f0cf52e4eb81a75e67bbdb809f16a6088398e027b20",
+  "stderr": "Error: Compiler run failed:\nError (6160): Wrong argument count for function call: 1 arguments given but expected 0.\n  --> src/Candidate.sol:28:14:\n   |\n28 |         emit Event_012c78e2(arg0);\n   |              ^^^^^^^^^^^^^^^^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.22\nSolc 0.8.22 finished in 3.42ms\n"
+}

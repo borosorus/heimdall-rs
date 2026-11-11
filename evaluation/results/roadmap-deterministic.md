@@ -37,8 +37,10 @@ paired run, sealed reveal, numbers never merged across labels.
    (unit-tested); fixture outputs byte-identical.
 7. **Capability DONE (creation-deploy v1, ../creation-deploy-v1/)**: creation
    mode deploys both sides via constructor tx; constructor state verdict-visible
-   (reference initial_get=7 measured). Follow-ups: 7a constructor-body
-   synthesis; 7b context-equivalent deployment (reviewer-noted).
+   (reference initial_get=7 measured). Follow-ups DONE: 7a constructor-body
+   synthesis (creation demo now 4/4+1/1) and 7b context-equivalent deployment
+   (fresh-anchor rewind; address+block identical across runs) - see
+   ../creation-deploy-v1/README.md.
 8. **Rust port of the hardened deterministic pipeline** (production contribution;
     upstreamable slice: bounded execution already landed as `40198f5`).
 
