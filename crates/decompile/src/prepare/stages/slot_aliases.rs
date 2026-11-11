@@ -354,7 +354,7 @@ mod tests {
             "    function who() public view returns (uint256) { return view_a; }\n",
             "}\n",
         );
-        let stage = run(&source).unwrap();
+        let stage = run(source).unwrap();
         assert!(stage.source.contains("return uint256(cell);"), "{}", stage.source);
         // the address pair still needs its own narrowing evidence
         assert!(stage.findings.iter().any(|f| f.detail == "spare"));

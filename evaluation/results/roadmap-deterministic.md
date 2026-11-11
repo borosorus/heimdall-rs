@@ -41,8 +41,14 @@ paired run, sealed reveal, numbers never merged across labels.
    synthesis (creation demo now 4/4+1/1) and 7b context-equivalent deployment
    (fresh-anchor rewind; address+block identical across runs) - see
    ../creation-deploy-v1/README.md.
-8. **Rust port of the hardened deterministic pipeline** (production contribution;
-    upstreamable slice: bounded execution already landed as `40198f5`).
+8. **DONE (Rust port, `crates/decompile/src/prepare/`)**: the full 13-stage
+    deterministic prepare ladder lives in heimdall-decompiler behind
+    `heimdall decompile --prepare` (default off; no default-behavior change).
+    Byte-parity with this Python implementation is enforced per registry
+    prefix against committed fixtures
+    (`crates/decompile/tests/parity/`), whose full-ladder outputs reproduce
+    the sealed holdout seeds (erc20-v5, blockreader-v4) exactly. Harness,
+    verdicts, and audits remain Python by design.
 
 ## Explicit non-goals for now
 

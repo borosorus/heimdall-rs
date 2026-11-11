@@ -17,14 +17,15 @@
 
 mod parser;
 mod stages;
+mod storage_flow;
 
 use tracing::debug;
 
 use crate::prepare::{
     parser::ParseError,
     stages::{
-        arity, declarations, fallback_shape, mutability, packed_scalars, placeholders, selfref,
-        slot_aliases, truthiness, vars,
+        arity, declarations, fallback_shape, mutability, packed_scalars, param_types, placeholders,
+        selfref, send_guards, slot_aliases, storage_getters, truthiness, vars,
     },
 };
 
@@ -82,6 +83,9 @@ const PREPARE_STAGES: &[(&str, StageFn)] = &[
     ("recover_packed_scalar_storage", packed_scalars::run),
     ("relax_truthiness_requires", truthiness::run),
     ("repair_fallback_shape", fallback_shape::run),
+    ("infer_param_types_from_storage", param_types::run),
+    ("synthesize_storage_getters", storage_getters::run),
+    ("synthesize_send_guards", send_guards::run),
 ];
 
 /// Runs the full preparation ladder over `source`.
@@ -128,6 +132,9 @@ mod tests {
                 "recover_packed_scalar_storage",
                 "relax_truthiness_requires",
                 "repair_fallback_shape",
+                "infer_param_types_from_storage",
+                "synthesize_storage_getters",
+                "synthesize_send_guards",
             ]
         );
     }
@@ -156,6 +163,59 @@ mod tests {
     /// Byte-parity with the Python reference ladder: every implemented prefix
     /// must reproduce the committed `stageNN-*.sol` references (see
     /// `tests/parity/README.md`).
+
+    /// Ported `PipelineTest`: the full ladder applies every tier in order and
+    /// is idempotent on the decompiled-shaped baseline.
+    const BASELINE: &str = concat!(
+        "contract DecompiledContract {\n",
+        "    error CustomError_00000000();\n",
+        "    event Event_8c5be1e5();\n",
+        "    address store_h;\n",
+        "    mapping(address => uint256) public balances;\n",
+        "\n",
+        "    function Unresolved_095ea7b3(address arg0, uint0 arg1) public payable returns (bool) {\n",
+        "        require(0x04 + (msg.data.length - 0x04) - 0x04 >= 0x40);\n",
+        "        balances[msg.sender] = arg1;\n",
+        "        require(msg.sender == store_h, CustomError_30cd7471());\n",
+        "        return true;\n",
+        "    }\n",
+        "}\n",
+    );
+
+    #[test]
+    fn full_ladder_applies_every_tier() {
+        let staged = prepare(BASELINE).unwrap();
+        let names: Vec<&str> = staged.stages.iter().map(|s| s.name).collect();
+        assert_eq!(
+            names,
+            vec![
+                "placeholders",
+                "declarations",
+                "selfref",
+                "vars",
+                "mutability",
+                "arity",
+                "slot-aliases",
+                "packed-scalars",
+                "truthiness",
+                "fallback-shape",
+                "param-types",
+                "storage-getters",
+                "send-guards",
+            ]
+        );
+        let staged_final = staged.source;
+        assert!(staged_final.contains("uint256 arg1"));
+        assert!(staged_final.contains("error CustomError_30cd7471();"));
+    }
+
+    #[test]
+    fn ladder_is_idempotent() {
+        let once = prepare(BASELINE).unwrap().source;
+        let twice = prepare(&once).unwrap().source;
+        assert_eq!(once, twice);
+    }
+
     #[test]
     fn matches_the_python_reference_ladder() {
         let root = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/parity");

@@ -766,3 +766,19 @@ the harness anchors+rewinds chain state around every stage deployment (fresh
 anchor per rewind, checked revert) making creation-mode context identical
 across stages and runs (address+block proven in metrics). Reviewer: 1H+1M+1L
 adopted. Suite 205/205. Deterministic roadmap: only the Rust port (8) remains.
+
+### Rust port of the prepare ladder (2026-11-11, later)
+
+The 13-stage deterministic prepare ladder is now native Rust
+(`crates/decompile/src/prepare/`), flag-gated as
+`heimdall decompile --prepare` (default off; standard output untouched). The
+port carries the parser core, every stage, and the typed storage-flow map;
+byte-parity with the Python reference is enforced per registry prefix against
+committed fixture pairs (`crates/decompile/tests/parity/`, raw decompiler
+outputs whose full-ladder results reproduce the sealed holdout seeds erc20-v5
+and blockreader-v4 exactly). Ported Python unit tests pin per-stage behavior;
+codex reviewed each slice (7 findings, all adopted: multibyte scanner safety,
+multiline declaration scan, pair-scoped narrowing evidence, tolerant fallback
+splice, unbounded guard constants, provenance-comment optionality, param_kind
+coverage). 169 heimdall-decompiler tests green; the Python suite is the
+behavioral authority and is unchanged. Deterministic roadmap complete.
