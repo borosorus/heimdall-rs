@@ -782,3 +782,18 @@ multiline declaration scan, pair-scoped narrowing evidence, tolerant fallback
 splice, unbounded guard constants, provenance-comment optionality, param_kind
 coverage). 169 heimdall-decompiler tests green; the Python suite is the
 behavioral authority and is unchanged. Deterministic roadmap complete.
+
+### Tier-2 generalization probe: auditlog (2026-11-12)
+
+The deterministic pipeline ran end-to-end on a never-touched fixture — Solidity 0.4.17-era
+bytecode, dynamic struct-array storage — with zero model calls: **8/8 feedback + 2/2
+withheld**, strict evidence (`auditlog-tier2-v1/`; score lineage 3/8 -> 6/8 -> 8/8 across
+recorded layout-algebra revisions; the seed baseline is compile-blocked and scores no
+verdicts). The repair knowledge is recorded as storage-layout facts (short-string length in
+the low byte; long len = v>>1; ceil word counts; 0.4-era OOB = bare `invalid()`; keccak
+scratch must not alias the payload pointer), pinned by an offline storage-algebra selftest.
+Phase 2 removed the last manual step: `rebuild_struct_array_accessors.py --auto` derives the
+entire layout from in-source evidence (shared-keccak-base family, unique role match, abstention
+elsewhere — erc20/blockreader/modern-errors seeds abstain) and reproduces the perfect verdict
+parameter-free (`al-p2-auto`). The auditlog class is a repeatable pipeline stage;
+codex-reviewed at both phases (6 findings, all adopted).
