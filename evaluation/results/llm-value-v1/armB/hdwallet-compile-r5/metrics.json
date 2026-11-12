@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "contract": "DecompiledContract",
+  "solc_version": "0.8.30",
+  "source_sha256": "5be7b9b4fb8d9da0f68a797113acc873432e871169d6dcfb107f86179f83b064",
+  "candidate_sha256": "5be7b9b4fb8d9da0f68a797113acc873432e871169d6dcfb107f86179f83b064",
+  "compiled": false,
+  "already_compiled": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "call_mode": "json-schema",
+      "latency_ms": 12194,
+      "error": null,
+      "notes": "Fixed the inline-assembly `if ... else` construct, which is not valid in Yul (assembly `if` has no `else` branch); replaced it with a `switch`/`case`/`default`. No other changes were needed.",
+      "source_sha256": "2cca37471a29861dc5a081102f750a03129654c28b1f6bcb9c8a264d8605584b",
+      "compiled": false,
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
+    },
+    {
+      "attempt": 2,
+      "call_mode": "json-schema",
+      "latency_ms": 8610,
+      "error": null,
+      "notes": "Replaced `!(0x1f & length)` with `(0x1f & length) == 0` (uint256 has no `!`); casted the `0x20` literal to `uint256` in both `abi.encodePacked` calls; hoisted the mask expression into a `uint256` variable for clarity.",
+      "source_sha256": "2fe171557932a71071bd86c8405cb0d763983f6d421880c1be67014d0bc1b99a",
+      "compiled": false,
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
+    },
+    {
+      "attempt": 3,
+      "call_mode": "json-schema",
+      "latency_ms": 15587,
+      "error": null,
+      "notes": "The assembly `if ... else` construct is invalid in Yul (if has no else branch); replaced with `switch/case/default`. Also replaced `!(0x1f & length)` with a boolean comparison, since `!` requires a bool operand in Solidity, and moved the mask computation into a typed variable.",
+      "source_sha256": "6da504ba8ab4f2ed581240cee0782663b18efa6d12c780e5050d424dd8b32bc0",
+      "compiled": false,
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
+    },
+    {
+      "attempt": 4,
+      "call_mode": "json-schema",
+      "latency_ms": 7904,
+      "error": null,
+      "notes": "Cast the literal 0x20 to uint256 in both abi.encodePacked calls; hoisted the mask expression into a typed uint256 local so packed encoding no longer sees untyped literals.",
+      "source_sha256": "cbc4d64552a5ec118d4489a9144ccd9503645ffdb7ee7feb4a03067554e390e2",
+      "compiled": false,
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
+    },
+    {
+      "attempt": 5,
+      "call_mode": "json-schema",
+      "latency_ms": 15667,
+      "error": null,
+      "notes": "The assembly `if ... else` construct is invalid in Yul (if has no else branch); replaced with `switch/case/default`. Also replaced `!(0x1f & length)` with a boolean comparison, since `!` requires a bool operand in Solidity, and moved the mask computation into a typed variable.",
+      "source_sha256": "6da504ba8ab4f2ed581240cee0782663b18efa6d12c780e5050d424dd8b32bc0",
+      "compiled": false,
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
+    }
+  ],
+  "dispatch_signatures": [
+    "Unresolved_2a1afcd9()",
+    "Unresolved_4ed3885e(uint256)",
+    "Unresolved_6d4ce63c()"
+  ],
+  "llm_calls": 5,
+  "completion_tokens": 3252,
+  "prompt_chars": 15378,
+  "elapsed_ms": 60238
+}

@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "761bb8282204f7add0fb004c77853ab96d83a1a858dc5c074ce3ef78b8ee8542",
+  "stderr": "Error: Compiler run failed:\nError (6933): Expected primary expression.\n  --> src/Candidate.sol:27:32:\n   |\n27 |         if((0x1f & var_f) == 0)) {\n   |                                ^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 5.12ms\n"
+}

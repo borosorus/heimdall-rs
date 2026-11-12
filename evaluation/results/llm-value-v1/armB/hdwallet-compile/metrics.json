@@ -10,32 +10,32 @@
     {
       "attempt": 1,
       "call_mode": "json-schema",
-      "latency_ms": 14980,
-      "error": "compiled ABI lost dispatch signatures: _readStorageBytes(uint256)",
-      "notes": "Replaced assembly `if ... else` (unsupported) with `switch`; moved the tail masking into plain Solidity with typed uint256 values.",
-      "source_sha256": "0fffe386a1d76fb4c6243d967cc4af22865f3a4002b2ba6a8fadc486d6645e97",
+      "latency_ms": 20028,
+      "error": null,
+      "notes": "Inline assembly in Solidity does not support `else` branches on `if`; replaced with a second `if iszero(...)` block. Also typed the mask expression explicitly is unnecessary; kept plain typed assignments.",
+      "source_sha256": "8ab43392ca1d07568d3ea3f470ddaad0dc36de08f138d6e53ffce48f901091a9",
       "compiled": false,
-      "compile_summary": null,
-      "compiler_returncode": 0
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
     },
     {
       "attempt": 2,
       "call_mode": "json-schema",
-      "latency_ms": 18323,
-      "error": "compiled ABI lost dispatch signatures: _readStorageBytes(uint256)",
-      "notes": "Replaced the malformed `_readStorageBytes` (which returned `abi.encodePacked` of integers instead of `bytes` and used invalid expressions like `0x0100 ** ...` on non-literal bases) with a correct storage reader handling both short (inline) and long (multi-slot) encodings, preserving all public function names and signatures.",
-      "source_sha256": "81709431f424d0ce7418a2093cf6ce8987306b5da49c14d1cdc084821c9a3a25",
+      "latency_ms": 7159,
+      "error": null,
+      "notes": "Replaced `!(0x1f & length)` with `(0x1f & length) == 0` (uint256 has no `!`), and cast the `0x20` literal to `uint256` in both `abi.encodePacked` calls so packed encoding of literals is allowed.",
+      "source_sha256": "4e11bdfb384601b72fae52471c30bd1567ed4f566ccf580985abc8c76faf4b1b",
       "compiled": false,
-      "compile_summary": null,
-      "compiler_returncode": 0
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
     },
     {
       "attempt": 3,
       "call_mode": "json-schema",
-      "latency_ms": 11447,
+      "latency_ms": 16281,
       "error": null,
-      "notes": "Made `_readStorageBytes` public so its signature appears in the compiled ABI (internal functions are excluded from the ABI, which caused the rejected attempt). Also cast the `abi.encodePacked` arguments to `bytes32` so fixed 32-word encoding is preserved; plain `uint256` args would be minimal-encoded and change the returned bytes.",
-      "source_sha256": "e41f01eb3c0b812d3db62e3c3aa29f94a413cfb3b514e57c9a059f11687b30c8",
+      "notes": "Fixed the assembly `if ... else` (inline assembly `if` has no else branch) by rewriting it as a `switch` statement. Also replaced `!(0x1f & length)` with an explicit `== 0` comparison, since Solidity's `!` operator only accepts `bool`, and made the `abi.encodePacked` arguments explicitly typed as `bytes32` to avoid literal-type ambiguity.",
+      "source_sha256": "95a9fefad9572eefda0b37186c6bfd21c4dba05cee04a24a61112d83d333520b",
       "compiled": false,
       "compile_summary": "Error: Compiler run failed:",
       "compiler_returncode": 1
@@ -44,11 +44,10 @@
   "dispatch_signatures": [
     "Unresolved_2a1afcd9()",
     "Unresolved_4ed3885e(uint256)",
-    "Unresolved_6d4ce63c()",
-    "_readStorageBytes(uint256)"
+    "Unresolved_6d4ce63c()"
   ],
   "llm_calls": 3,
-  "completion_tokens": 2294,
-  "prompt_chars": 8504,
-  "elapsed_ms": 44933
+  "completion_tokens": 2207,
+  "prompt_chars": 9312,
+  "elapsed_ms": 43645
 }

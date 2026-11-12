@@ -15,21 +15,24 @@
    "reference_signature": "set(string)",
    "candidate_signature": "Unresolved_4ed3885e(uint256)",
    "candidate_signatures": {
-    "seed-v1": "Unresolved_4ed3885e(uint256)"
+    "seed-v1": "Unresolved_4ed3885e(uint256)",
+    "llm-hyb-v1": "Unresolved_4ed3885e(uint256)"
    }
   },
   "get": {
    "reference_signature": "get()",
    "candidate_signature": "Unresolved_6d4ce63c()",
    "candidate_signatures": {
-    "seed-v1": "Unresolved_6d4ce63c()"
+    "seed-v1": "Unresolved_6d4ce63c()",
+    "llm-hyb-v1": "Unresolved_6d4ce63c()"
    }
   },
   "storedData": {
    "reference_signature": "storedData()",
    "candidate_signature": "Unresolved_2a1afcd9()",
    "candidate_signatures": {
-    "seed-v1": "Unresolved_2a1afcd9()"
+    "seed-v1": "Unresolved_2a1afcd9()",
+    "llm-hyb-v1": "Unresolved_2a1afcd9()"
    }
   }
  },
