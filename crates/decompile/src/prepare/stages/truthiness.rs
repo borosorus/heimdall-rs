@@ -212,9 +212,14 @@ pub(crate) fn run(source: &str) -> Result<Stage, ParseError> {
         if inner.is_empty() || !flat_uint(inner) {
             return None;
         }
-        // Python-verified rendering: `kw((inner) == 0)` + (`,` if the match
-        // consumed a comma arg, else `)`) - the fixture bytes pin both forms
-        let replaced = format!("{kw}(({inner}) == 0){}", if comma { "," } else { ")" });
+        // Python-verified renderings (pinned by the unit tests below):
+        // comma match  -> `kw((inner) == 0,)`
+        // bare match   -> `kw((inner) == 0))`
+        let replaced = if comma {
+            format!("{kw}(({inner}) == 0,)")
+        } else {
+            format!("{kw}(({inner}) == 0))")
+        };
         Some((
             replaced,
             StageEdit {
@@ -229,9 +234,12 @@ pub(crate) fn run(source: &str) -> Result<Stage, ParseError> {
     edits.extend(new_edits);
 
     // ---- pass 3: uint negation in expression position (parenthesized or
-    // bare); per-unit parameter kinds (cross-unit like-named params may be bool)
-    let (uints, _) = known_kinds(parsed.as_ref(), &source);
-    let unit_uint_params: Vec<(usize, usize, BTreeSet<String>)> = parsed
+    // bare); per-unit parameter kinds (cross-unit like-named params may be
+    // bool). Python reparses the post-pass-2 source here - the earlier passes'
+    // length-changing edits shift unit spans, so the stale parse must go
+    let parsed3 = parse_contract(&source, None).ok();
+    let (uints, _) = known_kinds(parsed3.as_ref(), &source);
+    let unit_uint_params: Vec<(usize, usize, BTreeSet<String>)> = parsed3
         .as_ref()
         .map(|parsed| {
             parsed
@@ -464,5 +472,39 @@ mod tests {
         .unwrap()
         .source;
         assert!(staged.contains("require((entries(0x1).length) != 0);"));
+    }
+
+    #[test]
+    fn pass2_comma_branch_renders_the_python_form() {
+        // Python-verified: `if (!(0x1f & 0x2)), true` -> `if((0x1f & 0x2) == 0,) true`
+        let staged = prepare(concat!(
+            "contract C {\n",
+            "    function f() public pure {\n",
+            "        if (!(0x1f & 0x2)), true { revert(); }\n",
+            "    }\n",
+            "}\n",
+        ))
+        .unwrap()
+        .source;
+        assert!(staged.contains("if((0x1f & 0x2) == 0,) true"));
+    }
+
+    #[test]
+    fn in_unit_length_change_does_not_hide_later_param_kinds() {
+        // Python-verified: the pass-2 rewrite grows the unit before the
+        // negation; the reparse keeps `var_f` known from the same unit's
+        // signature -> `(((var_f) == 0))`
+        let staged = prepare(concat!(
+            "contract C {\n",
+            "    function a(uint256 var_f) public pure returns (uint256) {\n",
+            "        if (!(0x1f & 0x2)) { revert(); }\n",
+            "        uint256 var_g = (!var_f);\n",
+            "        return var_g;\n",
+            "    }\n",
+            "}\n",
+        ))
+        .unwrap()
+        .source;
+        assert!(staged.contains("uint256 var_g = (((var_f) == 0));"));
     }
 }
