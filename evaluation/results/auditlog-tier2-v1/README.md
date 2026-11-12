@@ -75,3 +75,49 @@ verified congruent by the 8/8 + 2/2 sweep across both storage regimes.
 
 Suite status at close: python evaluation suite untouched by the probe (new standalone tool);
 re-run recorded in the session log alongside the final commit.
+
+## Phase 2: the manual parameters are gone (auto-detection)
+
+`rebuild_struct_array_accessors.py --auto <prepared.sol>` now derives every parameter from
+in-source evidence and emits the units in one shot:
+
+- **count** — the plain-literal-slot declaration that is both bounds-compared
+  (`x < store_a`) and incremented (`store_a += 0x01`) in the bodies;
+- **stride / base / offsets** — the decompiler's own slot comments
+  (`0x02 * arg0 + keccak256(0) + 0x01`, `store_a * 0x02 + 0x290dec…563`,
+  `0x…564 + store_a * 0x02`): coefficient of the index term, keccak base in either its
+  symbolic or resolved-constant form (const offsets normalized to the smallest family
+  constant, since the decompiler bakes the addend into the literal), and the {0,1} word/data
+  pair;
+- **word vs data** — the `address(…) | mask &` write idiom names the word slot; the
+  `& 0x01` / `0x0100 **` length-decode names the data slot;
+- **roles** — getter = bounds compare + decode shapes; push = count increment + address
+  write; lens = bare `return <count>;`.
+
+Evidence:
+
+- detector on the auditlog seed reproduces the manually derived parameters exactly
+  (`"auto-detected: {count_slot 0x00, stride 2, addr 0, str 1, the three unit names}"`);
+- the `--auto` candidate is **byte-identical** to the hand-parameterized
+  `candidate-canonical3-old.sol` (`diff` empty), and the harness re-run on it
+  (`../al-p2-auto/`) repeats **8/8 + 2/2**;
+- abstention matrix: the detector returns `null` on the erc20, blockreader, and
+  modern-errors prepared seeds — no struct-array signature, no edit. One fixture fires, the
+  rest abstain: the honest generalization claim for this stage.
+
+The manual CLI arguments remain for lineage and for override; `--auto` is the recorded
+pipeline path. With this, the auditlog class is a repeatable pipeline stage:
+decompile -> prepare-ladder -> auto-rebuild -> harness verdict, zero manual parameters,
+zero model calls.
+
+### Post-review hardening (codex, both findings adopted)
+
+The detector now requires one SHARED keccak base across the element family: resolved
+constants may span at most one slot; a symbolic term must resolve (via `cast keccak`) onto
+the constant base when both forms appear, and an all-symbolic family must use identical
+arguments — two unrelated storage families can no longer masquerade as the `{0,1}` pair. The
+role matchers additionally require a UNIQUE getter/push/lens match and abstain on ambiguity
+instead of silently rebuilding the parser-first unit. Both behaviors are pinned in the
+selftest by synthetic sources (a minimal positive firing with the exact layout, and a
+two-bases negative that must abstain); the auditlog detection, the three-fixture abstention
+matrix, and the byte-identical `--auto` candidate were re-verified after the change.
