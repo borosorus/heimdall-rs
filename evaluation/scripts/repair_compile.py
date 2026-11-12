@@ -66,7 +66,19 @@ class RepairError(Exception):
 
 
 def dispatch_signatures(parsed) -> list[str]:
-    return [_normalize_placeholder_types(dispatch_signature_text(unit.header)) for unit in parsed.functions]
+    """Signatures that must survive into the compiled ABI: the non-internal,
+    non-private units. Internal helpers have no ABI presence, so requiring
+    them would make every repair of a source that declares one unpassable."""
+
+    def dispatchable(unit) -> bool:
+        header = getattr(unit, "header", "") or ""
+        return not re.search(r"\b(internal|private)\b", header.split("{")[0])
+
+    return [
+        _normalize_placeholder_types(dispatch_signature_text(unit.header))
+        for unit in parsed.functions
+        if dispatchable(unit)
+    ]
 
 
 def _normalize_placeholder_types(signature: str) -> str:

@@ -1,0 +1,14 @@
+{
+  "requested": true,
+  "applied": false,
+  "endpoint": "http://192.168.88.253:8000/v1",
+  "model": "GLM-5.3-Flash",
+  "requested_format": "auto",
+  "response_mode": null,
+  "attempted_modes": [],
+  "fallback_reason": null,
+  "latency_ms": 0,
+  "max_tokens": 65536,
+  "timeout_seconds": 1200,
+  "error": "LLM request timed out"
+}

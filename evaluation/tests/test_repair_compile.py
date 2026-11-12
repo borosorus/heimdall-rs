@@ -56,6 +56,20 @@ contract D {
             ["f(uint256,bytes1,address[])"],
         )
 
+    def test_dispatch_signatures_exclude_internal_helpers(self):
+        # internal helpers have no ABI presence; the gate must not demand them
+        parsed = investigator.parse_contract(
+            """pragma solidity 0.8.30;
+contract D {
+  function f(uint256 a) public {}
+  function _helper(uint256 slot) internal view returns (bytes memory) { return ""; }
+  function _secret() private pure {}
+}
+""",
+            "D",
+        )
+        self.assertEqual(repair.dispatch_signatures(parsed), ["f(uint256)"])
+
     def test_dispatch_signatures_normalize_placeholder_widths(self):
         parsed = investigator.parse_contract(
             """pragma solidity 0.8.30;
@@ -101,15 +115,26 @@ contract D {
                 signatures, supported, "DecompiledContract", proposed, "DecompiledContract"
             )
 
-    def test_rejects_added_function(self):
+    def test_allows_added_internal_helper_rejects_public(self):
+        # an added internal helper has no ABI presence: a legal repair move
+        # (factoring repeated logic); a public addition would alter dispatch
         _, signatures, supported = _prepared()
-        proposed = SOURCE.replace(
+        internal = SOURCE.replace(
             "    function Unresolved_bbbbbbbb",
-            "    function helper() internal {}\n\n    function Unresolved_bbbbbbbb",
+            "    function _helper() internal {}\n\n    function Unresolved_bbbbbbbb",
+        )
+        parsed = repair.validate_repair(
+            signatures, supported, "DecompiledContract", internal, "DecompiledContract"
+        )
+        self.assertTrue(parsed)
+
+        public_addition = SOURCE.replace(
+            "    function Unresolved_bbbbbbbb",
+            "    function extra() public {}\n\n    function Unresolved_bbbbbbbb",
         )
         with self.assertRaises(repair.RepairError):
             repair.validate_repair(
-                signatures, supported, "DecompiledContract", proposed, "DecompiledContract"
+                signatures, supported, "DecompiledContract", public_addition, "DecompiledContract"
             )
 
     def test_rejects_unparseable_source(self):

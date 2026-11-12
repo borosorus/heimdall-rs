@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "contract": "DecompiledContract",
+  "solc_version": "0.8.30",
+  "source_sha256": "5be7b9b4fb8d9da0f68a797113acc873432e871169d6dcfb107f86179f83b064",
+  "candidate_sha256": "5be7b9b4fb8d9da0f68a797113acc873432e871169d6dcfb107f86179f83b064",
+  "compiled": false,
+  "already_compiled": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "call_mode": "json-schema",
+      "latency_ms": 14980,
+      "error": "compiled ABI lost dispatch signatures: _readStorageBytes(uint256)",
+      "notes": "Replaced assembly `if ... else` (unsupported) with `switch`; moved the tail masking into plain Solidity with typed uint256 values.",
+      "source_sha256": "0fffe386a1d76fb4c6243d967cc4af22865f3a4002b2ba6a8fadc486d6645e97",
+      "compiled": false,
+      "compile_summary": null,
+      "compiler_returncode": 0
+    },
+    {
+      "attempt": 2,
+      "call_mode": "json-schema",
+      "latency_ms": 18323,
+      "error": "compiled ABI lost dispatch signatures: _readStorageBytes(uint256)",
+      "notes": "Replaced the malformed `_readStorageBytes` (which returned `abi.encodePacked` of integers instead of `bytes` and used invalid expressions like `0x0100 ** ...` on non-literal bases) with a correct storage reader handling both short (inline) and long (multi-slot) encodings, preserving all public function names and signatures.",
+      "source_sha256": "81709431f424d0ce7418a2093cf6ce8987306b5da49c14d1cdc084821c9a3a25",
+      "compiled": false,
+      "compile_summary": null,
+      "compiler_returncode": 0
+    },
+    {
+      "attempt": 3,
+      "call_mode": "json-schema",
+      "latency_ms": 11447,
+      "error": null,
+      "notes": "Made `_readStorageBytes` public so its signature appears in the compiled ABI (internal functions are excluded from the ABI, which caused the rejected attempt). Also cast the `abi.encodePacked` arguments to `bytes32` so fixed 32-word encoding is preserved; plain `uint256` args would be minimal-encoded and change the returned bytes.",
+      "source_sha256": "e41f01eb3c0b812d3db62e3c3aa29f94a413cfb3b514e57c9a059f11687b30c8",
+      "compiled": false,
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
+    }
+  ],
+  "dispatch_signatures": [
+    "Unresolved_2a1afcd9()",
+    "Unresolved_4ed3885e(uint256)",
+    "Unresolved_6d4ce63c()",
+    "_readStorageBytes(uint256)"
+  ],
+  "llm_calls": 3,
+  "completion_tokens": 2294,
+  "prompt_chars": 8504,
+  "elapsed_ms": 44933
+}

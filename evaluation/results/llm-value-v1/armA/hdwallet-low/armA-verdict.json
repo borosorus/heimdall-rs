@@ -1,0 +1,12 @@
+{
+ "fixture": "hdwallet",
+ "effort": "low",
+ "applied": true,
+ "response_mode": "json-schema",
+ "latency_ms": 15223,
+ "candidate_sha256": "5be7b9b4fb8d9da0f68a797113acc873432e871169d6dcfb107f86179f83b064",
+ "compile": "fail",
+ "first_error": "6913 Call or assignment expected at 50:20 - yul assembly branch written as Solidity if/else (yul has no else)",
+ "notes": "unit names and selector comments preserved (Unresolved_2a1afcd9/4ed3885e/6d4ce63c); model added helper _readStorageBytes with a two-slot layout hypothesis (single-slot fixture) - behavior judged at the harness stage; client fence fix 09d9542 verified in production (15s, clean head)",
+ "max_effort_run": "1200s timeout, honest fallback (armA/hdwallet)"
+}

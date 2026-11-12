@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "solc_version": "0.8.30",
+  "returncode": 1,
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 5.78ms\n",
+  "stderr": "Error: Compiler run failed:\nError (6913): Call or assignment expected.\n  --> src/Candidate.sol:50:20:\n   |\n50 |             } else {\n   |                    ^\n",
+  "source_sha256": "5be7b9b4fb8d9da0f68a797113acc873432e871169d6dcfb107f86179f83b064",
+  "ok": false
+}

@@ -1,0 +1,16 @@
+{
+  "requested": true,
+  "applied": true,
+  "endpoint": "http://192.168.88.253:8000/v1",
+  "model": "GLM-5.3-Flash",
+  "requested_format": "auto",
+  "response_mode": "json-schema",
+  "attempted_modes": [
+    "json-schema"
+  ],
+  "fallback_reason": null,
+  "latency_ms": 15223,
+  "max_tokens": 65536,
+  "timeout_seconds": 1200,
+  "error": null
+}
