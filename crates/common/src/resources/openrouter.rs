@@ -9,7 +9,7 @@ pub use crate::resources::llm::{
     DEFAULT_MODEL, OPENROUTER_API_BASE,
 };
 
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 use tracing::error;
 
 use crate::resources::llm::DEFAULT_TEXT_TIMEOUT;
@@ -50,7 +50,7 @@ pub async fn complete_chat(prompt: &str, api_key: &str, model: &str) -> Option<S
 /// let model = "openai/gpt-4o-mini";
 /// // complete_chat_structured::<AnnotatedContractResponse>(prompt, api_key, model, "annotated_contract").await;
 /// ```
-pub async fn complete_chat_structured<T: DeserializeOwned>(
+pub async fn complete_chat_structured<T: DeserializeOwned + Clone + Serialize>(
     prompt: &str,
     api_key: &str,
     model: &str,

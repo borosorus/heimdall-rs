@@ -265,9 +265,9 @@ impl LlmConfig {
         if self.reasoning_effort.as_deref() == Some("") {
             return Err(LlmError::InvalidReasoningEffort);
         }
-        if url.scheme() == "http" &&
-            !is_local_host(host) &&
-            self.api_key.as_deref().is_some_and(|key| !key.trim().is_empty())
+        if url.scheme() == "http"
+            && !is_local_host(host)
+            && self.api_key.as_deref().is_some_and(|key| !key.trim().is_empty())
         {
             return Err(LlmError::InsecureKeyTransport { host: host.to_string() });
         }
@@ -298,10 +298,10 @@ fn non_empty_key(key: String) -> Option<String> {
 
 fn is_local_host(host: &str) -> bool {
     let host = host.trim_start_matches('[').trim_end_matches(']');
-    host.eq_ignore_ascii_case("localhost") ||
-        host == "127.0.0.1" ||
-        host == "::1" ||
-        host.ends_with(".localhost")
+    host.eq_ignore_ascii_case("localhost")
+        || host == "127.0.0.1"
+        || host == "::1"
+        || host.ends_with(".localhost")
 }
 
 /// Errors returned by the OpenAI-compatible client.
@@ -449,7 +449,7 @@ impl LlmClient {
     ///
     /// The request schema is fixed to the annotated-contract shape (`{"source": "..."}`). Callers
     /// that need domain validation should validate the parsed value.
-    pub async fn complete_structured<T: DeserializeOwned>(
+    pub async fn complete_structured<T: DeserializeOwned + Clone + Serialize>(
         &self,
         prompt: &str,
         schema_name: &str,
@@ -482,9 +482,9 @@ impl LlmClient {
                     });
                 }
                 Err(error) => {
-                    let can_fallback = self.config.response_format == LlmResponseFormat::Auto &&
-                        index + 1 < modes.len() &&
-                        matches!(error, LlmError::ResponseFormatRejected { .. });
+                    let can_fallback = self.config.response_format == LlmResponseFormat::Auto
+                        && index + 1 < modes.len()
+                        && matches!(error, LlmError::ResponseFormatRejected { .. });
                     if can_fallback {
                         fallback_reason.get_or_insert_with(|| error.to_string());
                         debug!(
@@ -643,12 +643,39 @@ fn structured_instruction(schema_name: &str, schema: &Value) -> String {
     )
 }
 
-fn parse_structured<T: DeserializeOwned>(content: &str) -> Result<T, LlmError> {
+fn parse_structured<T: DeserializeOwned + Clone + Serialize>(content: &str) -> Result<T, LlmError> {
     let content = strip_unambiguous_fence(content);
-    serde_json::from_str(content).map_err(|error| LlmError::MalformedResponse {
-        message: format!("failed to parse structured response: {error}"),
-        raw_content: Some(bounded(content)),
-    })
+    let mut parsed: T =
+        serde_json::from_str(content).map_err(|error| LlmError::MalformedResponse {
+            message: format!("failed to parse structured response: {error}"),
+            raw_content: Some(bounded(content)),
+        })?;
+    // models fence the SOURCE inside the JSON string too; the same unambiguous
+    // rule applies to the parsed payload's `source` field when present
+    normalize_embedded_source(&mut parsed);
+    Ok(parsed)
+}
+
+/// Strips one unambiguous markdown fence from a struct's `source: String` field, if any.
+fn normalize_embedded_source<T: DeserializeOwned + Clone + Serialize>(value: &mut T) {
+    let Ok(json) = serde_json::to_value(&*value) else {
+        return;
+    };
+    let Some(source) = json.get("source").and_then(|s| s.as_str()).map(str::to_string) else {
+        return;
+    };
+    let stripped = strip_unambiguous_fence(&source);
+    if stripped == source {
+        return;
+    }
+    let mut updated = match serde_json::to_value(&*value) {
+        Ok(Value::Object(map)) => map,
+        _ => return,
+    };
+    updated.insert("source".to_string(), Value::String(stripped.to_string()));
+    if let Ok(round) = serde_json::from_value::<T>(Value::Object(updated)) {
+        *value = round;
+    }
 }
 
 fn is_response_format_rejection(status: StatusCode, body: &str) -> bool {
@@ -657,16 +684,16 @@ fn is_response_format_rejection(status: StatusCode, body: &str) -> bool {
     }
 
     let body = body.to_ascii_lowercase();
-    let mentions_format = body.contains("response_format") ||
-        body.contains("json_schema") ||
-        body.contains("json schema") ||
-        body.contains("structured output") ||
-        body.contains("json object");
-    let mentions_rejection = body.contains("unsupported") ||
-        body.contains("not support") ||
-        body.contains("invalid") ||
-        body.contains("unknown") ||
-        body.contains("rejected");
+    let mentions_format = body.contains("response_format")
+        || body.contains("json_schema")
+        || body.contains("json schema")
+        || body.contains("structured output")
+        || body.contains("json object");
+    let mentions_rejection = body.contains("unsupported")
+        || body.contains("not support")
+        || body.contains("invalid")
+        || body.contains("unknown")
+        || body.contains("rejected");
 
     mentions_format && mentions_rejection
 }
@@ -717,8 +744,7 @@ impl AnnotatedContractResponse {
         }
         if !self.source.contains("contract") {
             return Err(LlmError::MalformedResponse {
-                message: "structured response did not contain a `contract` declaration"
-                    .to_string(),
+                message: "structured response did not contain a `contract` declaration".to_string(),
                 raw_content: None,
             });
         }
@@ -735,7 +761,7 @@ pub async fn complete_chat_with_config(
 }
 
 /// Completes a prompt and parses a structured JSON object using an explicit config.
-pub async fn complete_chat_structured_with_config<T: DeserializeOwned>(
+pub async fn complete_chat_structured_with_config<T: DeserializeOwned + Clone + Serialize>(
     prompt: &str,
     config: &LlmConfig,
     schema_name: &str,
@@ -756,7 +782,7 @@ pub async fn complete_chat(prompt: &str, api_key: &str, model: &str) -> Option<S
 }
 
 /// Compatibility wrapper: complete a prompt with structured JSON using OpenRouter defaults.
-pub async fn complete_chat_structured<T: DeserializeOwned>(
+pub async fn complete_chat_structured<T: DeserializeOwned + Clone + Serialize>(
     prompt: &str,
     api_key: &str,
     model: &str,
@@ -787,27 +813,11 @@ mod tests {
 
     #[test]
     fn annotated_source_must_contain_a_contract_declaration() {
-        assert!(
-            AnnotatedContractResponse {
-                source: "contract X {}".to_string()
-            }
+        assert!(AnnotatedContractResponse { source: "contract X {}".to_string() }
             .validate()
-            .is_ok()
-        );
-        assert!(
-            AnnotatedContractResponse {
-                source: "```...```".to_string()
-            }
-            .validate()
-            .is_err()
-        );
-        assert!(
-            AnnotatedContractResponse {
-                source: "   ".to_string()
-            }
-            .validate()
-            .is_err()
-        );
+            .is_ok());
+        assert!(AnnotatedContractResponse { source: "```...```".to_string() }.validate().is_err());
+        assert!(AnnotatedContractResponse { source: "   ".to_string() }.validate().is_err());
     }
 
     #[test]
@@ -829,8 +839,32 @@ mod tests {
     }
 
     #[test]
+    fn embedded_source_fence_is_stripped_unambiguously() {
+        let mut fenced =
+            AnnotatedContractResponse { source: "```solidity\ncontract X {}\n```".to_string() };
+        normalize_embedded_source(&mut fenced);
+        assert_eq!(fenced.source, "contract X {}");
+
+        let mut trailing_newline =
+            AnnotatedContractResponse { source: "```solidity\ncontract X {}\n```\n".to_string() };
+        normalize_embedded_source(&mut trailing_newline);
+        assert_eq!(trailing_newline.source, "contract X {}");
+
+        let mut plain = AnnotatedContractResponse { source: "contract X {}".to_string() };
+        normalize_embedded_source(&mut plain);
+        assert_eq!(plain.source, "contract X {}");
+
+        // no closing fence: ambiguous, untouched
+        let mut open =
+            AnnotatedContractResponse { source: "```solidity\ncontract X {}".to_string() };
+        normalize_embedded_source(&mut open);
+        assert_eq!(open.source, "```solidity\ncontract X {}");
+    }
+
+    #[test]
     fn reasoning_effort_round_trips_and_validates() {
-        let plain = LlmConfig::custom("http://127.0.0.1:1234/v1", None, "m", LlmResponseFormat::Auto);
+        let plain =
+            LlmConfig::custom("http://127.0.0.1:1234/v1", None, "m", LlmResponseFormat::Auto);
         assert_eq!(plain.reasoning_effort, None);
         assert!(plain.validate().is_ok());
 
