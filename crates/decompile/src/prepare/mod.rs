@@ -24,8 +24,10 @@ use tracing::debug;
 use crate::prepare::{
     parser::ParseError,
     stages::{
-        arity, declarations, fallback_shape, mutability, packed_scalars, param_types, placeholders,
-        selfref, send_guards, slot_aliases, storage_getters, truthiness, vars,
+        arity, coerce_word_returns, declarations, fallback_shape, lower_unknown_external_calls,
+        mutability, packed_scalars, param_types, placeholders, selfref, send_guards, slot_aliases,
+        storage_getters, truthiness, typed_packed_literals, vars, widen_packed_pair_returns,
+        wordify_address_mask,
     },
 };
 
@@ -86,6 +88,11 @@ const PREPARE_STAGES: &[(&str, StageFn)] = &[
     ("infer_param_types_from_storage", param_types::run),
     ("synthesize_storage_getters", storage_getters::run),
     ("synthesize_send_guards", send_guards::run),
+    ("typed_packed_literals", typed_packed_literals::run),
+    ("wordify_address_mask_writes", wordify_address_mask::run),
+    ("widen_packed_pair_returns", widen_packed_pair_returns::run),
+    ("coerce_word_returns", coerce_word_returns::run),
+    ("lower_unknown_external_calls", lower_unknown_external_calls::run),
 ];
 
 /// Runs the full preparation ladder over `source`.
@@ -135,6 +142,11 @@ mod tests {
                 "infer_param_types_from_storage",
                 "synthesize_storage_getters",
                 "synthesize_send_guards",
+                "typed_packed_literals",
+                "wordify_address_mask_writes",
+                "widen_packed_pair_returns",
+                "coerce_word_returns",
+                "lower_unknown_external_calls",
             ]
         );
     }
@@ -202,6 +214,11 @@ mod tests {
                 "param-types",
                 "storage-getters",
                 "send-guards",
+                "typed-packed-literals",
+                "wordify-address-mask",
+                "widen-packed-pair-returns",
+                "coerce-word-returns",
+                "lower-unknown-external-calls",
             ]
         );
         let staged_final = staged.source;
@@ -219,7 +236,7 @@ mod tests {
     #[test]
     fn matches_the_python_reference_ladder() {
         let root = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/parity");
-        for case in ["erc20-raw", "blockreader-raw"] {
+        for case in ["erc20-raw", "blockreader-raw", "lighthouse-raw", "hdwallet-raw"] {
             let input = std::fs::read_to_string(format!("{root}/{case}/input.sol"))
                 .expect("parity fixture input");
             for (index, _) in PREPARE_STAGES.iter().enumerate() {
