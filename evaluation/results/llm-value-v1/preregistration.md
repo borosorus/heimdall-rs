@@ -103,3 +103,18 @@ measures what the effort knob buys on the legacy surface. The better-behaved eff
 runs the remaining fixtures. The max run already landed: single-shot non-streamed request
 TIMED OUT at 1200 s (llm-report: applied=false, error "LLM request timed out", fallback
 byte-identical to raw - recorded as an arm-A finding, not an error to hide).
+
+## Deviation 2 (2026-11-12, before the arm-B-behavioral run): lead-1 execution
+
+Arm B-behavioral on the strongest patient: the llm-value hybrid (compiles, 0/8+0/2,
+llm-hyb2) - the case where deterministic structure succeeded and behavioral semantics
+failed. Tool: repair_behavior_units.py AS-IS (unit-scoped, black-box failing-probe
+differentials in the prompt, acceptance = measured whole-probe progress + no regression
+on passing fb probes; wh never in prompts). Effort low (deviation-1 verdict); budget
+the tool defaults (8 calls, 2 attempts/unit). Candidate label llm-hyb-v1 (bound).
+Success criterion, fixed now: fb passing-count improves over 0/8 on the re-run; the
+repair-notes layout reasoning is recorded against the fixture truth as an arm-C entry
+(evidence-of-intent question: does the model derive single-slot packing from pure
+probe I/O?). Folded lead-2 dimension: the candidate sources carry the ladder's slot
+comments; whether the notes cite them is recorded. Failure modes recorded as failures.
+A derived candidate that passes goes through the full harness re-run for the ledger.
