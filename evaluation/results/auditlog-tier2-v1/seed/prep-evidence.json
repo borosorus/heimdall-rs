@@ -3,9 +3,9 @@
   "tool": "prepare_candidate",
   "llm_calls": 0,
   "source_sha256": "4e5ee8f0356699dea7474d407c0facc9ec1eb81823c8c484499a7b57242a0eca",
-  "candidate_sha256": "01110aec812e247c6237d22b6b646c78063dfc13f2caa5b734cf301bb1badfe3",
+  "candidate_sha256": "e256cfcdd23b3191aaea8df5e7dba404a1d0a75f3277dc65419749fc7178c6e6",
   "edited": true,
-  "edit_count": 5,
+  "edit_count": 7,
   "finding_count": 1,
   "edits": [
     {
@@ -32,6 +32,16 @@
       "kind": "undefined-var",
       "detail": "uint256 var_i",
       "evidence": "used before any declaration"
+    },
+    {
+      "kind": "truthiness-negation",
+      "detail": "if(!(0x1f & var_g)) -> if((0x1f & var_g) == 0...)",
+      "evidence": "uint negation without implicit bool conversion"
+    },
+    {
+      "kind": "uint-negation-expression",
+      "detail": "!(store_b & 0x01) -> ((store_b & 0x01) == 0)",
+      "evidence": "uint negation in expression position"
     }
   ],
   "findings": [
@@ -85,7 +95,7 @@
     {
       "stage": "truthiness",
       "description": "truthiness require guards",
-      "edits": 0
+      "edits": 2
     },
     {
       "stage": "fallback-shape",
@@ -106,16 +116,41 @@
       "stage": "send-guards",
       "description": "send-guard transplantation",
       "edits": 0
+    },
+    {
+      "stage": "typed-packed-literals",
+      "description": "packed-literal typing",
+      "edits": 0
+    },
+    {
+      "stage": "wordify-address-mask",
+      "description": "address-mask word writes",
+      "edits": 0
+    },
+    {
+      "stage": "widen-packed-pair-returns",
+      "description": "packed pair return widening",
+      "edits": 0
+    },
+    {
+      "stage": "coerce-word-returns",
+      "description": "word return coercion",
+      "edits": 0
+    },
+    {
+      "stage": "lower-unknown-external-calls",
+      "description": "external call lowering",
+      "edits": 0
     }
   ],
   "final_compiled": false,
   "final_compile": {
-    "label": "tier13-send-guards",
+    "label": "tier18-lower-unknown-external-calls",
     "solc_version": "0.8.30",
     "returncode": 1,
-    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 6.21ms\n",
-    "stderr": "Error: Compiler run failed:\nError (2271): Built-in binary operator < cannot be applied to types uint256 and bytes storage ref.\n  --> src/Candidate.sol:31:13:\n   |\n31 |         if (arg0 < store_a) {\n   |             ^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator & cannot be applied to types address and int_const 1. Arithmetic operations on addresses are not supported. Convert to integer first before using them.\n  --> src/Candidate.sol:33:68:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                                                    ^^^^^^^^^^^^^^\n\nError (4907): Built-in unary operator ! cannot be applied to type address.\n  --> src/Candidate.sol:33:66:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                                                  ^^^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator * cannot be applied to types int_const 256 and address.\n  --> src/Candidate.sol:33:57:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator & cannot be applied to types address and uint256. Arithmetic operations on addresses are not supported. Convert to integer first before using them.\n  --> src/Candidate.sol:33:47:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator / cannot be applied to types address and int_const 2. Arithmetic operations on addresses are not supported. Convert to integer first before using them.\n  --> src/Candidate.sol:33:46:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator + cannot be applied to types address and int_const 31. Arithmetic operations on addresses are not supported. Convert to integer first before using them.\n  --> src/Candidate.sol:33:46:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator / cannot be applied to types address and int_const 32. Arithmetic operations on addresses are not supported. Convert to integer first before using them.\n  --> src/Candidate.sol:33:45:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator * cannot be applied to types int_const 32 and address.\n  --> src/Candidate.sol:33:37:\n   |\n33 |             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * !(store_b & 0x01) + type(uint256).max) / 0x02 + 0x1f) / 0x20));\n   |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (4907): Built-in unary operator ! cannot be applied to type uint256.\n  --> src/Candidate.sol:34:17:\n   |\n34 |             if (!(0x1f & var_g)) {\n   |                 ^^^^^^^^^^^^^^^\n\nError (7407): Type uint256 is not implicitly convertible to expected type bool.\n  --> src/Candidate.sol:34:17:\n   |\n34 |             if (!(0x1f & var_g)) {\n   |                 ^^^^^^^^^^^^^^^\n\nError (2614): Indexed expression has to be a type, mapping or array (is address)\n  --> src/Candidate.sol:35:41:\n   |\n35 |                 return abi.encodePacked(store_b[0x02 * arg0].field_0.field_0.field_0, 0x20 + (0x20 + var_b) - var_b, var_g);\n   |                                         ^^^^^^^\n",
-    "source_sha256": "01110aec812e247c6237d22b6b646c78063dfc13f2caa5b734cf301bb1badfe3",
+    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 3.98ms\n",
+    "stderr": "Error: Compiler run failed:\nError (6933): Expected primary expression.\n  --> src/Candidate.sol:34:36:\n   |\n34 |             if((0x1f & var_g) == 0)) {\n   |                                    ^\n",
+    "source_sha256": "e256cfcdd23b3191aaea8df5e7dba404a1d0a75f3277dc65419749fc7178c6e6",
     "ok": false
   },
   "tier_compiles": [
@@ -181,6 +216,31 @@
     },
     {
       "stage": "send-guards",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "typed-packed-literals",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "wordify-address-mask",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "widen-packed-pair-returns",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "coerce-word-returns",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "lower-unknown-external-calls",
       "ok": false,
       "returncode": 1
     }

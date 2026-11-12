@@ -320,6 +320,11 @@ class PipelineTest(unittest.TestCase):
                 "param-types",
                 "storage-getters",
                 "send-guards",
+                "typed-packed-literals",
+                "wordify-address-mask",
+                "widen-packed-pair-returns",
+                "coerce-word-returns",
+                "lower-unknown-external-calls",
             ],
         )
         final = stages[-1].source
@@ -606,7 +611,8 @@ class SeedRuleTests(unittest.TestCase):
         staged = prepare.prepare_stages(source)[-1].source
         self.assertIn("require(balances[arg0] >= arg2);", staged)
         stages = prepare.prepare_stages(source)
-        record = next(e for e in stages[-1].edits if e["kind"] == "send-guard")
+        sg = next(st for st in stages if st.name == "send-guards")
+        record = next(e for e in sg.edits if e["kind"] == "send-guard")
         # recorded precedent names the sibling and the mapping
         self.assertIn("precedent transfer on balances", record["detail"])
 
@@ -657,7 +663,8 @@ class SeedRuleTests(unittest.TestCase):
         staged = stages[-1].source
         # no sibling guards+mutates balances: the stub stays untouched
         self.assertNotIn("require(balances[arg0] >= arg2);", staged)
-        record = next(e for e in stages[-1].edits if e["kind"] == "send-guard-abstain")
+        sg = next(st for st in stages if st.name == "send-guards")
+        record = next(e for e in sg.edits if e["kind"] == "send-guard-abstain")
         self.assertIn("0 guarded-and-mutated mappings", record["detail"])
 
     def test_send_guard_skips_functions_with_bodies(self):

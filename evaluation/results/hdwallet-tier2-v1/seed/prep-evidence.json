@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "tool": "prepare_candidate",
+  "llm_calls": 0,
+  "source_sha256": "b2f3f8e6e3ee05e326ada876fced1e3492f460755336a6e06fefffdeef7f2f82",
+  "candidate_sha256": "21d7c6b2e1bae52ee82a4aa6bf0d27d3948133c61caed1e81ec5698397767686",
+  "edited": true,
+  "edit_count": 11,
+  "finding_count": 1,
+  "edits": [
+    {
+      "kind": "undefined-var",
+      "detail": "uint256 var_e",
+      "evidence": "used before any declaration"
+    },
+    {
+      "kind": "undefined-var",
+      "detail": "uint256 var_f",
+      "evidence": "used before any declaration"
+    },
+    {
+      "kind": "undefined-var",
+      "detail": "uint256 var_h",
+      "evidence": "used before any declaration"
+    },
+    {
+      "kind": "truthiness-negation",
+      "detail": "if(!(0x1f & var_f)) -> if((0x1f & var_f) == 0...)",
+      "evidence": "uint negation without implicit bool conversion"
+    },
+    {
+      "kind": "truthiness-negation",
+      "detail": "if(!(0x1f & var_f)) -> if((0x1f & var_f) == 0...)",
+      "evidence": "uint negation without implicit bool conversion"
+    },
+    {
+      "kind": "packed-literal-typed",
+      "detail": "abi.encodePacked argument 0x20 -> uint256(...)",
+      "evidence": "bare literal in packed encoding (solc 7279); word width preserved"
+    },
+    {
+      "kind": "packed-literal-typed",
+      "detail": "abi.encodePacked argument 0x20 -> uint256(...)",
+      "evidence": "bare literal in packed encoding (solc 7279); word width preserved"
+    },
+    {
+      "kind": "packed-literal-typed",
+      "detail": "abi.encodePacked argument 0x20 -> uint256(...)",
+      "evidence": "bare literal in packed encoding (solc 7279); word width preserved"
+    },
+    {
+      "kind": "packed-literal-typed",
+      "detail": "abi.encodePacked argument 0x20 -> uint256(...)",
+      "evidence": "bare literal in packed encoding (solc 7279); word width preserved"
+    },
+    {
+      "kind": "packed-pair-widened",
+      "detail": "Unresolved_2a1afcd9: returns widened to (uint256, uint256) (1 sites)",
+      "evidence": "every return is a two-argument abi.encodePacked; word-faithful tuple"
+    },
+    {
+      "kind": "packed-pair-widened",
+      "detail": "Unresolved_6d4ce63c: returns widened to (uint256, uint256) (1 sites)",
+      "evidence": "every return is a two-argument abi.encodePacked; word-faithful tuple"
+    }
+  ],
+  "findings": [
+    {
+      "kind": "packed-scalar-storage",
+      "detail": "store_a",
+      "reason": "0 packed writer(s), need exactly 1"
+    }
+  ],
+  "stages": [
+    {
+      "stage": "placeholders",
+      "description": "placeholder width tokens",
+      "edits": 0
+    },
+    {
+      "stage": "declarations",
+      "description": "error/event declarations",
+      "edits": 0
+    },
+    {
+      "stage": "selfref",
+      "description": "self-referential initializers",
+      "edits": 0
+    },
+    {
+      "stage": "vars",
+      "description": "undefined var_* state",
+      "edits": 3
+    },
+    {
+      "stage": "mutability",
+      "description": "pure vs state reads",
+      "edits": 0
+    },
+    {
+      "stage": "arity",
+      "description": "calldata-head arity alignment",
+      "edits": 0
+    },
+    {
+      "stage": "slot-aliases",
+      "description": "storage-view aliases",
+      "edits": 0
+    },
+    {
+      "stage": "packed-scalars",
+      "description": "packed scalar storage recovery",
+      "edits": 0
+    },
+    {
+      "stage": "truthiness",
+      "description": "truthiness require guards",
+      "edits": 2
+    },
+    {
+      "stage": "fallback-shape",
+      "description": "fallback dispatch shape",
+      "edits": 0
+    },
+    {
+      "stage": "param-types",
+      "description": "calldata-word type inference",
+      "edits": 0
+    },
+    {
+      "stage": "storage-getters",
+      "description": "storage-getter synthesis",
+      "edits": 0
+    },
+    {
+      "stage": "send-guards",
+      "description": "send-guard transplantation",
+      "edits": 0
+    },
+    {
+      "stage": "typed-packed-literals",
+      "description": "packed-literal typing",
+      "edits": 4
+    },
+    {
+      "stage": "wordify-address-mask",
+      "description": "address-mask word writes",
+      "edits": 0
+    },
+    {
+      "stage": "widen-packed-pair-returns",
+      "description": "packed pair return widening",
+      "edits": 2
+    },
+    {
+      "stage": "coerce-word-returns",
+      "description": "word return coercion",
+      "edits": 0
+    },
+    {
+      "stage": "lower-unknown-external-calls",
+      "description": "external call lowering",
+      "edits": 0
+    }
+  ],
+  "final_compiled": false,
+  "final_compile": {
+    "label": "tier18-lower-unknown-external-calls",
+    "solc_version": "0.8.30",
+    "returncode": 1,
+    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 3.82ms\n",
+    "stderr": "Error: Compiler run failed:\nError (6933): Expected primary expression.\n  --> src/Candidate.sol:27:32:\n   |\n27 |         if((0x1f & var_f) == 0)) {\n   |                                ^\n",
+    "source_sha256": "21d7c6b2e1bae52ee82a4aa6bf0d27d3948133c61caed1e81ec5698397767686",
+    "ok": false
+  },
+  "tier_compiles": [
+    {
+      "stage": "placeholders",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "declarations",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "selfref",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "vars",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "mutability",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "arity",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "slot-aliases",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "packed-scalars",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "truthiness",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "fallback-shape",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "param-types",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "storage-getters",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "send-guards",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "typed-packed-literals",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "wordify-address-mask",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "widen-packed-pair-returns",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "coerce-word-returns",
+      "ok": false,
+      "returncode": 1
+    },
+    {
+      "stage": "lower-unknown-external-calls",
+      "ok": false,
+      "returncode": 1
+    }
+  ]
+}

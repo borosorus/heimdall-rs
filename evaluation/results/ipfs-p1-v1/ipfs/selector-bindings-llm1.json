@@ -1,0 +1,62 @@
+{
+  "bindings": {
+    "Description": {
+      "available": true,
+      "baseline_selector": "0x8191745f",
+      "baseline_signature": "Description()",
+      "candidate_label": "seed-v1",
+      "candidate_selector": "0x8191745f",
+      "candidate_signature": "Description()",
+      "candidate_signatures": {
+        "seed-v1": "Description()"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0x8191745f",
+      "reference_signature": "Description()",
+      "unavailable_reason": null
+    },
+    "IpfsHash": {
+      "available": true,
+      "baseline_selector": "0x8bf421ee",
+      "baseline_signature": "IpfsHash()",
+      "candidate_label": "seed-v1",
+      "candidate_selector": "0x8bf421ee",
+      "candidate_signature": "IpfsHash()",
+      "candidate_signatures": {
+        "seed-v1": "IpfsHash()"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0x8bf421ee",
+      "reference_signature": "IpfsHash()",
+      "unavailable_reason": null
+    },
+    "get": {
+      "available": true,
+      "baseline_selector": "0xbd9f6efb",
+      "baseline_signature": "Unresolved_6d4ce63c()",
+      "candidate_label": "seed-v1",
+      "candidate_selector": "0xbd9f6efb",
+      "candidate_signature": "Unresolved_6d4ce63c()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_6d4ce63c()"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0x6d4ce63c",
+      "reference_signature": "get()",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x10f5ed08",
+      "0x60f60adc",
+      "0xbd9f6efb"
+    ],
+    "candidate_selector_count": 5,
+    "matched": 2,
+    "missing": [
+      "0x6d4ce63c"
+    ],
+    "reference_selector_count": 3
+  }
+}

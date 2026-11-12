@@ -1,0 +1,170 @@
+{
+ "name": "ipfs",
+ "contract": "DecompiledContract",
+ "fixture": "ipfs",
+ "reference_runtime": "evaluation/fixtures/ipfs/runtime.hex",
+ "reference_abi": "evaluation/fixtures/ipfs/abi.json",
+ "solc_version": "0.8.30",
+ "compare_events": false,
+ "withheld": [
+  "all_after_all",
+  "desc_hash_desc"
+ ],
+ "bindings": {
+  "get": {
+   "reference_signature": "get()",
+   "candidate_signature": "Unresolved_6d4ce63c()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_6d4ce63c()"
+   }
+  },
+  "Description": {
+   "reference_signature": "Description()",
+   "candidate_signature": "Description()",
+   "candidate_signatures": {
+    "seed-v1": "Description()"
+   }
+  },
+  "IpfsHash": {
+   "reference_signature": "IpfsHash()",
+   "candidate_signature": "IpfsHash()",
+   "candidate_signatures": {
+    "seed-v1": "IpfsHash()"
+   }
+  }
+ },
+ "probes": [
+  {
+   "name": "initial_pair",
+   "steps": [
+    {
+     "call": "get",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "alias_desc",
+   "steps": [
+    {
+     "call": "Description",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "alias_hash",
+   "steps": [
+    {
+     "call": "IpfsHash",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "repeat_pair",
+   "steps": [
+    {
+     "call": "get",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "get",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "interleave_all",
+   "steps": [
+    {
+     "call": "Description",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "get",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "IpfsHash",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "pair_last",
+   "steps": [
+    {
+     "call": "Description",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "Description",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "get",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "all_after_all",
+   "steps": [
+    {
+     "call": "get",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "Description",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "IpfsHash",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "get",
+     "args_tail": "",
+     "send": false
+    }
+   ],
+   "withheld": true
+  },
+  {
+   "name": "desc_hash_desc",
+   "steps": [
+    {
+     "call": "Description",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "IpfsHash",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "Description",
+     "args_tail": "",
+     "send": false
+    }
+   ],
+   "withheld": true
+  }
+ ]
+}

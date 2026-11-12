@@ -340,14 +340,43 @@ def _split_self_referential_initializers(source: str, masked: str) -> tuple[str,
         r"(?P<indent>[ \t]*)\b(?P<type>uint\d+|int\d+|address|bytes\d+|bool)\s+"
         r"(?P<name>var_[a-z]+)\s*=\s*(?P<expr>[^;\n]+);"
     )
+    # same-unit scope: an earlier binding only counts within the SAME function
+    # unit (the file-global prefix scan suppressed needed splits whenever a
+    # like-named local existed in any earlier unit - observed on lighthouse)
+    unit_spans: list[tuple[int, int]] = []
+    try:
+        parsed = parse_contract(source, None)
+        unit_spans = [(u.start, u.end) for u in parsed.functions]
+    except Exception:
+        unit_spans = []
+    in_unit = lambda offset: any(a <= offset < b for a, b in unit_spans)
     out = []
     last = 0
+
+    def enclosing_unit_start(offset: int) -> int:
+        best = 0
+        for start, _end in unit_spans:
+            if start <= offset and start > best:
+                best = start
+        return best
+
     for match in pattern.finditer(masked):
         name = match.group("name")
-        before = masked[: match.start()]
+        unit_start = enclosing_unit_start(match.start())
+        # visible-before bindings: same-unit locals preceding the match, plus
+        # contract-level state declarations (in scope inside every unit);
+        # like-named LOCALS of OTHER units are not (the lighthouse lesson)
+        unit_local_prefix = masked[unit_start : match.start()]
+        state_matches = [
+            m for m in re.finditer(
+                r"\b(?:uint\d+|int\d+|address|bytes\d+|bool)\s+%s\b" % re.escape(name),
+                masked,
+            )
+            if not in_unit(m.start())
+        ]
         earlier_binding = (
-            re.search(r"\b%s\s*=[^=]" % re.escape(name), before)
-            or re.search(r"\b(?:uint\d+|int\d+|address|bytes\d+|bool)\s+%s\b" % re.escape(name), before)
+            re.search(r"\b%s\s*=[^=]" % re.escape(name), unit_local_prefix)
+            or state_matches
         )
         uses_self = re.search(r"\b%s\b" % re.escape(name), match.group("expr"))
         if not earlier_binding and uses_self:
@@ -383,15 +412,42 @@ def split_selfref_initializers(source: str) -> Stage:
 
 
 def declare_undefined_vars(source: str) -> Stage:
-    """Tier: declare ``var_*`` identifiers used but never declared."""
+    """Tier: declare ``var_*`` identifiers used but never visible.
+
+    Scope-honest: a local declaration covers only its OWN unit (the decompiler
+    reuses register names across units, so a like-named local elsewhere does
+    NOT make a use visible - observed on lighthouse); contract-level state
+    declarations cover every unit. A name used in some unit without a unit
+    local or a state declaration becomes contract-level ``uint256``.
+    """
     masked = _mask_strings_and_comments(source, 0, len(source))
-    used = set(re.findall(r"\b(var_[a-z]+)\b", masked))
-    declared = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", masked))
-    declared |= {
+    parsed = parse_contract(source, None)
+    unit_spans = [(u.start, u.end) for u in parsed.functions]
+    in_unit = lambda offset: any(a <= offset < b for a, b in unit_spans)
+    state_declared = {
+        m.group(1)
+        for m in re.finditer(r"\buint\d*\s+(var_[a-z]+)\b", masked)
+        if not in_unit(m.start())
+    }
+    state_declared |= {
         m.group(2)
         for m in re.finditer(r"\b(uint\d*|address|bool|bytes\d*)\s+(var_[a-z]+)\s*=[^=]", masked)
-    }  # typed local definitions declare; bare assignment targets do not
-    undeclared = sorted(used - declared)
+        if not in_unit(m.start())
+    }
+    missing: set[str] = set()
+    for unit in parsed.functions:
+        unit_masked = _mask_strings_and_comments(unit.text, 0, len(unit.text))
+        header_masked = _mask_strings_and_comments(unit.header, 0, len(unit.header))
+        used = set(re.findall(r"\b(var_[a-z]+)\b", unit_masked))
+        local = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", unit_masked))
+        local |= {
+            m.group(2)
+            for m in re.finditer(r"\b(uint\d*|address|bool|bytes\d*)\s+(var_[a-z]+)\s*=[^=]", unit_masked)
+        }
+        local |= {m.group(0) for m in re.finditer(r"\bvar_[a-z]+\b(?=[^()]*)", header_masked)}
+        local |= {w for w in re.findall(r"\b(var_[a-z]+)\b", header_masked)}
+        missing |= used - local - state_declared
+    undeclared = sorted(missing)
     edits: list[dict[str, Any]] = []
     if not undeclared:
         return Stage("vars", "undefined var_* state", source, edits)
@@ -1001,87 +1057,180 @@ def recover_packed_scalar_storage(source: str) -> Stage:
 
 
 def relax_truthiness_requires(source: str) -> Stage:
-    """Stage: rewrite ``require(<addr expr>...)`` truthiness tests into explicit compares.
+    """Stage: rewrite truthiness tests into explicit compares (three passes).
 
-    The decompiler renders ``x != 0`` style guards as ``require(x, ...)`` when the
-    truthiness context is lost; Solidity has no implicit address/uint-to-bool
-    conversion. Only unambiguous shapes are rewritten: ``msg.sender`` compares
-    against ``address(0)``, declared uint/int locals against ``0``; everything
-    else is an abstention.
+    The decompiler renders ``x != 0`` style guards as ``require(x, ...)`` /
+    ``if (x)`` and negations as ``!(x)`` / ``!x``; Solidity has no implicit
+    int-to-bool conversion. Passes run sequentially, EACH re-masking the
+    previous result (stale-span discipline): (1) bare-identifier guards against
+    known-uint/address names, (2) parenthesized flat-bitwise negation in guard
+    position, (3) uint negation in ANY expression position (incl. the bare
+    ``!x`` form). Everything else abstains.
     """
-    masked = _mask_strings_and_comments(source, 0, len(source))
     edits: list[dict[str, Any]] = []
-    pieces: list[str] = []
-    last = 0
-    declared_uint = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", masked))
-    parsed = parse_contract(source, None)
 
-    def param_kind(offset: int, name: str) -> str | None:
-        """(address|uint|int)-ness of `name` in the function enclosing `offset`."""
-        for unit in parsed.functions:
-            if unit.start <= offset < unit.end:
-                for type_text, param in _header_params(
-                    _mask_strings_and_comments(unit.header, 0, len(unit.header))
-                ):
-                    if param == name:
-                        if type_text.startswith("address"):
-                            return "address"
-                        if re.fullmatch(r"u?int\d*", type_text):
-                            return "uint"
-                return None
-        return None
+    def known_kinds(src: str) -> tuple[set[str], set[str]]:
+        masked = _mask_strings_and_comments(src, 0, len(src))
+        uints = set(re.findall(r"\buint\d*\s+(var_[a-z]+)\b", masked))
+        addrs = {"msg.sender"}
+        try:
+            parsed = parse_contract(src, None)
+            spans = [(u.start, u.end) for u in parsed.functions]
+            for m in re.finditer(r"\buint\d*\s+([A-Za-z_]\w*)\s*;", masked):
+                if not any(a <= m.start() < b for a, b in spans):
+                    uints.add(m.group(1))
+            for m in re.finditer(r"\baddress\s+([A-Za-z_]\w*)\s*;", masked):
+                if not any(a <= m.start() < b for a, b in spans):
+                    addrs.add(m.group(1))
+            for unit in parsed.functions:
+                hm = _mask_strings_and_comments(unit.header, 0, len(unit.header))
+                for m in re.finditer(r"\b(address|uint\d*)\s+([A-Za-z_]\w*)", hm):
+                    (addrs if m.group(1) == "address" else uints).add(m.group(2))
+        except Exception:
+            pass
+        return uints, addrs
 
-    # one combined pass over both truthiness shapes (require(...expr..., and
-    # if(...expr...)): separate passes would emit overlapping replacements.
-    # Nonzero int constants 0/1 fold to false/true; address/uint-typed
-    # expressions get explicit compares; everything else abstains.
-    for match in re.finditer(
-        r"(?P<kw>\brequire\b|\bif\b)\s*\(\s*"
-        r"(?P<expr>[A-Za-z_][\w.]*|0x[0-9a-fA-F]+|\d+)\s*"
-        r"(?P<comma>,|\))",
-        masked,
-    ):
-        keyword = match.group("kw")
-        expr = match.group("expr")
-        comma = match.group("comma") == ","
-        if re.fullmatch(r"0x[0-9a-fA-F]+|\d+", expr) and keyword == "if":
+    def splice(src: str, masked: str, pattern: str, build) -> tuple[str, list[dict[str, Any]]]:
+        pieces: list[str] = []
+        last = 0
+        local_edits: list[dict[str, Any]] = []
+        for match in re.finditer(pattern, masked):
+            out = build(match)
+            if out is None:
+                continue
+            replacement, record = out
+            start, end = match.span()
+            pieces.append(src[last:start])
+            pieces.append(replacement)
+            last = end
+            local_edits.append(record)
+        if not pieces:
+            return src, []
+        pieces.append(src[last:])
+        return "".join(pieces), local_edits
+
+    def flat_uint(inner: str) -> bool:
+        # a uint-by-construction expression: arithmetic/bitwise operators and
+        # calls, no boolean producers (comparisons, &&, ||, !)
+        if re.search(r"&&|\|\||==|!=|<=|>=|<|>|(?<![A-Za-z_])!(?![=])", inner):
+            return False
+        return bool(re.search(r"[-+*/%]|(?<![|&])&(?!&)|(?<![|^])\^(?!^)|(?<![|])\|(?!\|)", inner))
+
+    # pass 1: bare-identifier guards
+    uints, addrs = known_kinds(source)
+
+    def build1(match):
+        kw, expr, comma = match.group("kw"), match.group("expr"), match.group("comma") == ","
+        if re.fullmatch(r"0x[0-9a-fA-F]+|\d+", expr) and kw == "if":
             value = int(expr, 0)
             if value == 0:
                 cmp_ = "false"
             elif value == 1:
                 cmp_ = "true"
             else:
-                continue  # keep larger constants visible rather than folding them
-        elif expr == "msg.sender":
-            cmp_ = "msg.sender != address(0)"
-        elif re.fullmatch(r"var_[a-z]+", expr) and expr in declared_uint:
+                return None
+        elif expr in addrs:
+            cmp_ = f"{expr} != address(0)"
+        elif expr in uints or expr.endswith(".length"):
             cmp_ = f"{expr} != 0"
-        elif re.fullmatch(r"[A-Za-z_]\w*", expr):
-            kind = param_kind(match.start(), expr)
-            if kind == "address":
-                cmp_ = f"{expr} != address(0)"
-            elif kind == "uint":
-                cmp_ = f"{expr} != 0"
-            else:
-                continue
         else:
+            return None
+        return (f"{kw}({cmp_}{',' if comma else ')'}",
+                _record("truthiness-guard",
+                        f"{kw}({expr}...) -> {kw}({cmp_}...)",
+                        "truthiness condition without implicit bool conversion"))
+
+    source, new_edits = splice(
+        source,
+        _mask_strings_and_comments(source, 0, len(source)),
+        r"(?P<kw>\brequire\b|\bif\b)\s*\(\s*"
+        r"(?P<expr>[A-Za-z_][\w.]*|0x[0-9a-fA-F]+|\d+)\s*"
+        r"(?P<comma>,|\))",
+        build1,
+    )
+    edits.extend(new_edits)
+
+    # pass 2: parenthesized flat-bitwise negation in guard position
+    def build2(match):
+        inner = match.group("inner").strip()
+        kw = match.group("kw")
+        comma = match.group("comma") == ","
+        if not inner or not flat_uint(inner):
+            return None
+        return (f"{kw}(({inner}) == 0{',' if comma else ')'})",
+                _record("truthiness-negation",
+                        f"{kw}(!({inner})) -> {kw}(({inner}) == 0...)",
+                        "uint negation without implicit bool conversion"))
+
+    source, new_edits = splice(
+        source,
+        _mask_strings_and_comments(source, 0, len(source)),
+        r"(?P<kw>\brequire\b|\bif\b)\s*\(\s*!\((?P<inner>[^()]*)\)\s*\)(?P<comma>,)?",
+        build2,
+    )
+    edits.extend(new_edits)
+
+    # pass 3: uint negation in expression position (parenthesized or bare)
+    uints, _ = known_kinds(source)
+
+    def build3(match):
+        inner = (match.group("inner") or match.group("bare") or "").strip()
+        if not inner:
+            return None
+        known = re.fullmatch(r"[A-Za-z_]\w*", inner) and inner in uints
+        if not (known or flat_uint(inner)):
+            return None
+        return (f"(({inner}) == 0)",
+                _record("uint-negation-expression",
+                        f"!({inner}) -> (({inner}) == 0)",
+                        "uint negation in expression position"))
+
+    source, new_edits = splice(
+        source,
+        _mask_strings_and_comments(source, 0, len(source)),
+        r"!\((?P<inner>[^()]*)\)|!\s?(?P<bare>[A-Za-z_][A-Za-z0-9_]*)",
+        build3,
+    )
+    edits.extend(new_edits)
+
+    # pass 4: bool-context member chains ending in .length (the chain may
+    # contain one nested call with its own parens - balanced scan, then wrap)
+    masked4 = _mask_strings_and_comments(source, 0, len(source))
+    pieces4: list[str] = []
+    last4 = 0
+    head_re = re.compile(r"(?P<kw>\brequire\b|\bif\b)\(")
+    for hm in head_re.finditer(masked4):
+        open_paren = hm.end() - 1
+        depth, idx = 0, open_paren
+        while idx < len(masked4):
+            if masked4[idx] == "(":
+                depth += 1
+            elif masked4[idx] == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            idx += 1
+        if depth != 0:
             continue
-        start, end = match.span()
-        replacement = f"{keyword}({cmp_}{',' if comma else ')'}"
-        pieces.append(source[last:start])
-        pieces.append(replacement)
-        last = end
-        edits.append(
-            _record(
-                "truthiness-guard",
-                f"{keyword}({expr}...) -> {keyword}({cmp_}...)",
-                "truthiness condition without implicit bool conversion",
-            )
-        )
-    if not pieces:
-        return Stage("truthiness", "truthiness require guards", source, edits)
-    pieces.append(source[last:])
-    return Stage("truthiness", "truthiness require guards", "".join(pieces), edits)
+        inner = masked4[open_paren + 1 : idx]
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*\([^()]*\)(?:\.\w+)+", inner.strip()):
+            continue
+        if not inner.rstrip().endswith("length"):
+            continue
+        start, end = hm.start(), idx + 1
+        comma = masked4[idx + 1 : idx + 2] == ","
+        pieces4.append(source[last4:start])
+        pieces4.append(f"{hm.group('kw')}(({inner.strip()}) != 0{',' if comma else ')'}")
+        last4 = end
+        edits.append(_record(
+            "truthiness-member-chain",
+            f"{hm.group('kw')}({inner.strip()[:40]}...) -> ... != 0",
+            "uint member chain in bool context"))
+    if pieces4:
+        pieces4.append(source[last4:])
+        source = "".join(pieces4)
+
+    return Stage("truthiness", "truthiness require guards", source, edits)
 
 
 def repair_fallback_shape(source: str) -> Stage:
@@ -1421,6 +1570,365 @@ def _all_slot_decls(masked: str, source: str | None = None) -> dict[str, tuple[s
     return found
 
 
+def wordify_address_mask_writes(source: str) -> Stage:
+    """Stage: make the decompiled address-mask storage write compile.
+
+    The decompiler mirrors the EVM word ops verbatim: ``X = A | MASK & S;`` with
+    an address-typed ``A`` and a ``bytes32`` state ``S``. Solidity 0.8 refuses
+    bitwise ops mixing address/bytes32/int_const, so the faithful rewrite
+    performs the identical word algebra over uint256 and converts to the
+    left-hand side's declared type. Gate (proven shape only): full 32-byte hex
+    mask; ``A`` a bare identifier declared ``address`` in the enclosing unit;
+    left-hand side a ``bytes32`` state. The ``address(...)``-call form is left
+    to the accessor rebuilders; narrower cases abstain.
+    """
+    masked = _mask_strings_and_comments(source, 0, len(source))
+    try:
+        parsed = parse_contract(source, None)
+    except Exception:
+        return Stage("wordify-address-mask", "address-mask word writes", source, [])
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    address_params: dict[str, list[tuple[int, int]]] = {}
+    for unit in parsed.functions:
+        header_masked = _mask_strings_and_comments(unit.header, 0, len(unit.header))
+        for m in re.finditer(r"\baddress\s+([A-Za-z_]\w*)", header_masked):
+            address_params.setdefault(m.group(1), []).append((unit.start, unit.end))
+    unit_spans = [(u.start, u.end) for u in parsed.functions]
+    state_types = {
+        m.group(2): m.group(1)
+        for m in re.finditer(r"\b(address|bytes32)\s+([A-Za-z_]\w*)\s*;", masked)
+        if not any(a <= m.start() < b for a, b in unit_spans)
+    }
+    stmt = re.compile(
+        r"(?P<lhs>[A-Za-z_]\w*)\s*=\s*(?P<actor>[A-Za-z_]\w*)\s*\|\s*"
+        r"(?P<mask>0x[0-9a-fA-F]{64})\s*&\s*(?P<rhs>[A-Za-z_]\w*)\s*;"
+    )
+    expr_form = re.compile(
+        r"address\((?P<actor>[A-Za-z_]\w*)\s*\|\s*"
+        r"(?P<mask>0x[0-9a-fA-F]{64})\s*&\s*(?P<rhs>[A-Za-z_]\w*)\)"
+    )
+    for match in list(stmt.finditer(masked)) + list(expr_form.finditer(masked)):
+        actor = match.group("actor")
+        mask = match.group("mask")
+        rhs = match.group("rhs")
+        lhs = match.groupdict().get("lhs")
+        is_assign = lhs is not None
+        if (is_assign and state_types.get(lhs) != "bytes32") or rhs not in state_types:
+            continue
+        if actor not in address_params or not any(
+            a <= match.start() < b for a, b in address_params[actor]
+        ):
+            continue
+        if "lhs" in match.groupdict() and match.group("lhs"):
+            replacement = (
+                f"{match.groupdict().get('lhs')} = bytes32(uint256(uint160({actor})) "
+                f"| (uint256({mask}) & uint256({rhs})));"
+            )
+        else:
+            replacement = (
+                f"address(uint160(uint256(uint160({actor})) "
+                f"| (uint256({mask}) & uint256({rhs}))))"
+            )
+        start, end = match.span()
+        pieces.append(source[last:start])
+        pieces.append(replacement)
+        last = end
+        edits.append(
+            _record(
+                "address-mask-wordified",
+                f"{match.groupdict().get('lhs') or '<expr>'} = {actor} | mask & {rhs} -> word algebra",
+                "address/bytes32 bitwise idiom; identical EVM word ops, 0.8-legal typing",
+            )
+        )
+    if not pieces:
+        return Stage("wordify-address-mask", "address-mask word writes", source, edits)
+    pieces.append(source[last:])
+    return Stage("wordify-address-mask", "address-mask word writes", "".join(pieces), edits)
+
+
+def widen_packed_pair_returns(source: str) -> Stage:
+    """Stage: widen under-declared tuple returns packed via ``abi.encodePacked``.
+
+    The decompiler renders multi-value returns as ``return abi.encodePacked(a, b);``
+    while declaring a single non-tuple return type (observed on the lighthouse
+    peek family). When EVERY return statement of a view unit is a two-argument
+    packed pair, the faithful signature is two words: ``returns (uint256,
+    uint256)`` with ``return (uint256(a), uint256(b));`` - byte-identical
+    returndata, 0.8-legal typing. Mixed bare/packed units and other arities
+    abstain.
+    """
+    masked = _mask_strings_and_comments(source, 0, len(source))
+    try:
+        parsed = parse_contract(source, None)
+    except Exception:
+        return Stage("widen-packed-pair-returns", "packed pair return widening", source, [])
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    ret_re = re.compile(r"return\s+abi\.encodePacked\(")
+    pair_re = re.compile(r"return\s+abi\.encodePacked\([^;]*\);")
+    for unit in parsed.functions:
+        body_masked = _mask_strings_and_comments(unit.text, 0, len(unit.text))
+        header_masked = _mask_strings_and_comments(unit.header, 0, len(unit.header))
+        if not re.search(r"\bview\b", header_masked):
+            continue
+        if re.search(r"returns\s*\(", header_masked.split("returns")[-1] if "returns" in header_masked else ""):
+            pass
+        pairs = []
+        for m in pair_re.finditer(unit.text):
+            inner = unit.text[m.start() : m.end()]
+            open_paren = inner.find("(")
+            depth, idx, start_arg = 1, open_paren + 1, open_paren + 1
+            args2: list[str] = []
+            while idx < len(inner) and depth > 0:
+                ch = inner[idx]
+                if ch == "(":
+                    depth += 1
+                elif ch == ")":
+                    depth -= 1
+                    if depth == 0:
+                        args2.append(inner[start_arg:idx])
+                        break
+                elif ch == "," and depth == 1:
+                    args2.append(inner[start_arg:idx])
+                    start_arg = idx + 1
+                idx += 1
+            if depth == 0 and len(args2) == 2:
+                pairs.append((m.group(0), args2[0].strip(), args2[1].strip()))
+        if not pairs:
+            continue
+        bare_returns = len(re.findall(r"return\s+(?!abi\.encodePacked)", body_masked))
+        if bare_returns:
+            continue  # mixed shapes abstain
+        if "returns (" in header_masked and re.search(
+            r"returns\s*\([^)]*,[^)]*\)", header_masked
+        ):
+            continue  # already a tuple
+        if not re.search(r"returns\s*\(([^)]*)\)", header_masked):
+            continue
+        new_header = re.sub(
+            r"returns\s*\([^)]*\)",
+            "returns (uint256, uint256)",
+            unit.header,
+        )
+        def _word(term: str) -> str:
+            # bool-valued terms (comparisons, negation forms, literals) cast
+            # via the conditional - solc refuses uint256(bool) outright
+            if re.search(r"==|!=|<=|>=|<|>|\btrue\b|\bfalse\b|^\s*!", term):
+                return f"({term} ? uint256(1) : uint256(0))"
+            return f"uint256({term})"
+
+        new_body = unit.text
+        n_packed = 0
+        for whole, a, b in pairs:
+            new_body = new_body.replace(
+                whole, f"return ({_word(a)}, {_word(b)});"
+            )
+            n_packed += 1
+        start, end = unit.start, unit.end
+        pieces.append(source[last:start])
+        pieces.append(new_header + new_body[len(unit.header):])
+        last = end
+        edits.append(
+            _record(
+                "packed-pair-widened",
+                f"{unit.name}: returns widened to (uint256, uint256) ({n_packed} sites)",
+                "every return is a two-argument abi.encodePacked; word-faithful tuple",
+            )
+        )
+    if not pieces:
+        return Stage("widen-packed-pair-returns", "packed pair return widening", source, edits)
+    pieces.append(source[last:])
+    return Stage("widen-packed-pair-returns", "packed pair return widening", "".join(pieces), edits)
+
+
+def coerce_word_returns(source: str) -> Stage:
+    """Stage: coerce word-sized returns to the declared single-word type.
+
+    The decompiler emits ``return <state>;`` where the state's declared width
+    differs from the unit's single-word return (uint128 state from an
+    ``address``-returning unit, observed on lighthouse read()); the EVM simply
+    returned the word. Explicit conversions make that faithful: into
+    ``address`` via ``address(uint160(...))``, into ``bytes32`` via
+    ``bytes32(uint256(...))``. Bare-identifier returns only; wider/narrower
+    cases abstain.
+    """
+    masked = _mask_strings_and_comments(source, 0, len(source))
+    try:
+        parsed = parse_contract(source, None)
+    except Exception:
+        return Stage("coerce-word-returns", "word return coercion", source, [])
+    edits: list[dict[str, Any]] = []
+    state_types = {}
+    unit_spans = [(u.start, u.end) for u in parsed.functions]
+    for m in re.finditer(r"\b(address|bytes32|uint\d+)\s+([A-Za-z_]\w*)\s*;", masked):
+        if not any(a <= m.start() < b for a, b in unit_spans):
+            state_types[m.group(2)] = m.group(1)
+    pieces: list[str] = []
+    last = 0
+    ret_re = re.compile(r"(?P<indent>[ \t]*)return\s+(?P<expr>[A-Za-z_]\w*)\s*;")
+    for unit in parsed.functions:
+        header_masked = _mask_strings_and_comments(unit.header, 0, len(unit.header))
+        m = re.search(r"returns\s*\((?P<t>[A-Za-z_0-9]+)\)", header_masked)
+        if not m or m.group("t") not in ("address", "bytes32"):
+            continue
+        want = m.group("t")
+        body_masked = _mask_strings_and_comments(unit.text, 0, len(unit.text))
+        for rm in ret_re.finditer(body_masked):
+            expr = rm.group("expr")
+            src_t = state_types.get(expr)
+            if src_t is None or not re.fullmatch(r"u?int\d+", src_t):
+                continue
+            conv = (f"address(uint160({expr}))" if want == "address"
+                    else f"bytes32(uint256({expr}))")
+            abs_start = unit.start + rm.start()
+            abs_end = unit.start + rm.end()
+            indent = rm.group("indent")
+            replacement = f"{indent}return {conv};"
+            pieces.append(source[last:abs_start])
+            pieces.append(replacement)
+            last = abs_end
+            edits.append(
+                _record(
+                    "word-return-coerced",
+                    f"{unit.name}: return {expr} -> {conv}",
+                    "word-width-preserving return coercion to the declared type",
+                )
+            )
+    if not pieces:
+        return Stage("coerce-word-returns", "word return coercion", source, edits)
+    pieces.append(source[last:])
+    return Stage("coerce-word-returns", "word return coercion", "".join(pieces), edits)
+
+
+def typed_packed_literals(source: str) -> Stage:
+    """Stage: type bare integer literals inside ``abi.encodePacked(...)``.
+
+    solc 0.8 refuses packed encoding of untyped literals (error 7279); the
+    decompiler emits them as raw words mirrored from the bytecode's pushes, so
+    the faithful typing is ``uint256(literal)`` - a full 32-byte big-endian
+    word, exactly the stack width the push had. Non-literal arguments are
+    untouched.
+    """
+    masked = _mask_strings_and_comments(source, 0, len(source))
+    edits: list[dict[str, Any]] = []
+    call_re = re.compile(r"abi\.encodePacked\(")
+    lit_re = re.compile(r"(?<![A-Za-z0-9_])(0x[0-9a-fA-F]+|\d+)(?![A-Za-z0-9_])")
+    plans: list[tuple[int, int, str]] = []
+    for call in call_re.finditer(masked):
+        open_paren = call.end() - 1
+        depth, index, arg_start = 1, open_paren + 1, open_paren + 1
+        args: list[tuple[int, int]] = []
+        while index < len(masked) and depth > 0:
+            ch = masked[index]
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    args.append((arg_start, index))
+                    break
+            elif ch == "," and depth == 1:
+                args.append((arg_start, index))
+                arg_start = index + 1
+            index += 1
+        if depth != 0:
+            continue
+        for a, b in args:
+            m_local = lit_re.fullmatch(masked[a:b].strip())
+            if m_local is None:
+                continue
+            lead = len(masked[a:b]) - len(masked[a:b].lstrip())
+            plans.append((a + lead, a + lead + m_local.end(), f"uint256({m_local.group(1)})"))
+    if not plans:
+        return Stage("typed-packed-literals", "packed-literal typing", source, edits)
+    staged = source
+    for start, end, repl in sorted(plans, key=lambda plan: -plan[0]):
+        staged = staged[:start] + repl + staged[end:]
+    for start, _end, _repl in sorted(plans):
+        edits.append(_record(
+            "packed-literal-typed",
+            f"abi.encodePacked argument {source[start:_end]} -> uint256(...)",
+            "bare literal in packed encoding (solc 7279); word width preserved"))
+    return Stage("typed-packed-literals", "packed-literal typing", staged, edits)
+
+
+def lower_unknown_external_calls(source: str) -> Stage:
+    """Stage: lower member calls to undeclared external selectors.
+
+    ``(bool success, bytes memory ret0) = address(<expr>).Unresolved_<h8>{value: v}(args);``
+    - a named member call no declaration can back. Faithful lowering:
+    ``<exprInner>.call{value: v}(abi.encodeWithSelector(0x<h8>, args))`` where
+    the unresolved name carries its own selector. Gate: every argument a bare
+    word-sized atom, so the ABI payload is byte-identical; dynamic sites abstain.
+    The ``address(...)`` wrapper is scanned balanced (the inner expression may
+    nest arbitrarily after other stages).
+    """
+    masked = _mask_strings_and_comments(source, 0, len(source))
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    head_re = re.compile(r"address\(")
+    name_re = re.compile(r"\.\s*(?P<name>Unresolved_[0-9a-fA-F]{8})\s*\{\s*value:\s*(?P<value>0x[0-9a-fA-F]+|\d+)\s*\}\(")
+    atom_re = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|0x[0-9a-fA-F]+|\d+")
+    for hm in head_re.finditer(masked):
+        open_paren = hm.end() - 1
+        depth, idx = 0, open_paren
+        while idx < len(masked):
+            if masked[idx] == "(":
+                depth += 1
+            elif masked[idx] == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            idx += 1
+        if depth != 0:
+            continue
+        inner = masked[open_paren + 1 : idx].strip()
+        tail = masked[idx + 1 : idx + 200]
+        nm = name_re.match(tail)
+        if not nm:
+            continue
+        args_open = idx + 1 + nm.end() - 1
+        depth2, j = 0, args_open
+        while j < len(masked):
+            if masked[j] == "(":
+                depth2 += 1
+            elif masked[j] == ")":
+                depth2 -= 1
+                if depth2 == 0:
+                    break
+            j += 1
+        if depth2 != 0:
+            continue
+        args_raw = masked[args_open + 1 : j].strip()
+        atoms = [a.strip() for a in args_raw.split(",")] if args_raw else []
+        if not all(atom_re.fullmatch(a) for a in atoms):
+            continue
+        selector = "0x" + nm.group("name")[-8:]
+        end = args_open + 1  # past the call's closing paren? j is the close index
+        end = j + 1
+        lowered = (
+            f"{inner}.call{{value: {nm.group('value')}}}"
+            f"(abi.encodeWithSelector({selector}"
+            + (", " + ", ".join(atoms) if atoms else "") + "))"
+        )
+        start, stop = hm.start(), end
+        pieces.append(source[last:start])
+        pieces.append(lowered)
+        last = stop
+        edits.append(_record(
+            "external-call-lowered",
+            f"address(..).{nm.group('name')}{{value..}}(..) -> call/encodeWithSelector",
+            "undeclared external selector; identical selector and word args"))
+    if not pieces:
+        return Stage("lower-unknown-external-calls", "external call lowering", source, edits)
+    pieces.append(source[last:])
+    return Stage("lower-unknown-external-calls", "external call lowering", "".join(pieces), edits)
+
+
 PREPARE_STAGES = (
     normalize_placeholders,
     declare_missing_symbols,
@@ -1435,6 +1943,11 @@ PREPARE_STAGES = (
     infer_param_types_from_storage,
     synthesize_storage_getters,
     synthesize_send_guards,
+    typed_packed_literals,
+    wordify_address_mask_writes,
+    widen_packed_pair_returns,
+    coerce_word_returns,
+    lower_unknown_external_calls,
 )
 
 

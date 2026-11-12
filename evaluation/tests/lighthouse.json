@@ -1,0 +1,250 @@
+{
+ "name": "lighthouse",
+ "contract": "DecompiledContract",
+ "fixture": "lighthouse",
+ "reference_runtime": "evaluation/fixtures/lighthouse/runtime.hex",
+ "reference_abi": "evaluation/fixtures/lighthouse/abi.json",
+ "solc_version": "0.8.30",
+ "compare_events": false,
+ "withheld": [
+  "admin_sequence",
+  "peek_mixed"
+ ],
+ "bindings": {
+  "changeAuth": {
+   "reference_signature": "changeAuth(address)",
+   "candidate_signature": "Unresolved_22969eac(address)",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_22969eac(address)"
+   }
+  },
+  "peekData": {
+   "reference_signature": "peekData()",
+   "candidate_signature": "Unresolved_420b81f6()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_420b81f6()"
+   }
+  },
+  "read": {
+   "reference_signature": "read()",
+   "candidate_signature": "Unresolved_57de26a4()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_57de26a4()"
+   }
+  },
+  "peek": {
+   "reference_signature": "peek()",
+   "candidate_signature": "Unresolved_59e02dd7()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_59e02dd7()"
+   }
+  },
+  "setMaxAge": {
+   "reference_signature": "setMaxAge(uint256)",
+   "candidate_signature": "Unresolved_5ae28fc9(uint256)",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_5ae28fc9(uint256)"
+   }
+  },
+  "owner": {
+   "reference_signature": "owner()",
+   "candidate_signature": "unresolved_8da5cb5b()",
+   "candidate_signatures": {
+    "seed-v1": "unresolved_8da5cb5b()"
+   }
+  },
+  "write": {
+   "reference_signature": "write(uint256,uint256)",
+   "candidate_signature": "Unresolved_9c0e3f7a(uint256,uint256)",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_9c0e3f7a(uint256,uint256)"
+   }
+  },
+  "changeOwner": {
+   "reference_signature": "changeOwner(address)",
+   "candidate_signature": "Unresolved_a6f9dae1(address)",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_a6f9dae1(address)"
+   }
+  },
+  "peekUpdated": {
+   "reference_signature": "peekUpdated()",
+   "candidate_signature": "Unresolved_bdf384a8()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_bdf384a8()"
+   }
+  },
+  "peekLastNonce": {
+   "reference_signature": "peekLastNonce()",
+   "candidate_signature": "Unresolved_becfbf69()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_becfbf69()"
+   }
+  },
+  "changeSearcher": {
+   "reference_signature": "changeSearcher(address)",
+   "candidate_signature": "Unresolved_d6e848ac(address)",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_d6e848ac(address)"
+   }
+  },
+  "auth": {
+   "reference_signature": "auth()",
+   "candidate_signature": "Unresolved_de9375f2()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_de9375f2()"
+   }
+  },
+  "notTooLongSinceUpdated": {
+   "reference_signature": "notTooLongSinceUpdated()",
+   "candidate_signature": "Unresolved_e2f90632()",
+   "candidate_signatures": {
+    "seed-v1": "Unresolved_e2f90632()"
+   }
+  }
+ },
+ "probes": [
+  {
+   "name": "owner_zero",
+   "steps": [
+    {
+     "call": "owner",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "auth_zero",
+   "steps": [
+    {
+     "call": "auth",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "read_zero",
+   "steps": [
+    {
+     "call": "read",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "peek_zero",
+   "steps": [
+    {
+     "call": "peek",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "peekData_zero",
+   "steps": [
+    {
+     "call": "peekData",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "peekUpdated_zero",
+   "steps": [
+    {
+     "call": "peekUpdated",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "peekLastNonce_zero",
+   "steps": [
+    {
+     "call": "peekLastNonce",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "notTooLong_zero",
+   "steps": [
+    {
+     "call": "notTooLongSinceUpdated",
+     "args_tail": "",
+     "send": false
+    }
+   ]
+  },
+  {
+   "name": "setMaxAge_unauthorized",
+   "steps": [
+    {
+     "call": "setMaxAge",
+     "args_tail": "0x0000000000000000000000000000000000000000000000000000000000000005",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "changeOwner_unauthorized",
+   "steps": [
+    {
+     "call": "changeOwner",
+     "args_tail": "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "send": true
+    }
+   ]
+  },
+  {
+   "name": "admin_sequence",
+   "steps": [
+    {
+     "call": "setMaxAge",
+     "args_tail": "0x0000000000000000000000000000000000000000000000000000000000000005",
+     "send": true
+    },
+    {
+     "call": "changeOwner",
+     "args_tail": "0x0000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+     "send": true
+    },
+    {
+     "call": "owner",
+     "args_tail": "",
+     "send": false
+    }
+   ],
+   "withheld": true
+  },
+  {
+   "name": "peek_mixed",
+   "steps": [
+    {
+     "call": "peek",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "peekData",
+     "args_tail": "",
+     "send": false
+    },
+    {
+     "call": "read",
+     "args_tail": "",
+     "send": false
+    }
+   ],
+   "withheld": true
+  }
+ ]
+}
