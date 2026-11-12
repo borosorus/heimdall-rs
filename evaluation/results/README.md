@@ -809,8 +809,9 @@ grew 13->18 stages (packed-literal typing, address-mask word algebra, tuple-retu
 word-return coercion, external-call lowering) plus scope-honest selfref/vars and a rebuilt
 multi-pass truthiness stage; auditlog re-sealed 8/8+2/2 under the final ladder. Batch totals:
 31/32 feedback, 7/8 withheld. Codex-reviewed; 6 findings adopted and the matrix re-sealed
-unchanged (`tier2-batch2/`). Rust-port parity debt noted: stages 14-18 + scope fixes are
-Python-side pending port sync.
+unchanged (`tier2-batch2/`). Rust-port parity debt CLOSED: the full 18-stage ladder is ported
+and byte-parity-checked against four corpora whose finals reproduce the committed seeds
+(lighthouse 444d4083..., hdwallet 761bb828...); crate 186/186, workspace 698/0.
 
 ### Tier-3 repair 1: lighthouse read-guard (2026-11-12)
 
