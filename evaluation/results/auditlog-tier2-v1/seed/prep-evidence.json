@@ -148,7 +148,7 @@
     "label": "tier18-lower-unknown-external-calls",
     "solc_version": "0.8.30",
     "returncode": 1,
-    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 3.98ms\n",
+    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 4.09ms\n",
     "stderr": "Error: Compiler run failed:\nError (6933): Expected primary expression.\n  --> src/Candidate.sol:34:36:\n   |\n34 |             if((0x1f & var_g) == 0)) {\n   |                                    ^\n",
     "source_sha256": "e256cfcdd23b3191aaea8df5e7dba404a1d0a75f3277dc65419749fc7178c6e6",
     "ok": false

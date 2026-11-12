@@ -9,7 +9,7 @@ per-fixture `*-p1-*` run dirs):
 |---|---|---|---|---|
 | `hdwallet` | **8/8** | **2/2** | `rebuild_string_slot_accessors.py` (setter + both alias getters, slot 0x00) | incl. empty string, 31/32 boundary, long, alias dispatch |
 | `ipfs` | **6/6** | **2/2** | same tool: pair-getter `(bytes,bytes)` + two appended single getters | the two accessors had been lifted to `public` vars by the decompiler — no units existed for the ABI selectors (`--append-getter`) |
-| `lighthouse` | **9/10** | **1/2** | none — the seed itself | 18-stage ladder output compiles and behaves on the largest fixture (4.6 kB, auth admin, packed views, external callback) |
+| `lighthouse` | **9/10** | **1/2** | none — the seed itself | 18-stage ladder output compiles and behaves on the largest fixture; wh `peek_mixed` fails on the same read() residual |
 | (`auditlog` re-run under the final ladder) | **8/8** | **2/2** | `--auto` struct-array rebuild | unchanged verdict |
 
 ## Ladder growth (all generalizable, all harness-gated)
@@ -60,3 +60,13 @@ negation forms (`!(flat-uint)` guard and expression position incl. bare `!x`) an
 
 Python evaluation suite 206/206 at close (three tests updated for the 18-stage reality:
 pipeline stage list, send-guard stage lookup by name).
+
+### Post-review hardening (codex, 6 findings, all adopted)
+
+widen skips `bytes memory`/`string memory` singles (returndata-preserving gate, pinned by a
+suite test); truthiness param kinds are per-unit (cross-unit like-named params no longer
+cross-contaminate); state-declaration detection accepts visibility qualifiers everywhere
+(selfref/vars/truthiness); `--append-getter` collides-check against state vars too; the
+ledger's wh wording corrected (peek_mixed fails on the read() residual). Final numbers
+re-sealed under the hardened ladder: `al-final3` 8/8+2/2, `hdw-final3` 8/8+2/2,
+`ipfs-final3` 6/6+2/2, `lh-final3` 9/10+1/2 — identical to the pre-review matrix.

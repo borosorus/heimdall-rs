@@ -1,0 +1,714 @@
+{
+  "admin_sequence": {
+    "candidate": [
+      {
+        "call": "setMaxAge",
+        "call_ok": false,
+        "calldata": "0x2a7dda370000000000000000000000000000000000000000000000000000000000000005",
+        "contract_balance": "0x0",
+        "gas_used": "0x5e28",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0x0f41a974699a9e9e0a7d56f8f1415879ff8002eabb8f42057d488058523417a8",
+        "value": "0"
+      },
+      {
+        "call": "changeOwner",
+        "call_ok": false,
+        "calldata": "0xedfc91260000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+        "contract_balance": "0x0",
+        "gas_used": "0x5f5b",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0xc86f9a4a1786f9c611ba50edfcd0a35a14ba289957e72815e6e9a5895fc3bf21",
+        "value": "0"
+      },
+      {
+        "call": "owner",
+        "call_ok": true,
+        "calldata": "0x4bc99dc7",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      [],
+      [],
+      []
+    ],
+    "events_reference": [
+      [],
+      [],
+      []
+    ],
+    "reference": [
+      {
+        "call": "setMaxAge",
+        "call_ok": false,
+        "calldata": "0x5ae28fc90000000000000000000000000000000000000000000000000000000000000005",
+        "contract_balance": "0x0",
+        "gas_used": "0x5d10",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0x094a0a98549a04c031aeb8b2d3a88f1950fc142e721e1b2ce95b98fd7de6ada4",
+        "value": "0"
+      },
+      {
+        "call": "changeOwner",
+        "call_ok": false,
+        "calldata": "0xa6f9dae10000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+        "contract_balance": "0x0",
+        "gas_used": "0x5e75",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0x068d520bcca0a44b0c31879a9f99bcca5623f2c0a391e4104b01706beff34fd2",
+        "value": "0"
+      },
+      {
+        "call": "owner",
+        "call_ok": true,
+        "calldata": "0x8da5cb5b",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "auth_zero": {
+    "candidate": [
+      {
+        "call": "auth",
+        "call_ok": true,
+        "calldata": "0x456a3244",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "auth",
+        "call_ok": true,
+        "calldata": "0xde9375f2",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "changeOwner_unauthorized": {
+    "candidate": [
+      {
+        "call": "changeOwner",
+        "call_ok": false,
+        "calldata": "0xedfc912600000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "contract_balance": "0x0",
+        "gas_used": "0x5f67",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0xc2ba2081ac85188ed9222244b73c0f9cb37d3879093ba3dbb1db34d3c56ffb16",
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "changeOwner",
+        "call_ok": false,
+        "calldata": "0xa6f9dae100000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "contract_balance": "0x0",
+        "gas_used": "0x5e81",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0x077469b278bb8f625cd09b166fb183c5f189df8f1ce19cf4e2d95fcce2c45433",
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "notTooLong_zero": {
+    "candidate": [
+      {
+        "call": "notTooLongSinceUpdated",
+        "call_ok": true,
+        "calldata": "0x17cd895c",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "notTooLongSinceUpdated",
+        "call_ok": true,
+        "calldata": "0xe2f90632",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "owner_zero": {
+    "candidate": [
+      {
+        "call": "owner",
+        "call_ok": true,
+        "calldata": "0x4bc99dc7",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "owner",
+        "call_ok": true,
+        "calldata": "0x8da5cb5b",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "peekData_zero": {
+    "candidate": [
+      {
+        "call": "peekData",
+        "call_ok": true,
+        "calldata": "0x5cb8e55c",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "peekData",
+        "call_ok": true,
+        "calldata": "0x420b81f6",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "peekLastNonce_zero": {
+    "candidate": [
+      {
+        "call": "peekLastNonce",
+        "call_ok": true,
+        "calldata": "0x334864e4",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "peekLastNonce",
+        "call_ok": true,
+        "calldata": "0xbecfbf69",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "peekUpdated_zero": {
+    "candidate": [
+      {
+        "call": "peekUpdated",
+        "call_ok": true,
+        "calldata": "0xe1ecbba9",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "peekUpdated",
+        "call_ok": true,
+        "calldata": "0xbdf384a8",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "peek_mixed": {
+    "candidate": [
+      {
+        "call": "peek",
+        "call_ok": true,
+        "calldata": "0x6c35974a",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      },
+      {
+        "call": "peekData",
+        "call_ok": true,
+        "calldata": "0x5cb8e55c",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      },
+      {
+        "call": "read",
+        "call_ok": true,
+        "calldata": "0x2217d78e",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      [],
+      [],
+      []
+    ],
+    "events_reference": [
+      [],
+      [],
+      []
+    ],
+    "reference": [
+      {
+        "call": "peek",
+        "call_ok": true,
+        "calldata": "0x59e02dd7",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      },
+      {
+        "call": "peekData",
+        "call_ok": true,
+        "calldata": "0x420b81f6",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      },
+      {
+        "call": "read",
+        "call_ok": false,
+        "calldata": "0x57de26a4",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": "0x6568",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000013496e76616c696420646174612073746f72656400000000000000000000000000",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "peek_zero": {
+    "candidate": [
+      {
+        "call": "peek",
+        "call_ok": true,
+        "calldata": "0x6c35974a",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "peek",
+        "call_ok": true,
+        "calldata": "0x59e02dd7",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "read_zero": {
+    "candidate": [
+      {
+        "call": "read",
+        "call_ok": true,
+        "calldata": "0x2217d78e",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": null,
+        "logs": [],
+        "mode": "read",
+        "ok": true,
+        "return_data": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 1,
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "read",
+        "call_ok": false,
+        "calldata": "0x57de26a4",
+        "contract_balance": "0x0",
+        "gas_class": null,
+        "gas_used": "0x6568",
+        "logs": [],
+        "mode": "read",
+        "ok": false,
+        "return_data": null,
+        "revert_data": "0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000013496e76616c696420646174612073746f72656400000000000000000000000000",
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "value": "0"
+      }
+    ],
+    "semantic_match": false,
+    "setup_candidate": [],
+    "setup_reference": []
+  },
+  "setMaxAge_unauthorized": {
+    "candidate": [
+      {
+        "call": "setMaxAge",
+        "call_ok": false,
+        "calldata": "0x2a7dda370000000000000000000000000000000000000000000000000000000000000005",
+        "contract_balance": "0x0",
+        "gas_used": "0x5e28",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0x0f41a974699a9e9e0a7d56f8f1415879ff8002eabb8f42057d488058523417a8",
+        "value": "0"
+      }
+    ],
+    "event_match": true,
+    "events_candidate": [
+      []
+    ],
+    "events_reference": [
+      []
+    ],
+    "reference": [
+      {
+        "call": "setMaxAge",
+        "call_ok": false,
+        "calldata": "0x5ae28fc90000000000000000000000000000000000000000000000000000000000000005",
+        "contract_balance": "0x0",
+        "gas_used": "0x5d10",
+        "logs": [],
+        "mode": "send",
+        "ok": false,
+        "return_data": null,
+        "revert_data": null,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "status": 0,
+        "tx_hash": "0x094a0a98549a04c031aeb8b2d3a88f1950fc142e721e1b2ce95b98fd7de6ada4",
+        "value": "0"
+      }
+    ],
+    "semantic_match": true,
+    "setup_candidate": [],
+    "setup_reference": []
+  }
+}

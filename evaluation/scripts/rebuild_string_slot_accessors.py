@@ -338,10 +338,12 @@ def main() -> int:
             print(f"unit {name} not found", file=sys.stderr)
             return 1
         plans.append((unit.start, unit.end, GETTER.format(name=name, slot=args.slot)))
+    decl_names = {d.name for d in parsed.declarations}
     for spec_item in args.append_getter:
         name, slot = (x.strip() for x in spec_item.split(","))
-        if name in units:
-            print(f"append-getter: unit {name} already exists", file=sys.stderr)
+        if name in units or name in decl_names:
+            # a public state var of the same name already implies a getter
+            print(f"append-getter: {name} collides with an existing unit or state var", file=sys.stderr)
             return 1
         # insertion point: just before the contract body's closing brace
         parsed_all = parsed

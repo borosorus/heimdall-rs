@@ -331,6 +331,21 @@ class PipelineTest(unittest.TestCase):
         self.assertIn("uint256 arg1", final)
         self.assertIn("error CustomError_30cd7471();", final)
 
+    def test_widen_skips_bytes_memory_returns(self):
+        # reviewer: a valid bytes-memory packed-pair return must NOT be widened
+        # (its returndata is the dynamic-value encoding, not two head words)
+        source = (
+            "contract C {\n"
+            "    uint256 a; uint256 b;\n"
+            "    function f() public view returns (bytes memory) {\n"
+            "        return abi.encodePacked(a, b);\n"
+            "    }\n"
+            "}\n"
+        )
+        staged = prepare.prepare_stages(source)
+        widen = next(st for st in staged if st.name == "widen-packed-pair-returns")
+        assert widen.edits == [], "bytes-memory return was widened"
+
     def test_ladder_is_idempotent(self):
         once = prepare.prepare_stages(self.BASELINE)[-1].source
         twice = prepare.prepare_stages(once)[-1].source

@@ -369,7 +369,8 @@ def _split_self_referential_initializers(source: str, masked: str) -> tuple[str,
         unit_local_prefix = masked[unit_start : match.start()]
         state_matches = [
             m for m in re.finditer(
-                r"\b(?:uint\d+|int\d+|address|bytes\d+|bool)\s+%s\b" % re.escape(name),
+                r"\b(?:uint\d+|int\d+|address|bytes\d+|bool)\s+"
+                r"(?:public|private|internal|constant|immutable|[ \t])*%s\b" % re.escape(name),
                 masked,
             )
             if not in_unit(m.start())
@@ -424,9 +425,10 @@ def declare_undefined_vars(source: str) -> Stage:
     parsed = parse_contract(source, None)
     unit_spans = [(u.start, u.end) for u in parsed.functions]
     in_unit = lambda offset: any(a <= offset < b for a, b in unit_spans)
+    vis2 = r"(?:public|private|internal|constant|immutable|override|[ \t])*"
     state_declared = {
         m.group(1)
-        for m in re.finditer(r"\buint\d*\s+(var_[a-z]+)\b", masked)
+        for m in re.finditer(r"\buint\d*\s+" + vis2 + r"(var_[a-z]+)\b", masked)
         if not in_unit(m.start())
     }
     state_declared |= {
@@ -1076,10 +1078,11 @@ def relax_truthiness_requires(source: str) -> Stage:
         try:
             parsed = parse_contract(src, None)
             spans = [(u.start, u.end) for u in parsed.functions]
-            for m in re.finditer(r"\buint\d*\s+([A-Za-z_]\w*)\s*;", masked):
+            vis = r"(?:public|private|internal|constant|immutable|override|[ \t])*"
+            for m in re.finditer(r"\buint\d*\s+" + vis + r"([A-Za-z_]\w*)\s*(?:=[^;]+)?;", masked):
                 if not any(a <= m.start() < b for a, b in spans):
                     uints.add(m.group(1))
-            for m in re.finditer(r"\baddress\s+([A-Za-z_]\w*)\s*;", masked):
+            for m in re.finditer(r"\baddress\s+" + vis + r"([A-Za-z_]\w*)\s*(?:=[^;]+)?;", masked):
                 if not any(a <= m.start() < b for a, b in spans):
                     addrs.add(m.group(1))
             for unit in parsed.functions:
@@ -1170,14 +1173,31 @@ def relax_truthiness_requires(source: str) -> Stage:
     )
     edits.extend(new_edits)
 
-    # pass 3: uint negation in expression position (parenthesized or bare)
+    # pass 3: uint negation in expression position (parenthesized or bare);
+    # per-unit parameter kinds (cross-unit like-named params may be bool)
     uints, _ = known_kinds(source)
+    declared_uint = uints
+    try:
+        parsed3 = parse_contract(source, None)
+    except Exception:
+        parsed3 = None
+    unit_uint_params = []
+    for unit in (parsed3.functions if parsed3 else []):
+        hm = _mask_strings_and_comments(unit.header, 0, len(unit.header))
+        names = {m.group(1) for m in re.finditer(r"\buint\d*\s+([A-Za-z_]\w*)", hm)}
+        unit_uint_params.append((unit.start, unit.end, names))
+
+    def uints_at(offset):
+        for a, b, names in unit_uint_params:
+            if a <= offset < b:
+                return declared_uint | names
+        return declared_uint
 
     def build3(match):
         inner = (match.group("inner") or match.group("bare") or "").strip()
         if not inner:
             return None
-        known = re.fullmatch(r"[A-Za-z_]\w*", inner) and inner in uints
+        known = re.fullmatch(r"[A-Za-z_]\w*", inner) and inner in uints_at(match.start())
         if not (known or flat_uint(inner)):
             return None
         return (f"(({inner}) == 0)",
@@ -1706,6 +1726,11 @@ def widen_packed_pair_returns(source: str) -> Stage:
             r"returns\s*\([^)]*,[^)]*\)", header_masked
         ):
             continue  # already a tuple
+        single = re.search(r"returns\s*\(([^)]*)\)", header_masked)
+        # a bytes/string return already encodes the packed tail as ONE dynamic
+        # value; widening would change the externally visible returndata
+        if single and re.search(r"\bbytes\d*\s+memory|\bstring\s+memory", single.group(1)):
+            continue
         if not re.search(r"returns\s*\(([^)]*)\)", header_masked):
             continue
         new_header = re.sub(

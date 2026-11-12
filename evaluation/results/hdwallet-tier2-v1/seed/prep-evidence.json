@@ -3,9 +3,9 @@
   "tool": "prepare_candidate",
   "llm_calls": 0,
   "source_sha256": "b2f3f8e6e3ee05e326ada876fced1e3492f460755336a6e06fefffdeef7f2f82",
-  "candidate_sha256": "21d7c6b2e1bae52ee82a4aa6bf0d27d3948133c61caed1e81ec5698397767686",
+  "candidate_sha256": "761bb8282204f7add0fb004c77853ab96d83a1a858dc5c074ce3ef78b8ee8542",
   "edited": true,
-  "edit_count": 11,
+  "edit_count": 9,
   "finding_count": 1,
   "edits": [
     {
@@ -52,16 +52,6 @@
       "kind": "packed-literal-typed",
       "detail": "abi.encodePacked argument 0x20 -> uint256(...)",
       "evidence": "bare literal in packed encoding (solc 7279); word width preserved"
-    },
-    {
-      "kind": "packed-pair-widened",
-      "detail": "Unresolved_2a1afcd9: returns widened to (uint256, uint256) (1 sites)",
-      "evidence": "every return is a two-argument abi.encodePacked; word-faithful tuple"
-    },
-    {
-      "kind": "packed-pair-widened",
-      "detail": "Unresolved_6d4ce63c: returns widened to (uint256, uint256) (1 sites)",
-      "evidence": "every return is a two-argument abi.encodePacked; word-faithful tuple"
     }
   ],
   "findings": [
@@ -150,7 +140,7 @@
     {
       "stage": "widen-packed-pair-returns",
       "description": "packed pair return widening",
-      "edits": 2
+      "edits": 0
     },
     {
       "stage": "coerce-word-returns",
@@ -168,9 +158,9 @@
     "label": "tier18-lower-unknown-external-calls",
     "solc_version": "0.8.30",
     "returncode": 1,
-    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 3.82ms\n",
+    "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 4.31ms\n",
     "stderr": "Error: Compiler run failed:\nError (6933): Expected primary expression.\n  --> src/Candidate.sol:27:32:\n   |\n27 |         if((0x1f & var_f) == 0)) {\n   |                                ^\n",
-    "source_sha256": "21d7c6b2e1bae52ee82a4aa6bf0d27d3948133c61caed1e81ec5698397767686",
+    "source_sha256": "761bb8282204f7add0fb004c77853ab96d83a1a858dc5c074ce3ef78b8ee8542",
     "ok": false
   },
   "tier_compiles": [
