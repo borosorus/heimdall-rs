@@ -1,0 +1,49 @@
+{
+ "modern-advanced": {
+  "raw": "evaluation/results/modern-advanced-whole-v1/modern-advanced/baseline.sol",
+  "raw_sha256": "a9bac78f006c4af935ff4418baa83e3a337d1b117ae7b225e656112f08c1ecb4",
+  "stages": 18,
+  "edits": {
+   "declarations": 7,
+   "selfref": 5,
+   "vars": 3,
+   "truthiness": 5,
+   "wordify-address-mask": 2
+  },
+  "seed_sha256": "36704d95af65eb729de5ad9c9bd600852ccd3e77099dce1fcf3a5f014564e050",
+  "compiles": false,
+  "first_error": "6933 Expected primary expression (dynamic-slice member call Unresolved_(memory[..]))"
+ },
+ "modern-math-helper": {
+  "raw": "evaluation/results/modern-math-helper-unitloop-v1/modern-math-helper/verify/modern-math-helper/baseline.sol",
+  "raw_sha256": "4b7da185929b1b0606f91f27d4439898687a6572f738e63340f8be1cc5950f66",
+  "stages": 18,
+  "edits": {
+   "declarations": 1,
+   "truthiness": 1
+  },
+  "seed_sha256": "89e355255a237b1b88593af5a8b1127c20e7a4b3417b0dd56b17337cfd30fe88",
+  "compiles": false,
+  "first_error": "2271 bool|uint256 / bool==uint256 operator mixing (truthiness-adjacent residue)"
+ },
+ "synthetic-large": {
+  "raw": "evaluation/results/synthetic-large-enum-final/synthetic-large/harness-final-perfect/synthetic-large/baseline.sol",
+  "raw_sha256": "99cd971f1182ef025bbe25d20e3d12bddff5e14abfbec95468c64354c3bc2677",
+  "stages": 18,
+  "edits": {
+   "placeholders": 1,
+   "declarations": 13,
+   "vars": 1,
+   "arity": 3,
+   "truthiness": 5,
+   "param-types": 8,
+   "storage-getters": 10,
+   "send-guards": 1,
+   "wordify-address-mask": 2
+  },
+  "seed_sha256": "77b2d61ebc761cb169d094389e85b8ae1f8f2101a62bcf7021fad7dcdfca34ff",
+  "compiles": false,
+  "first_error": "mixed width-coercion family (bytes32->uint8, !uint8, bytes32/uint256 return, bytes storage ref compare)"
+ },
+ "verdict": "3/3 tune-fixture seeds still fail compile under the 18-stage ladder; Arm B surface confirmed at these three, error classes recorded for Arm C seeding"
+}
