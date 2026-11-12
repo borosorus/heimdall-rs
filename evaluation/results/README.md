@@ -811,3 +811,16 @@ multi-pass truthiness stage; auditlog re-sealed 8/8+2/2 under the final ladder. 
 31/32 feedback, 7/8 withheld. Codex-reviewed; 6 findings adopted and the matrix re-sealed
 unchanged (`tier2-batch2/`). Rust-port parity debt noted: stages 14-18 + scope fixes are
 Python-side pending port sync.
+
+### Tier-3 repair 1: lighthouse read-guard (2026-11-12)
+
+The batch-2 lighthouse residual repaired by the third rebuild family,
+`rebuild_guarded_view.py` (layout-guarded unit rebuild; planner-hardened gates): the
+decompiler's require-conjunct nesting had dropped the outer revert edge of
+`read()`; the rebuilt body composes only harness-proven atoms (probe-green notTooLong unit,
+ladder-recorded value-half alias, the seed's own return expression). Preregistered with a
+reachable-space proof (admin/write paths unreachable under runtime-only deployment, so the
+empty-storage probes are the complete reachable `read()` contract). Paired run `lh-repair1`:
+seed re-derived 9/10+1/2 in-run, repaired candidate **10/10 fb + 2/2 wh** — byte-identical
+revert parity on `read_zero`, `peek_mixed` green, no regression. All four tier-2 fixtures now
+stand at full marks on the deterministic pipeline, zero LLM. Suite 211/211. (`lighthouse-read-repair/`)
