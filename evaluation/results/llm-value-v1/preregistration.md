@@ -92,3 +92,14 @@ fixtures-leave-when-green, surfaces pinned, withheld = generalization only; 3 ->
 and per-request accounting as above; 4 -> seed-subtracted two-level matching, renaming deferred;
 5 -> promotion gate before the stage-19-candidate label; 6 -> prompt spot-check log and
 benchmark-relative labeling throughout.
+
+## Deviation 1 (2026-11-12, before any arm verdict): effort sweep added to Arm A
+
+User directive: lower efforts are fair game; divide-and-conquer stays in B/C (the chunked
+surfaces already exist there; the legacy whole-contract prompt is NOT re-chunked ad hoc).
+Arm A therefore runs a same-prompt effort pair on the FIRST fixture (hdwallet):
+`max` then `low`, everything else identical; the recorded delta (latency, tokens, verdict)
+measures what the effort knob buys on the legacy surface. The better-behaved effort then
+runs the remaining fixtures. The max run already landed: single-shot non-streamed request
+TIMED OUT at 1200 s (llm-report: applied=false, error "LLM request timed out", fallback
+byte-identical to raw - recorded as an arm-A finding, not an error to hide).
