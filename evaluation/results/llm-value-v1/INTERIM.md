@@ -88,3 +88,26 @@ arithmetic: weak). The ladder remains the 8/8 zero-call baseline; the LLM layer
 is a bonus oracle as directed. Leads updated: (a) setter-packing repair class
 (the residual is ONE arithmetic expression - a deterministic stage-19 candidate
 via the gate); (b) empty-response retry hardening in the repair clients.
+
+## Composition experiment (scout-checked) - the division-of-labor answer
+
+Scout verdict on my "one arithmetic expression" stage-19 framing: existing-tool-covers -
+the general setter repair IS rebuild_string_slot_accessors.SETTER (whole-unit replacement);
+adopted, framing corrected in the ledger.
+
+Composed candidate (LLM-repaired getter + tool-rebuilt setter, hybrid/hdwallet-hybrid-
+final.sol): compiles; harness llm-hyb4 = 1/8 - NO further gain. Root cause: the LLM
+getter reads `count`, shadow state the hybrid introduced and the tool's setter template
+does not maintain - the two repairs interlock through LLM-introduced state, so
+composition is NOT mechanical. The clean 8/8 path remains the pure deterministic
+pipeline, which never needed shadow state.
+
+FINAL arm-C synthesis for the llm-value question:
+- LLM structural repair from black-box I/O: REAL (canonical layout reconstruction).
+- LLM as composable pre-pass for deterministic semantic tools: NO as-is (shadow-state
+  coupling); would require a whole-unit contract (tool owns every unit it touches).
+- Efficiency: ladder 8/8 at zero calls remains the product; LLM layer = bonus oracle,
+  confined to structure/intent hints, exactly as directed.
+Residual leads: empty-response retry hardening; wh-informed (harness-side) probe
+prioritization for repair targeting; nothing new deterministic - the stage-19 ledger
+entry for this class is CLOSED (tool covers it).
