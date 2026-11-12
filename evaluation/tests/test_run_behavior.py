@@ -139,16 +139,18 @@ class BindingSelectionTests(unittest.TestCase):
             "chunkedGetter()",
         )
 
-    def test_candidate_label_falls_back_to_legacy_signature(self):
-        binding = {
-            "reference_signature": "get()",
-            "candidate_signature": "legacy()",
-            "candidate_signatures": {"whole": "wholeGetter()"},
-        }
-        self.assertEqual(
-            run_behavior.select_candidate_signature(binding, "missing"),
-            "legacy()",
-        )
+    def test_candidate_label_without_map_entry_is_rejected(self):
+        # a per-label map must not silently bind another label's signature:
+        # wrong-selector verdicts would look like behavior failures
+        with self.assertRaises(run_behavior.HarnessError):
+            run_behavior.select_candidate_signature(
+                {
+                    "reference_signature": "get()",
+                    "candidate_signature": "legacy()",
+                    "candidate_signatures": {"whole": "wholeGetter()"},
+                },
+                "missing",
+            )
 
     def test_candidate_label_without_any_signature_is_rejected(self):
         with self.assertRaises(run_behavior.HarnessError):

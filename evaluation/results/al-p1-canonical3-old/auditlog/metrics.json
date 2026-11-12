@@ -1,0 +1,119 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "01110aec812e247c6237d22b6b646c78063dfc13f2caa5b734cf301bb1badfe3",
+  "blocked_probes": 0,
+  "bound_reference_selectors": [
+    "0x88702ee9",
+    "0xcf62fd39",
+    "0xde8fa431"
+  ],
+  "candidate_compile": true,
+  "candidate_label": "seed-v1",
+  "candidate_sha256": "ff1ca0b770a098f4a8b6132e5c7b7863fc5863ba4be1bd1518d3d7e05b1f003c",
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "deployment_context": {
+    "baseline": null,
+    "llm1": null
+  },
+  "executed_probes": 10,
+  "feedback_probes": [
+    "initial_empty",
+    "push_alpha_readback",
+    "push_two_ordering",
+    "size_after_two",
+    "push_return_index",
+    "short_string_31",
+    "boundary_string_32",
+    "long_string_96"
+  ],
+  "fixture": "auditlog",
+  "llm1_compile": true,
+  "llm1_sha256": "ff1ca0b770a098f4a8b6132e5c7b7863fc5863ba4be1bd1518d3d7e05b1f003c",
+  "max_tokens": null,
+  "model": null,
+  "planned_probes": 10,
+  "repair_attempts": [],
+  "repair_error": null,
+  "run_id": "al-p1-canonical3-old",
+  "schema_version": 2,
+  "seed": null,
+  "selected": "llm1",
+  "selected_feedback_failing": [],
+  "selected_feedback_matched": 8,
+  "selected_feedback_total": 8,
+  "selected_reason": "no repair requested",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 2,
+  "selected_withheld_total": 2,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.30",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 8,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "01110aec812e247c6237d22b6b646c78063dfc13f2caa5b734cf301bb1badfe3",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 2
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 27,
+      "feedback_failing": [],
+      "feedback_matched": 8,
+      "feedback_total": 8,
+      "interface": {
+        "candidate_only": [
+          "0x48ca847e",
+          "0x90c4f05d",
+          "0xd269a5ad"
+        ],
+        "candidate_selector_count": 3,
+        "matched": 0,
+        "missing": [
+          "0x88702ee9",
+          "0xcf62fd39",
+          "0xde8fa431"
+        ],
+        "reference_selector_count": 3
+      },
+      "label": "llm1",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "ff1ca0b770a098f4a8b6132e5c7b7863fc5863ba4be1bd1518d3d7e05b1f003c",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 2,
+      "withheld_total": 2
+    }
+  ],
+  "temperature": null,
+  "timeout_seconds": null,
+  "unbound_reference_selectors": [],
+  "withheld_probes": [
+    "read_out_of_range",
+    "interleave_growth"
+  ]
+}

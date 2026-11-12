@@ -721,10 +721,12 @@ def select_candidate_signature(binding: dict[str, Any], candidate_label: str) ->
             raise HarnessError("candidate_signatures must be an object keyed by label")
         candidate_signature = candidate_signatures.get(candidate_label)
         if candidate_signature is None:
-            candidate_signature = binding.get("candidate_signature")
-        if candidate_signature is None:
+            # a per-label map that lacks THIS label must not silently bind
+            # another label's signature: wrong-selector verdicts would look
+            # like behavior failures
             raise HarnessError(
-                f"no candidate signature for label {candidate_label!r}"
+                f"no candidate signature for label {candidate_label!r} in "
+                "candidate_signatures; add the label mapping or drop the map"
             )
     else:
         candidate_signature = binding.get("candidate_signature")
