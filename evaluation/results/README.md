@@ -797,3 +797,17 @@ entire layout from in-source evidence (shared-keccak-base family, unique role ma
 elsewhere — erc20/blockreader/modern-errors seeds abstain) and reproduces the perfect verdict
 parameter-free (`al-p2-auto`). The auditlog class is a repeatable pipeline stage;
 codex-reviewed at both phases (6 findings, all adopted).
+
+### Tier-2 batch 2: hdwallet, ipfs, lighthouse (2026-11-12)
+
+The remaining three pristine fixtures through the deterministic pipeline, zero model calls:
+**hdwallet 8/8+2/2** and **ipfs 6/6+2/2** (new single/multi string-slot accessor rebuilder —
+ipfs's accessors had been lifted to public vars, requiring append-getter), **lighthouse 9/10+1/2
+on the bare seed** — the largest, oldest-style fixture yet, now compiling and behaving
+unassisted; sole residual is a read() branch-polarity divergence (recorded). The seed ladder
+grew 13->18 stages (packed-literal typing, address-mask word algebra, tuple-return widening,
+word-return coercion, external-call lowering) plus scope-honest selfref/vars and a rebuilt
+multi-pass truthiness stage; auditlog re-sealed 8/8+2/2 under the final ladder. Batch totals:
+31/32 feedback, 7/8 withheld. Codex-reviewed; 6 findings adopted and the matrix re-sealed
+unchanged (`tier2-batch2/`). Rust-port parity debt noted: stages 14-18 + scope fixes are
+Python-side pending port sync.
