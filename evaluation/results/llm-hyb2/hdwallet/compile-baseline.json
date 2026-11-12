@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "ok": false,
+  "returncode": 1,
+  "solc_version": "0.8.30",
+  "source_sha256": "9b90533b0eb5927f861d423ddd0333961f4a7c0f39f0e60ca7843664489a61cb",
+  "stderr": "Error: Compiler run failed:\nError (7407): Type uint256 is not implicitly convertible to expected type bytes storage ref.\n  --> src/Candidate.sol:38:19:\n   |\n38 |         store_a = 0x01 + (var_e + var_e);\n   |                   ^^^^^^^^^^^^^^^^^^^^^^\n",
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 4.07ms\n"
+}

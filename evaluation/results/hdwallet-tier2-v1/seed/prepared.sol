@@ -24,7 +24,7 @@ contract DecompiledContract {
     /// @custom:selector    0x2a1afcd9
     /// @custom:signature   Unresolved_2a1afcd9() public view returns (bytes memory)
     function Unresolved_2a1afcd9() public view returns (bytes memory) {
-        if((0x1f & var_f) == 0)) {
+        if((0x1f & var_f) == 0) {
             return abi.encodePacked(uint256(0x20), var_f);
         } else {
             return abi.encodePacked(uint256(0x20), var_f, ~(0x0100 ** (0x20 - (0x1f & var_f)) - 0x01) & var_h);
@@ -41,7 +41,7 @@ contract DecompiledContract {
     /// @custom:selector    0x6d4ce63c
     /// @custom:signature   Unresolved_6d4ce63c() public view returns (bytes memory)
     function Unresolved_6d4ce63c() public view returns (bytes memory) {
-        if((0x1f & var_f) == 0)) {
+        if((0x1f & var_f) == 0) {
             return abi.encodePacked(uint256(0x20), var_f);
         } else {
             return abi.encodePacked(uint256(0x20), var_f, ~(0x0100 ** (0x20 - (0x1f & var_f)) - 0x01) & var_h);

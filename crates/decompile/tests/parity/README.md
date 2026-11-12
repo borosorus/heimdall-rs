@@ -42,7 +42,8 @@ reproduce the sealed seeds byte-exactly:
 - `lighthouse-raw` stage18 == `evaluation/results/lighthouse-tier2-v1/seed/prepared.sol`
   (sha256 `444d408373d84539…`)
 - `hdwallet-raw` stage18 == `evaluation/results/hdwallet-tier2-v1/seed/prepared.sol`
-  (sha256 `761bb8282204f7ad…`)
+  (sha256 `9b90533b0eb54c37…`, re-derived under the pass2-rendering re-freeze of
+  2026-11-12; the pre-freeze seed `761bb828…` stands as history in git)
 
 The Rust parity test asserts every registry prefix against the matching
 `stageNN-*.sol` reference, so each porting slice extends the checked prefix

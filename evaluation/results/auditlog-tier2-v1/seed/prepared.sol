@@ -31,7 +31,7 @@ contract DecompiledContract {
         if (arg0 < store_a) {
             uint256 var_b;
             var_b = 0x20 + (var_b + 0x20 * (((store_b & 0x0100 * ((store_b & 0x01) == 0) + type(uint256).max) / 0x02 + 0x1f) / 0x20));
-            if((0x1f & var_g) == 0)) {
+            if((0x1f & var_g) == 0) {
                 return abi.encodePacked(store_b[0x02 * arg0].field_0.field_0.field_0, 0x20 + (0x20 + var_b) - var_b, var_g);
             } else {
                 return abi.encodePacked(store_b[0x02 * arg0].field_0.field_0.field_0, 0x20 + (0x20 + var_b) - var_b, var_g, ~(0x0100 ** (0x20 - (0x1f & var_g)) - 0x01) & var_i);

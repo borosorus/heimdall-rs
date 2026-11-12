@@ -41,3 +41,24 @@ vs the correct `0),`). Correct forms pinned by the solc truth test above.
 REMEDATION = standard freeze discipline: fix the Python f-string + Rust mirror,
 re-derive parity fixtures + 3 seeds, re-run the verdict matrix + hybrid. NOT YET DONE
 - recorded as the next unit; earlier eras remain valid history under the discipline.
+
+## Re-freeze EXECUTED (2026-11-12, later same day) - pass2 rendering fix
+
+The base-hygiene fix landed end to end per the freeze discipline:
+- Python f-string + Rust mirror: `kw((X) == 0)` with the comma OUTSIDE the kw-paren
+  (solc truth test pinned; both suites updated to the correct forms);
+- parity fixtures re-derived (10 stage files across the 4 corpora) - Rust parity green;
+- seeds re-derived: hdwallet `9b90533b…`, auditlog `ba81cd43…`, ipfs `58006406…`;
+  lighthouse byte-UNCHANGED (`444d4083…`, zero pass2 sites);
+- candidates re-derived with the RECORDED tools/args (hdw: string-slot setter+2 getters
+  0x00; al: struct-array --auto; ipfs: pair-getter 6d4ce63c 0x00/0x01 + append
+  IpfsHash/0x01 Description/0x00) into `refreeze2026-11-12/`;
+- verdict matrix RE-RUN, IDENTICAL: hdw-refr4 8/8+2/2, al-refr4 8/8+2/2,
+  ipfs-refr4 6/6+2/2, lighthouse stands as-is; hybrid re-derived under the fixed
+  ladder (llm-hyb2): 0/8+0/2 - the two-slot-hallucination verdict unchanged.
+
+CORRECTION to the interim wording above: standalone seed compile was never the
+batch-2 acceptance (the rebuild candidates carry it, then and now). Under the fixed
+pass2 the seeds STILL fail standalone on the NEXT pre-existing wart layer
+(e.g. hdwallet 7407 `bytes storage` assignment) - unchanged historical state,
+recorded as ladder leads, NOT part of this fix.

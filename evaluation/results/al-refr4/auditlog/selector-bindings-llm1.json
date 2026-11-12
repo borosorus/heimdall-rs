@@ -1,0 +1,64 @@
+{
+  "bindings": {
+    "getSize": {
+      "available": true,
+      "baseline_selector": "0xde8fa431",
+      "baseline_signature": "getSize()",
+      "candidate_label": "seed-v1",
+      "candidate_selector": "0x48ca847e",
+      "candidate_signature": "Unresolved_de8fa431()",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_de8fa431()"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0xde8fa431",
+      "reference_signature": "getSize()",
+      "unavailable_reason": null
+    },
+    "logEntries": {
+      "available": true,
+      "baseline_selector": "0x88702ee9",
+      "baseline_signature": "logEntries(uint256)",
+      "candidate_label": "seed-v1",
+      "candidate_selector": "0xd269a5ad",
+      "candidate_signature": "Unresolved_88702ee9(uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_88702ee9(uint256)"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0x88702ee9",
+      "reference_signature": "logEntries(uint256)",
+      "unavailable_reason": null
+    },
+    "push": {
+      "available": true,
+      "baseline_selector": "0xcf62fd39",
+      "baseline_signature": "push(address,string)",
+      "candidate_label": "seed-v1",
+      "candidate_selector": "0x90c4f05d",
+      "candidate_signature": "Unresolved_cf62fd39(uint256,uint256)",
+      "candidate_signatures": {
+        "seed-v1": "Unresolved_cf62fd39(uint256,uint256)"
+      },
+      "fallback_dispatch": false,
+      "reference_selector": "0xcf62fd39",
+      "reference_signature": "push(address,string)",
+      "unavailable_reason": null
+    }
+  },
+  "interface": {
+    "candidate_only": [
+      "0x48ca847e",
+      "0x90c4f05d",
+      "0xd269a5ad"
+    ],
+    "candidate_selector_count": 3,
+    "matched": 0,
+    "missing": [
+      "0x88702ee9",
+      "0xcf62fd39",
+      "0xde8fa431"
+    ],
+    "reference_selector_count": 3
+  }
+}

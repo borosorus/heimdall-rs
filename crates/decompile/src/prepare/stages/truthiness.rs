@@ -212,13 +212,12 @@ pub(crate) fn run(source: &str) -> Result<Stage, ParseError> {
         if inner.is_empty() || !flat_uint(inner) {
             return None;
         }
-        // Python-verified renderings (pinned by the unit tests below):
-        // comma match  -> `kw((inner) == 0,)`
-        // bare match   -> `kw((inner) == 0))`
+        // Python-verified renderings: the kw-paren closes right after
+        // `== 0)`; a consumed comma is re-emitted OUTSIDE it
         let replaced = if comma {
-            format!("{kw}(({inner}) == 0,)")
+            format!("{kw}(({inner}) == 0),")
         } else {
-            format!("{kw}(({inner}) == 0))")
+            format!("{kw}(({inner}) == 0)")
         };
         Some((
             replaced,
@@ -419,7 +418,7 @@ mod tests {
         ))
         .unwrap()
         .source;
-        assert!(staged.contains("require((var_b + 0x1) == 0));"));
+        assert!(staged.contains("require((var_b + 0x1) == 0);"));
     }
 
     #[test]
@@ -485,7 +484,7 @@ mod tests {
         ))
         .unwrap()
         .source;
-        assert!(staged.contains("if((0x1f & 0x2) == 0,) true"));
+        assert!(staged.contains("if((0x1f & 0x2) == 0), true"));
     }
 
     #[test]

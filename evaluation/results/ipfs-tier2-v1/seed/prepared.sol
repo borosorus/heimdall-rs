@@ -27,7 +27,7 @@ contract DecompiledContract {
     function Unresolved_6d4ce63c() public view returns (bytes memory) {
         uint256 var_a;
         var_a = 0x20 + (var_a + 0x20 * (((unresolved_8bf421ee & type(uint256).max + 0x0100 * ((unresolved_8bf421ee & 0x01) == 0)) / 0x02 + 0x1f) / 0x20));
-        if((0x1f & var_g) == 0)) {
+        if((0x1f & var_g) == 0) {
             return abi.encodePacked(0x20 + (0x20 + var_a) - var_a, 0x20 + (var_g + (0x20 + (0x20 + (0x20 + var_a))) - (0x1f & var_g)) - var_a, var_g, ~(0x0100 ** (0x20 - (0x1f & var_g)) - 0x01) & var_i, var_g);
         } else {
             return abi.encodePacked(0x20 + (0x20 + var_a) - var_a, 0x20 + (var_g + (0x20 + (0x20 + (0x20 + var_a))) - (0x1f & var_g)) - var_a, var_g, ~(0x0100 ** (0x20 - (0x1f & var_g)) - 0x01) & var_i, var_g, ~(0x0100 ** (0x20 - (0x1f & var_g)) - 0x01) & var_m);

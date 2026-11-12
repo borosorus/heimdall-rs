@@ -1,0 +1,116 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "5800640608ff52d4e019559b2da38a2f80f11cf28d2e367127e9c8d5eff24494",
+  "blocked_probes": 0,
+  "bound_reference_selectors": [
+    "0x6d4ce63c",
+    "0x8191745f",
+    "0x8bf421ee"
+  ],
+  "candidate_compile": true,
+  "candidate_label": "seed-v1",
+  "candidate_sha256": "087f85ad10e1f6483dc2a7118501bcaca57ff125e6a7ce5996a0ab4628764835",
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "deployment_context": {
+    "baseline": null,
+    "llm1": null
+  },
+  "executed_probes": 8,
+  "feedback_probes": [
+    "initial_pair",
+    "alias_desc",
+    "alias_hash",
+    "repeat_pair",
+    "interleave_all",
+    "pair_last"
+  ],
+  "fixture": "ipfs",
+  "llm1_compile": true,
+  "llm1_sha256": "087f85ad10e1f6483dc2a7118501bcaca57ff125e6a7ce5996a0ab4628764835",
+  "max_tokens": null,
+  "model": null,
+  "planned_probes": 8,
+  "reasoning_effort": null,
+  "repair_attempts": [],
+  "repair_error": null,
+  "run_id": "ipfs-refr4",
+  "schema_version": 2,
+  "seed": null,
+  "selected": "llm1",
+  "selected_feedback_failing": [],
+  "selected_feedback_matched": 6,
+  "selected_feedback_total": 6,
+  "selected_reason": "no repair requested",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 2,
+  "selected_withheld_total": 2,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.30",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 6,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "5800640608ff52d4e019559b2da38a2f80f11cf28d2e367127e9c8d5eff24494",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 2
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 18,
+      "feedback_failing": [],
+      "feedback_matched": 6,
+      "feedback_total": 6,
+      "interface": {
+        "candidate_only": [
+          "0x10f5ed08",
+          "0x60f60adc",
+          "0xbd9f6efb"
+        ],
+        "candidate_selector_count": 5,
+        "matched": 2,
+        "missing": [
+          "0x6d4ce63c"
+        ],
+        "reference_selector_count": 3
+      },
+      "label": "llm1",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "087f85ad10e1f6483dc2a7118501bcaca57ff125e6a7ce5996a0ab4628764835",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 2,
+      "withheld_total": 2
+    }
+  ],
+  "temperature": null,
+  "timeout_seconds": null,
+  "unbound_reference_selectors": [],
+  "withheld_probes": [
+    "all_after_all",
+    "desc_hash_desc"
+  ]
+}

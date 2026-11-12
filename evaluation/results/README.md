@@ -827,3 +827,13 @@ findings adopted, suite 213/213): seed re-derived 9/10+1/2 in-run, sealed candid
 **10/10 fb + 2/2 wh** — byte-identical revert parity on `read_zero`, `peek_mixed` green,
 no regression. All four tier-2 fixtures now
 stand at full marks on the deterministic pipeline, zero LLM. Suite 211/211. (`lighthouse-read-repair/`)
+
+### Determinism re-freeze: pass2 truthiness rendering (2026-11-12)
+
+Found via the llm-value hybrid's baseline stage: the ladder's pass2 emitted
+`if((X) == 0))`/`...0,)` - one paren over / transposed (solc 6933). Fixed in BOTH
+implementations, parity fixtures and 3 of 4 seeds re-derived (lighthouse untouched),
+batch candidates re-dered with the recorded tools, verdict matrix re-run IDENTICAL
+(hdw 8/8+2/2, al 8/8+2/2, ipfs 6/6+2/2; lh stands). Suite 214 py + 188 rust, parity
+green. Deeper seed warts recorded as leads; the llm-value arms continue on the
+re-frozen base. (`llm-value-v1/INTERIM.md`, runs `*-refr4`, `llm-hyb2`)

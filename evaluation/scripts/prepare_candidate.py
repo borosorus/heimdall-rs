@@ -1160,7 +1160,7 @@ def relax_truthiness_requires(source: str) -> Stage:
         comma = match.group("comma") == ","
         if not inner or not flat_uint(inner):
             return None
-        return (f"{kw}(({inner}) == 0{',' if comma else ')'})",
+        return (f"{kw}(({inner}) == 0){',' if comma else ''}",
                 _record("truthiness-negation",
                         f"{kw}(!({inner})) -> {kw}(({inner}) == 0...)",
                         "uint negation without implicit bool conversion"))
