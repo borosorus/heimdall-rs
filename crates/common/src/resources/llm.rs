@@ -133,6 +133,9 @@ pub struct LlmConfig {
     pub timeout: Duration,
     /// Optional completion-token cap. `None` omits `max_tokens` from the request.
     pub max_tokens: Option<u32>,
+    /// Optional reasoning-effort request, forwarded as `reasoning_effort` verbatim.
+    /// `None` omits the field, keeping the request body identical to the legacy form.
+    pub reasoning_effort: Option<String>,
 }
 
 impl fmt::Debug for LlmConfig {
@@ -144,6 +147,7 @@ impl fmt::Debug for LlmConfig {
             .field("response_format", &self.response_format)
             .field("timeout", &self.timeout)
             .field("max_tokens", &self.max_tokens)
+            .field("reasoning_effort", &self.reasoning_effort)
             .finish()
     }
 }
@@ -161,6 +165,7 @@ impl LlmConfig {
             response_format: LlmResponseFormat::Auto,
             timeout: DEFAULT_STRUCTURED_TIMEOUT,
             max_tokens: None,
+            reasoning_effort: None,
         }
     }
 
@@ -181,6 +186,7 @@ impl LlmConfig {
             response_format,
             timeout: DEFAULT_CUSTOM_TIMEOUT,
             max_tokens: Some(DEFAULT_CUSTOM_MAX_TOKENS),
+            reasoning_effort: None,
         }
     }
 
@@ -195,6 +201,13 @@ impl LlmConfig {
     #[must_use]
     pub fn with_max_tokens(mut self, max_tokens: Option<u32>) -> Self {
         self.max_tokens = max_tokens;
+        self
+    }
+
+    /// Sets or clears the reasoning-effort request.
+    #[must_use]
+    pub fn with_reasoning_effort(mut self, effort: Option<String>) -> Self {
+        self.reasoning_effort = effort;
         self
     }
 
@@ -248,6 +261,9 @@ impl LlmConfig {
         }
         if self.max_tokens == Some(0) {
             return Err(LlmError::InvalidMaxTokens);
+        }
+        if self.reasoning_effort.as_deref() == Some("") {
+            return Err(LlmError::InvalidReasoningEffort);
         }
         if url.scheme() == "http" &&
             !is_local_host(host) &&
@@ -306,6 +322,9 @@ pub enum LlmError {
     /// The configured completion-token cap is zero.
     #[error("LLM max_tokens must be greater than zero when set")]
     InvalidMaxTokens,
+    /// The configured reasoning effort is empty.
+    #[error("LLM reasoning_effort must not be empty when set")]
+    InvalidReasoningEffort,
     /// A key would be sent over plaintext HTTP to a non-local host.
     #[error("refusing to send an API key over plaintext HTTP to non-local host '{host}'")]
     InsecureKeyTransport {
@@ -502,6 +521,10 @@ impl LlmClient {
 
         if let Some(max_tokens) = self.config.max_tokens {
             body["max_tokens"] = json!(max_tokens);
+        }
+
+        if let Some(effort) = &self.config.reasoning_effort {
+            body["reasoning_effort"] = json!(effort);
         }
 
         if mode == LlmResponseMode::JsonSchema {
@@ -803,6 +826,23 @@ mod tests {
             already_complete.chat_completions_url(),
             "http://127.0.0.1:1234/v1/chat/completions"
         );
+    }
+
+    #[test]
+    fn reasoning_effort_round_trips_and_validates() {
+        let plain = LlmConfig::custom("http://127.0.0.1:1234/v1", None, "m", LlmResponseFormat::Auto);
+        assert_eq!(plain.reasoning_effort, None);
+        assert!(plain.validate().is_ok());
+
+        let effort = plain.clone().with_reasoning_effort(Some("max".to_string()));
+        assert_eq!(effort.reasoning_effort.as_deref(), Some("max"));
+        assert!(effort.validate().is_ok());
+
+        let cleared = effort.with_reasoning_effort(None);
+        assert_eq!(cleared.reasoning_effort, None);
+
+        let empty = plain.with_reasoning_effort(Some(String::new()));
+        assert!(matches!(empty.validate(), Err(LlmError::InvalidReasoningEffort)));
     }
 
     #[test]

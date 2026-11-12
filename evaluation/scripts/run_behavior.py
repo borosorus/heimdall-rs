@@ -1039,6 +1039,7 @@ def request_repair(
     prompt: str,
     result_dir: Path,
     label: str,
+    reasoning_effort: str = "",
 ) -> tuple[str | None, str | None]:
     body: dict[str, Any] = {
         "model": model,
@@ -1047,17 +1048,19 @@ def request_repair(
         "seed": seed,
         "max_tokens": max_tokens,
         "stream": False,
-        "response_format": {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "repaired_contract",
-                "strict": True,
-                "schema": {
-                    "type": "object",
-                    "properties": {"source": {"type": "string"}},
-                    "required": ["source"],
-                    "additionalProperties": False,
-                },
+    }
+    if reasoning_effort:
+        body["reasoning_effort"] = reasoning_effort
+    body["response_format"] = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "repaired_contract",
+            "strict": True,
+            "schema": {
+                "type": "object",
+                "properties": {"source": {"type": "string"}},
+                "required": ["source"],
+                "additionalProperties": False,
             },
         },
     }
@@ -1205,6 +1208,8 @@ def main() -> int:
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--llm-timeout", type=int, default=600)
+    parser.add_argument("--llm-reasoning-effort", dest="llm_reasoning_effort", default="",
+                        help="reasoning_effort field for repair requests")
     args = parser.parse_args()
     if not 1 <= args.repair_rounds <= 5:
         raise HarnessError("--repair-rounds must be between 1 and 5")
@@ -1382,6 +1387,7 @@ def main() -> int:
                         prompt,
                         result_dir,
                         label,
+                        reasoning_effort=args.llm_reasoning_effort or "",
                     )
                     if request_error:
                         repair_error = request_error
@@ -1480,6 +1486,7 @@ def main() -> int:
         "fixture": fixture,
         "run_id": run_id,
         "model": args.model if args.repair else None,
+        "reasoning_effort": (args.llm_reasoning_effort or None) if args.repair else None,
         "temperature": args.temperature if args.repair else None,
         "seed": args.seed if args.repair else None,
         "max_tokens": args.max_tokens if args.repair else None,

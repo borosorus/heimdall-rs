@@ -130,6 +130,12 @@ pub struct DecompilerArgs {
     #[builder(default)]
     pub llm_timeout: Option<u64>,
 
+    /// Reasoning effort forwarded to the endpoint as `reasoning_effort` (e.g. max, high, low).
+    /// Unset omits the field from the request entirely.
+    #[clap(long, value_name = "EFFORT", default_value = None, hide_default_value = true)]
+    #[builder(default)]
+    pub llm_reasoning_effort: Option<String>,
+
     /// Your Etherscan API key, used for fetching creation bytecode of self-destructed contracts.
     #[clap(long, default_value = "", hide_default_value = true)]
     pub etherscan_api_key: String,
@@ -232,6 +238,7 @@ impl DecompilerArgsBuilder {
             llm_report: Some(None),
             llm_max_tokens: Some(None),
             llm_timeout: Some(None),
+            llm_reasoning_effort: Some(None),
             etherscan_api_key: Some(String::new()),
             hardfork: Some(HardFork::Latest),
         }
@@ -259,6 +266,8 @@ mod tests {
             "32768",
             "--llm-timeout",
             "600",
+            "--llm-reasoning-effort",
+            "max",
         ])
         .unwrap();
 
@@ -268,6 +277,7 @@ mod tests {
         assert_eq!(args.llm_report.as_deref(), Some("report.json"));
         assert_eq!(args.llm_max_tokens, Some(32768));
         assert_eq!(args.llm_timeout, Some(600));
+        assert_eq!(args.llm_reasoning_effort.as_deref(), Some("max"));
 
         let defaults = DecompilerArgs::try_parse_from(["decompile", "0x00"]).unwrap();
         assert_eq!(defaults.llm_base_url, "");
@@ -276,6 +286,7 @@ mod tests {
         assert_eq!(defaults.llm_report, None);
         assert_eq!(defaults.llm_max_tokens, None);
         assert_eq!(defaults.llm_timeout, None);
+        assert_eq!(defaults.llm_reasoning_effort, None);
     }
 
     #[test]

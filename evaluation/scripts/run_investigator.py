@@ -694,6 +694,7 @@ class ChatClient:
         response_format: str,
         output_dir: Path,
         budget: Budget,
+        reasoning_effort: str | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
@@ -705,6 +706,7 @@ class ChatClient:
         self.response_format = response_format
         self.output_dir = output_dir
         self.budget = budget
+        self.reasoning_effort = reasoning_effort or None
         self.calls_dir = output_dir / "calls"
         self.calls_dir.mkdir(parents=True, exist_ok=True)
 
@@ -724,6 +726,8 @@ class ChatClient:
             "max_tokens": max_tokens,
             "stream": False,
         }
+        if self.reasoning_effort:
+            body["reasoning_effort"] = self.reasoning_effort
         if mode == "json-schema":
             body["response_format"] = {
                 "type": "json_schema",

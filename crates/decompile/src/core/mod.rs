@@ -136,6 +136,9 @@ pub async fn decompile(args: DecompilerArgs) -> Result<DecompileResult, Error> {
         if let Some(max_tokens) = args.llm_max_tokens {
             config = config.with_max_tokens(Some(max_tokens));
         }
+        if let Some(effort) = args.llm_reasoning_effort.clone() {
+            config = config.with_reasoning_effort(Some(effort));
+        }
         if let Some(timeout_seconds) = args.llm_timeout {
             config = config.with_timeout(Duration::from_secs(timeout_seconds));
         }
