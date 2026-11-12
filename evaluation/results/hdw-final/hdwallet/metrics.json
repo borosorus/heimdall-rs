@@ -1,0 +1,119 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "21d7c6b2e1bae52ee82a4aa6bf0d27d3948133c61caed1e81ec5698397767686",
+  "blocked_probes": 0,
+  "bound_reference_selectors": [
+    "0x2a1afcd9",
+    "0x4ed3885e",
+    "0x6d4ce63c"
+  ],
+  "candidate_compile": true,
+  "candidate_label": "seed-v1",
+  "candidate_sha256": "ee1bb47a2fa3494d131a4e0910ff9793123d190fa33b5f8b6f5820135c867bad",
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "deployment_context": {
+    "baseline": null,
+    "llm1": null
+  },
+  "executed_probes": 10,
+  "feedback_probes": [
+    "initial_empty",
+    "set_then_get",
+    "alias_stored_data",
+    "overwrite_twice",
+    "empty_string",
+    "short_31",
+    "boundary_32",
+    "long_40"
+  ],
+  "fixture": "hdwallet",
+  "llm1_compile": true,
+  "llm1_sha256": "ee1bb47a2fa3494d131a4e0910ff9793123d190fa33b5f8b6f5820135c867bad",
+  "max_tokens": null,
+  "model": null,
+  "planned_probes": 10,
+  "repair_attempts": [],
+  "repair_error": null,
+  "run_id": "hdw-final",
+  "schema_version": 2,
+  "seed": null,
+  "selected": "llm1",
+  "selected_feedback_failing": [],
+  "selected_feedback_matched": 8,
+  "selected_feedback_total": 8,
+  "selected_reason": "no repair requested",
+  "selected_unbound_calls": [],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 2,
+  "selected_withheld_total": 2,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.30",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 8,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "21d7c6b2e1bae52ee82a4aa6bf0d27d3948133c61caed1e81ec5698397767686",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 2
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 23,
+      "feedback_failing": [],
+      "feedback_matched": 8,
+      "feedback_total": 8,
+      "interface": {
+        "candidate_only": [
+          "0xbd9f6efb",
+          "0xd18f757a",
+          "0xe167a4e9"
+        ],
+        "candidate_selector_count": 3,
+        "matched": 0,
+        "missing": [
+          "0x2a1afcd9",
+          "0x4ed3885e",
+          "0x6d4ce63c"
+        ],
+        "reference_selector_count": 3
+      },
+      "label": "llm1",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "ee1bb47a2fa3494d131a4e0910ff9793123d190fa33b5f8b6f5820135c867bad",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": 2,
+      "withheld_total": 2
+    }
+  ],
+  "temperature": null,
+  "timeout_seconds": null,
+  "unbound_reference_selectors": [],
+  "withheld_probes": [
+    "short_then_long",
+    "alias_interleave"
+  ]
+}
