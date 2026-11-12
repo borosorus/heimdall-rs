@@ -820,7 +820,9 @@ decompiler's require-conjunct nesting had dropped the outer revert edge of
 `read()`; the rebuilt body composes only harness-proven atoms (probe-green notTooLong unit,
 ladder-recorded value-half alias, the seed's own return expression). Preregistered with a
 reachable-space proof (admin/write paths unreachable under runtime-only deployment, so the
-empty-storage probes are the complete reachable `read()` contract). Paired run `lh-repair1`:
-seed re-derived 9/10+1/2 in-run, repaired candidate **10/10 fb + 2/2 wh** — byte-identical
-revert parity on `read_zero`, `peek_mixed` green, no regression. All four tier-2 fixtures now
+empty-storage probes are the complete reachable `read()` contract). Paired runs (`lh-repair1`, then post-review
+`lh-repair2` with the guard atom corrected to the whole packed word per codex review — both
+findings adopted, suite 213/213): seed re-derived 9/10+1/2 in-run, sealed candidate
+**10/10 fb + 2/2 wh** — byte-identical revert parity on `read_zero`, `peek_mixed` green,
+no regression. All four tier-2 fixtures now
 stand at full marks on the deterministic pipeline, zero LLM. Suite 211/211. (`lighthouse-read-repair/`)

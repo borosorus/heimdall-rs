@@ -44,6 +44,33 @@ class RebuildGuardedViewTests(unittest.TestCase):
         twice = module.rebuild(once, "foo", "v != 0", "nope", "v")
         self.assertEqual(once, twice)
 
+    def test_commented_require_does_not_satisfy_msg_gate(self):
+        commented = (
+            "contract C {\n"
+            "    uint256 v;\n"
+            "    function foo() public view returns (uint256) {\n"
+            '        // require(v != 1, "nope");\n'
+            "        return v;\n"
+            "    }\n"
+            "}\n"
+        )
+        with self.assertRaises(module.GateError) as caught:
+            module.rebuild(commented, "foo", "v != 0", "nope", "v")
+        self.assertIn("require", str(caught.exception))
+
+    def test_string_parens_do_not_skew_span_scan(self):
+        tricky = (
+            "contract C {\n"
+            "    uint256 v;\n"
+            "    function foo() public view returns (uint256) {\n"
+            '        require(v != 1, "no)pe");\n'
+            "        return v;\n"
+            "    }\n"
+            "}\n"
+        )
+        out = module.rebuild(tricky, "foo", "v != 0", "no)pe", "v")
+        self.assertIn('require(v != 0, "no)pe");', out)
+
     def test_gates_reject(self):
         cases = [
             ("missing", dict(source=FIXTURE, unit_name="zzz", guard="v", msg="nope", value_expr="v"), "not found"),

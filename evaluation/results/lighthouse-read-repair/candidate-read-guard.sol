@@ -63,7 +63,7 @@ contract DecompiledContract {
     /// @custom:signature   Unresolved_57de26a4() public view returns (address)
     
 function Unresolved_57de26a4() public view returns (address) {
-        require(Unresolved_e2f90632() && store_e != 0, "Invalid data stored");
+        require(Unresolved_e2f90632() && store_c != 0, "Invalid data stored");
         return address(uint160(store_e));
     }
     

@@ -97,11 +97,14 @@ def _signature_facts(header: str, name: str) -> tuple[str, str]:
 
 
 def _require_spans(body: str) -> list[str]:
+    """require(...) argument spans, located on comment/string-masked text (offsets preserved),
+    sliced from the raw body so string literals remain intact for the message check."""
+    masked = _load_investigator()._mask_strings_and_comments(body, 0, len(body))
     spans = []
-    for match in re.finditer(r"\brequire\s*\(", body):
+    for match in re.finditer(r"\brequire\s*\(", masked):
         open_paren = match.end() - 1
         try:
-            close_paren = _skip_block(body, open_paren)
+            close_paren = _skip_block(masked, open_paren)
         except GateError:
             continue
         spans.append(body[open_paren + 1 : close_paren])

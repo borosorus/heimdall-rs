@@ -95,3 +95,23 @@ codex-planner, revise-first, 5 findings: guard call-form adopted; alias-consiste
 (above); probe directive adopted-then-resolved (condition false, evidence above); tool gates
 hardened as listed; verdict scoping kept to the reachable probes with the success-path caveat
 explicit.
+
+## Deviations (post-review, before the lh-repair2 verdict)
+
+2026-11-12, codex review of the sealed state, two findings adopted:
+
+1. Guard conjunction second term `store_e != 0` -> `store_c != 0`. The fixture guard is the
+   WHOLE packed word (`value != 0`, lighthouse.sol:97, value = timestamp<<128 | data), and the
+   decompiler's own rendering used `store_c`; `store_e != 0` (low half only) diverges at
+   nonzero-packed/zero-low states. The divergence class is harness-unreachable (see the
+   reachable-space analysis above), so the sealed lh-repair1 verdict is unaffected; the
+   candidate is regenerated and re-judged as `lh-repair2` regardless - prose proofs do not
+   replace the harness.
+2. Tool msg-gate now locates require spans on comment/string-masked text (investigator masker,
+   offsets preserved; literal checked on the raw span) - a commented-out require no longer
+   satisfies the gate, and string parens cannot skew the span scan. Suite 213/213.
+
+The reviewer's remaining suggestion (a behavioral probe at nonzero-packed/zero-low) is
+unreachable under this harness (no authorized sender exists; analysis above) and is superseded
+by fix 1: the guard now matches the fixture semantics by construction plus two independent
+attestations (fixture source line; decompiler rendering), recorded - not claimed.

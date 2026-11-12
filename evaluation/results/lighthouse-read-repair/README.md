@@ -7,36 +7,42 @@ before any verdict, with the reachable-space analysis and the planner record):
 
 ## Result
 
-Paired run `lh-repair1` (same spec, same seeds discipline as batch-2; the un-repaired seed ran
-as the run's baseline stage, the repaired candidate as `llm1`):
+Paired runs (same spec, same seeds discipline as batch-2; the un-repaired seed ran as each
+run's baseline stage, the repaired candidate as `llm1`):
 
-| stage | fb | wh |
-|---|---|---|
-| baseline (batch-2 seed, re-derived in-run) | 9/10 | 1/2 |
-| **candidate (read-guard rebuild)** | **10/10** | **2/2** |
+| run | candidate | fb | wh |
+|---|---|---|---|
+| `lh-repair1` | `store_e != 0` guard (preregistered form) | 10/10 | 2/2 |
+| `lh-repair2` | `store_c != 0` guard (post-review, **sealed**) | **10/10** | **2/2** |
+
+Baseline (batch-2 seed, re-derived in-run): 9/10 + 1/2 both times.
 
 - `read_zero`: both sides status 0, revert data BYTE-IDENTICAL
-  (`Error(string) "Invalid data stored"`).
+  (`Error(string) "Invalid data stored"`), both runs.
 - `peek_mixed` (wh): green — it failed only on its `read` step.
 - The 9 fb greens and `admin_sequence`: unchanged (no-regression).
-- Matches the preregistered prediction exactly.
+- Matches the preregistered prediction; the post-review guard change (see the prereg's
+  deviation record: the fixture tests the WHOLE packed word, and the decompiler's own rendering
+  used `store_c`) is verdict-neutral on the harness-reachable class — confirmed by the paired
+  runs, not assumed.
 
 ## The repair
 
-`evaluation/scripts/rebuild_guarded_view.py` (new tool, gates per prereg) replaced the body of
-`Unresolved_57de26a4` in the batch-2 seed with
+`evaluation/scripts/rebuild_guarded_view.py` (new tool, gates per prereg + review hardening)
+replaced the body of `Unresolved_57de26a4` in the batch-2 seed with
 
-    require(Unresolved_e2f90632() && store_e != 0, "Invalid data stored");
+    require(Unresolved_e2f90632() && store_c != 0, "Invalid data stored");
     return address(uint160(store_e));
 
-Every atom harness-proven on this fixture (notTooLong unit fb-green; `store_e` the
-ladder-recorded uint128 value-half alias, triangulated against `write`'s packing and the peek
-units; the return expression the seed's own compiling line). Name, selector comments, and the
+Every atom harness-proven on this fixture (notTooLong unit fb-green; `store_c` the packed
+word whose guard semantics the fixture source and the decompiler's own rendering both
+attest; the return expression the seed's own compiling line). Name, selector comments, and the
 declared return are byte-preserved; bindings and the `seed-v1` label are untouched.
 
-Candidate sha256 `53be915f1e06cf0a…`; seed `444d408373d84539…` (chain in the run dir).
-Pre-run compile gate: `forge build --use 0.8.30` successful (warnings only, the seed's
-pre-existing set); the run's `compile-llm1.json` is the formal compile evidence.
+Sealed candidate sha256 `9a1167db61f31420…`; seed `444d408373d84539…` (chains in the run dirs;
+`lh-repair1` kept as history). Pre-run compile gate: `forge build --use 0.8.30` successful
+(warnings only, the seed's pre-existing set); the run's `compile-llm1.json` is the formal
+compile evidence.
 
 ## Scope and honesty
 
