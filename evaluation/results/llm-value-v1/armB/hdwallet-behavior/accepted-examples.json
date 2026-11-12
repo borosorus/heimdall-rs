@@ -1,0 +1,14 @@
+[
+  {
+    "id": "run-t01a001-fn_3",
+    "origin": "run",
+    "transaction": 1,
+    "attempt": 1,
+    "opaque_id": "fn_3",
+    "name": "Unresolved_6d4ce63c",
+    "dispatch": "Unresolved_6d4ce63c()",
+    "source": "function Unresolved_6d4ce63c() public view returns (bytes memory b) {\n        uint256 len = count;\n        b = new bytes(len);\n        assembly {\n            mstore(0x00, 0)\n            let src := keccak256(0x00, 0x20)\n            let dst := add(b, 0x20)\n            for { let i := 0 } lt(i, len) { i := add(i, 0x20) } {\n                mstore(add(dst, i), sload(add(src, div(i, 0x20))))\n            }\n            mstore(0x40, add(dst, and(add(len, 31), not(31))))\n        }\n    }",
+    "sha256": "2a5dc22eea6d4b589ce1357f5dc4e5736aea722d2525e6d623fd0ba8ef5b5394",
+    "summary": "compiled; dispatch preserved; one feedback probe became matching; previously passing feedback observations preserved"
+  }
+]

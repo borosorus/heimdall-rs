@@ -62,3 +62,29 @@ batch-2 acceptance (the rebuild candidates carry it, then and now). Under the fi
 pass2 the seeds STILL fail standalone on the NEXT pre-existing wart layer
 (e.g. hdwallet 7407 `bytes storage` assignment) - unchanged historical state,
 recorded as ladder leads, NOT part of this fix.
+
+## Arm B-behavioral RESULT (deviation 2) - first positive LLM behavioral delta
+
+Patient: the hybrid (0/8 fb). Tool: repair_behavior_units, black-box failing-probe
+differentials only, acceptance = measured whole-probe progress + no regression.
+Effort low. Outcome (armB/hdwallet-behavior, harness-confirmed llm-hyb3):
+
+- fb 0/8 -> 1/8 (initial_empty flipped), wh 0/2 unchanged, 8 calls,
+  202,214 completion tokens, ~35 min wall.
+- The accepted txn-1 rewrite of the getter unit is the CANONICAL single-slot
+  long-string read (keccak256(slot) leaf iteration, word loop, rounded
+  free-pointer) - derived from probe I/O plus the source's own slot comments.
+  ARM-C INTENT EVIDENCE: the model reconstructs storage-layout semantics from
+  black-box observations, not just syntax.
+- It did NOT repair the setter side: `count = 0x01 + (arg0 + arg0)` (the
+  hybrid's own wrong update arithmetic) stands - the +1 is reader-only.
+  Remaining 7 fb failures live in the setter/packing path.
+- Operational: 2+ calls burned on empty responses ("response had no content");
+  retry-order is where bounded budgets die.
+
+ARM-C verdict on the lead-1 question: YES with measured cost - behavioral
+intent is partially recoverable from pure I/O differentials (structure: strong;
+arithmetic: weak). The ladder remains the 8/8 zero-call baseline; the LLM layer
+is a bonus oracle as directed. Leads updated: (a) setter-packing repair class
+(the residual is ONE arithmetic expression - a deterministic stage-19 candidate
+via the gate); (b) empty-response retry hardening in the repair clients.

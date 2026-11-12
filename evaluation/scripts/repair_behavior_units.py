@@ -995,6 +995,7 @@ def run(args: argparse.Namespace) -> int:
         args.response_format,
         args.output_dir,
         budget,
+        reasoning_effort=args.llm_reasoning_effort or None,
     )
     system = PROMPT_PATH.read_text(encoding="utf-8").strip()
 
@@ -1449,6 +1450,8 @@ def build_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--timeout", type=int, default=1200)
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--llm-reasoning-effort", dest="llm_reasoning_effort", default=None,
+                        help="reasoning_effort field for the chat completions request")
     return parser.parse_args(argv)
 
 

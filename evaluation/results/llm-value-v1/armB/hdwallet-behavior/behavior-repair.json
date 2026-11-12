@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "tool": "repair_behavior_units",
+  "candidate_label": "llm-hyb-v1",
+  "focused_units": null,
+  "max_transactions": 3,
+  "origin_sha256": "f17b07a5c578264ccd17b30d4ca42db3e9b063c281d331898e5fa71275cec3db",
+  "selected_sha256": "f7564b04ba74a5ab5a018c7a84379e720695263b44b660ccdd7ddf3f7e5336bc",
+  "origin_feedback_matched": 0,
+  "selected_feedback_matched": 1,
+  "selected_feedback_total": 8,
+  "selected_withheld_matched": 0,
+  "selected_withheld_total": 2,
+  "selected_feedback_failing": [
+    "set_then_get",
+    "alias_stored_data",
+    "overwrite_twice",
+    "empty_string",
+    "short_31",
+    "boundary_32",
+    "long_40"
+  ],
+  "selected_withheld_failing": [
+    "short_then_long",
+    "alias_interleave"
+  ],
+  "attempts": 7,
+  "llm_calls": 8,
+  "completion_tokens": 202214,
+  "ledger": [
+    {
+      "transaction": 1,
+      "attempt": 1,
+      "target": "initial_empty",
+      "unit": "fn_3",
+      "name": "Unresolved_6d4ce63c",
+      "examples": [],
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": true,
+      "pending": false,
+      "verdict": []
+    },
+    {
+      "transaction": 2,
+      "attempt": 2,
+      "target": "set_then_get",
+      "unit": "fn_3",
+      "name": "Unresolved_6d4ce63c",
+      "examples": [],
+      "request_error": "response had no content"
+    },
+    {
+      "transaction": 2,
+      "attempt": 3,
+      "target": "set_then_get",
+      "unit": "fn_3",
+      "name": "Unresolved_6d4ce63c",
+      "examples": [],
+      "request_error": "response had no content"
+    },
+    {
+      "transaction": 2,
+      "target": "set_then_get",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 1
+    },
+    {
+      "transaction": 2,
+      "attempt": 4,
+      "target": "set_then_get",
+      "mode": "joint",
+      "members": [
+        "fn_3",
+        "fn_2"
+      ],
+      "examples": [],
+      "request_error": null
+    },
+    {
+      "transaction": 2,
+      "target": "set_then_get",
+      "mode": "group-verdict",
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "candidate does not compile"
+      ]
+    },
+    {
+      "transaction": 3,
+      "error": "call budget exhausted"
+    }
+  ],
+  "elapsed_ms": 2425728,
+  "accepted_examples": [
+    {
+      "id": "run-t01a001-fn_3",
+      "origin": "run",
+      "transaction": 1,
+      "attempt": 1,
+      "opaque_id": "fn_3",
+      "name": "Unresolved_6d4ce63c",
+      "sha256": "2a5dc22eea6d4b589ce1357f5dc4e5736aea722d2525e6d623fd0ba8ef5b5394"
+    }
+  ]
+}
