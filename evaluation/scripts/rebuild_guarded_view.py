@@ -157,7 +157,6 @@ def build_replacement(old_text: str, name: str, guard: str, msg: str, value_expr
         raise GateError("message literal not found inside a require(...) of the old body")
 
     # comment prefix: everything before the signature's first line (`function NAME(`)
-    sig_match = re.search(r"\bfunction\s+%s\s*\(" % re.escape(name), old_text)
     prefix = old_text[: sig_match.start()].rstrip("\n")
     if prefix:
         prefix += "\n"

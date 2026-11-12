@@ -172,10 +172,6 @@ mod tests {
         assert!(prepared.stages.iter().all(|stage| stage.edits.is_empty()));
     }
 
-    /// Byte-parity with the Python reference ladder: every implemented prefix
-    /// must reproduce the committed `stageNN-*.sol` references (see
-    /// `tests/parity/README.md`).
-
     /// Ported `PipelineTest`: the full ladder applies every tier in order and
     /// is idempotent on the decompiled-shaped baseline.
     const BASELINE: &str = concat!(
@@ -233,6 +229,9 @@ mod tests {
         assert_eq!(once, twice);
     }
 
+    /// Byte-parity with the Python reference ladder: every implemented prefix
+    /// must reproduce the committed `stageNN-*.sol` references (see
+    /// `tests/parity/README.md`).
     #[test]
     fn matches_the_python_reference_ladder() {
         let root = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/parity");

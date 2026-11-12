@@ -23,21 +23,32 @@ FIXTURE = (
     "}\n"
 )
 
+# siblings the gate tests need: a parameterized, a pure, and a tuple-return unit
+WIDER = FIXTURE.replace(
+    "}\n",
+    (
+        "    function bar(uint256 a) public view returns (uint256) { return a; }\n"
+        "    function pureone() public pure returns (uint256) { return 1; }\n"
+        "    function tworet() public view returns (uint256, uint256) { return (v, v); }\n"
+        "}\n"
+    ),
+)
+
 
 class RebuildGuardedViewTests(unittest.TestCase):
     def test_rebuild_is_gated_clean(self):
         out = module.rebuild(FIXTURE, "foo", "v != 0", "nope", "v")
         self.assertIn('require(v != 0, "nope");', out)
         self.assertIn("        return v;", out)
+        # name, selector comments, and signature survive verbatim
         self.assertIn("/// @custom:selector    0x11111111", out)
         self.assertIn("function foo() public view returns (uint256) {", out)
         self.assertNotIn("if (v > 0)", out)
-        self.assertIn("}\n", out)
 
     def test_rebuild_preserves_sibling_units(self):
-        wider = FIXTURE.replace("}\n", "    function bar2() public pure returns (uint256) { return 2; }\n}\n")
-        out = module.rebuild(wider, "foo", "v != 0", "nope", "v")
-        self.assertIn("function bar2() public pure returns (uint256)", out)
+        out = module.rebuild(WIDER, "foo", "v != 0", "nope", "v")
+        self.assertIn("function bar(uint256 a) public view returns (uint256) { return a; }", out)
+        self.assertIn("function tworet() public view returns (uint256, uint256)", out)
 
     def test_rebuild_is_idempotent(self):
         once = module.rebuild(FIXTURE, "foo", "v != 0", "nope", "v")
@@ -72,41 +83,22 @@ class RebuildGuardedViewTests(unittest.TestCase):
         self.assertIn('require(v != 0, "no)pe");', out)
 
     def test_gates_reject(self):
+        # (case, expected fragment of the gate error or None, rebuild kwargs)
         cases = [
-            ("missing", dict(source=FIXTURE, unit_name="zzz", guard="v", msg="nope", value_expr="v"), "not found"),
-            ("params", dict(source=FIXTURE, unit_name="bar", guard="v", msg="nope", value_expr="v"), None),
-            ("not-view", dict(source=FIXTURE, unit_name="pureone", guard="v", msg="nope", value_expr="v"), None),
-            ("tuple", dict(source=FIXTURE, unit_name="tworet", guard="v", msg="nope", value_expr="v"), None),
-            ("msg-gate", dict(source=FIXTURE, unit_name="foo", guard="v", msg="absent", value_expr="v"), "require"),
-            ("separator", dict(source=FIXTURE, unit_name="foo", guard="v; v", msg="nope", value_expr="v"), ";"),
-            ("unbalanced", dict(source=FIXTURE, unit_name="foo", guard="(v", msg="nope", value_expr="v"), "unbalanced"),
+            ("missing-unit", "not found", (FIXTURE, "zzz", "v", "nope", "v")),
+            ("has-params", "parameters", (WIDER, "bar", "v", "nope", "v")),
+            ("not-view", "not declared view", (WIDER, "pureone", "v", "nope", "v")),
+            ("tuple-return", "tuple", (WIDER, "tworet", "v", "nope", "v")),
+            ("msg-gate", "require", (FIXTURE, "foo", "v", "absent", "v")),
+            ("statement-in-expr", ";", (FIXTURE, "foo", "v; v", "nope", "v")),
+            ("unbalanced-expr", "unbalanced", (FIXTURE, "foo", "(v", "nope", "v")),
+            ("empty-expr", "empty", (FIXTURE, "foo", " ", "nope", "v")),
         ]
-        # bar/pureone/tworet do not exist in the minimal FIXTURE; build a wider one for them
-        wider = FIXTURE.replace(
-            "}\n",
-            (
-                "    function bar(uint256 a) public view returns (uint256) { return a; }\n"
-                "    function pureone() public pure returns (uint256) { return 1; }\n"
-                "    function tworet() public view returns (uint256, uint256) { return (v, v); }\n"
-                "}\n"
-            ),
-        )
-        expected = {
-            "params": "parameters",
-            "not-view": "not declared view",
-            "tuple": "tuple",
-        }
-        for name, kwargs, needle in cases:
-            kwargs = dict(kwargs)
-            if kwargs["unit_name"] != "zzz" and kwargs["unit_name"] != "foo":
-                kwargs["source"] = wider
+        for name, expected, args in cases:
             with self.subTest(case=name):
                 with self.assertRaises(module.GateError) as caught:
-                    module.rebuild(**kwargs)
-                if needle:
-                    self.assertIn(needle, str(caught.exception))
-                if name in expected:
-                    self.assertIn(expected[name], str(caught.exception))
+                    module.rebuild(*args)
+                self.assertIn(expected, str(caught.exception))
 
 
 if __name__ == "__main__":

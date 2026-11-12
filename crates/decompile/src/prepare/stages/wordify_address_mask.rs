@@ -116,8 +116,9 @@ pub(crate) fn run(source: &str) -> Result<Stage, ParseError> {
             )
         };
         let (start, end) = (whole.start(), whole.end());
-        // Python `source[last:start]` yields the empty string when spans
-        // revisit earlier text (the two-pass match order); saturate alike
+        // matches keep the Python order (all assignments, then all expression
+        // forms), so a later match may start before `last`; Python's
+        // `source[last:start]` is the empty string there - skip alike
         if start > last {
             pieces.push(source[last..start].to_string());
         }

@@ -263,8 +263,7 @@ pub(crate) fn run(source: &str) -> Result<Stage, ParseError> {
         // declared set; outside every unit, the declared set alone
         for (a, b, names) in &unit_uint_params {
             if *a <= offset && offset < *b {
-                let union = names.clone();
-                let mut union = union;
+                let mut union = names.clone();
                 union.extend(uints.iter().cloned());
                 return union;
             }

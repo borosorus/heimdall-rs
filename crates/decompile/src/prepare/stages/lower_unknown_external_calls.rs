@@ -60,20 +60,18 @@ pub(crate) fn run(source: &str) -> Result<Stage, ParseError> {
         // start EXACTLY at the close paren (anchored), else the site abstains
         let tail_end = (close + 200).min(masked.len());
         let tail = &masked[close + 1..tail_end];
-        let Some(nm) = RE_NAME.find(tail).unwrap_or(None) else {
-            continue;
-        };
-        if nm.start() != 0 {
-            continue;
-        }
         let Some(caps) = RE_NAME.captures(tail).unwrap_or(None) else {
             continue;
         };
+        let whole = caps.get(0).expect("whole match");
+        if whole.start() != 0 {
+            continue;
+        }
         let name = (
             caps.name("name").expect("name").as_str().to_string(),
             caps.name("value").expect("value").as_str().to_string(),
         );
-        let args_open = close + nm.end();
+        let args_open = close + whole.end();
         let mut depth2 = 0usize;
         let mut j = args_open;
         let mut args_close = None;

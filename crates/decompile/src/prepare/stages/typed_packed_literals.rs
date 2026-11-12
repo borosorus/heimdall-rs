@@ -80,17 +80,16 @@ pub(crate) fn run(source: &str) -> Result<Stage, ParseError> {
             findings: Vec::new(),
         });
     }
-    // descending splice on the raw source (the mask is length-preserving)
+    // descending splice on the raw source (the mask is length-preserving);
+    // the edit log is ascending, i.e. the same plans walked backwards
+    let mut descending = plans;
+    descending.sort_by(|x, y| y.0.cmp(&x.0));
     let mut staged = source.to_string();
-    let mut ordered = plans.clone();
-    ordered.sort_by(|x, y| y.0.cmp(&x.0));
-    for (start, end, replacement) in &ordered {
+    for (start, end, replacement) in &descending {
         staged = format!("{}{}{}", &staged[..*start], replacement, &staged[*end..]);
     }
     let mut edits: Vec<StageEdit> = Vec::new();
-    let mut ascending = plans;
-    ascending.sort_by_key(|plan| plan.0);
-    for (start, end, _) in &ascending {
+    for (start, end, _) in descending.iter().rev() {
         edits.push(StageEdit {
             kind: "packed-literal-typed".to_string(),
             detail: format!("abi.encodePacked argument {} -> uint256(...)", &source[*start..*end]),
