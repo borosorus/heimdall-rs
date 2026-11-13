@@ -140,3 +140,35 @@ SPECIFICATION of two new deterministic rules, delivered at 2-call cost, then rep
 by them entirely. The stage candidates (+ their future Rust mirrors) await the batch
 freeze with the parity discipline. This is the standing playbook for every subsequent
 stuck case: rescue once, distill, gate, freeze in batch.
+
+## Stuck-breaker trial 2 (deviation 4) - doctrine run, partial break (2026-11-13)
+
+Fixture: modern-advanced; base: re-frozen seed 36704d95... (compile 6933; trial-1 stages
+0 edits - distinct wart, as designed).
+
+1. RESCUE: ONE call (of 4). The model resolved the runtime-memory-slice member call
+   (`address(store_f).Unresolved_(memory[..])`) to the contract's own annotated unit -
+   `store_f.call(abi.encodeWithSignature("Unresolved_c6888fa1(uint256)", arg0))`. The
+   selector occurs exactly ONCE in the seed; the binding is semantic inference, the
+   strongest intent evidence yet (it used the decompiler's own annotations + call-site
+   context, no oracle).
+2. COMPOSE (doctrine): the trial-1 finisher stages fire 2 NEW edits on the rescue output
+   (comparison-parens finds sites the rewrite exposed) - composition is live, candidate
+   of record = composed artifact. First compose attempt broke a for-header (the stage's
+   rhs scan missed `;` as a clause terminator) - fixed in the stage, trial-1 gate
+   re-verified green, suite green.
+3. VERDICT (stuck2-v1): compile True, **1/10 fb + 0/4 wh** - stuck broken (criterion
+   met), far from trial-1's sweep. Residue shape: the seed comment marks the site
+   `// delegatecall`; the rescue used `.call` - the call/delegatecall storage-context
+   distinction is the prime suspect for the remaining 9.
+4. DISTILLATION: candidate rule "dynamic-selector member call -> resolution against the
+   contract's own annotated units", OBSERVATION-grade: the deterministic selector-source
+   (slice-prep constant vs unit table) is NOT yet pinned, and the call/delegatecall
+   choice needs the opcode trace the seed already carries as comments. Promotion gate
+   deferred until both are pinned - honest per the gate rules.
+
+TRIAL PAIR VERDICT: the loop reproduces (2/2 stuck cases broken at 1-2 calls); the
+distillate quality varies with wart class - arithmetic/typing warts distill cleanly
+(trial 1), control-flow/semantic warts leave a longer tail (trial 2). Doctrine holds:
+both trials' value is now candidate-stage material; the LLM layer exits each fixture
+after the rescue.

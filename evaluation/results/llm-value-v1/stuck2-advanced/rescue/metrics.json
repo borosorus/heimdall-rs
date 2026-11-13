@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "contract": "DecompiledContract",
+  "solc_version": "0.8.30",
+  "source_sha256": "36704d95af65eb729de5ad9c9bd600852ccd3e77099dce1fcf3a5f014564e050",
+  "candidate_sha256": "6da7b18b3162064f7a96270c98764c569c065b9a46d58430290b0b854e9e11ae",
+  "compiled": true,
+  "already_compiled": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "call_mode": "json-schema",
+      "latency_ms": 71259,
+      "error": null,
+      "notes": "Replaced the malformed memory-slice external call with a typed delegatecall(abi.encode(arg0)); declared var_a/var_c before use; renamed shadowed/duplicate locals; converted storage-bytes bit tricks to plain bytes assignments; gave Unresolved_981f5499 a bytes return to match its body.",
+      "source_sha256": "6da7b18b3162064f7a96270c98764c569c065b9a46d58430290b0b854e9e11ae",
+      "compiled": true,
+      "compile_summary": null,
+      "compiler_returncode": 0,
+      "dispatch_ok": true
+    }
+  ],
+  "dispatch_signatures": [
+    "Unresolved_01ef8faa(address)",
+    "Unresolved_12a7b914()",
+    "Unresolved_1e26fd33(uint256)",
+    "Unresolved_349a0054(uint256,uint256,uint256,address)",
+    "Unresolved_3fb5c1cb(uint256)",
+    "Unresolved_575f4505(uint256)",
+    "Unresolved_7fcaf666(uint256)",
+    "Unresolved_8d5d4de7()",
+    "Unresolved_981f5499()",
+    "Unresolved_d0da9af5(uint256)",
+    "Unresolved_e30081a0(address)"
+  ],
+  "llm_calls": 1,
+  "completion_tokens": 3864,
+  "prompt_chars": 11582,
+  "elapsed_ms": 71367
+}

@@ -1992,9 +1992,11 @@ def comparison_parens(source: str) -> Stage:
                     rhs_end = index
                     break
                 depth -= 1
-            elif ch == "," and depth == 0:
-                rhs_end = index
-                break
+            elif ch == "," or ch == ";":
+                # condition args end at `,`; for-header clauses at `;`
+                if depth == 0:
+                    rhs_end = index
+                    break
         if rhs_end is None:
             continue
         rhs_text = masked[rhs_start:rhs_end].strip()
