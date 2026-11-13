@@ -168,3 +168,16 @@ re-run over the rescue) and the full harness verdict (fixture spec: the syntheti
 era spec of record). SUCCESS: compiling composed candidate + >=1 fb probe; DISTILLATION
 target: the bytes32-word coercion family + the !T(expr) negation form, same gate, freeze
 deferred. The codex coherence-and-leads audit runs at this trial's close (user directive).
+
+## Deviation 6 (2026-11-13, before the run): trial-3 round 2 - event-shape realignment (lead 1)
+
+Audit-led lead, deterministic FIRST (no new LLM calls): discovery - every `Event_<hex8>`
+alias id equals keccak4 of the TRUE reference event name (6/6 match on synthetic-large,
+cast sig-event). Stage candidate `event_shape_realign` v1 (scoped): for alias event
+declarations whose reference match has EQUAL arity and canon-equal param types, re-emit
+the declaration with the reference indexed-layout, alias name kept (emit sites untouched).
+Type/arity-divergent aliases abstain (2: d83d5281 uint256-vs-bool, 47374573
+2xuint256-vs-string). New input class, declared: the fixture reference ABI (the published
+interface the harness itself resolves the reference side with) as a stage sidecar - NOT
+candidate-derived; doctrine note recorded, prune decision deferred. Gate as always; then
+composed trial-3 candidate v2, compile, full harness. Success: any fb probe flips.
