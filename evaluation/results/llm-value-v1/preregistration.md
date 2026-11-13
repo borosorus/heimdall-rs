@@ -118,3 +118,20 @@ repair-notes layout reasoning is recorded against the fixture truth as an arm-C 
 probe I/O?). Folded lead-2 dimension: the candidate sources carry the ladder's slot
 comments; whether the notes cite them is recorded. Failure modes recorded as failures.
 A derived candidate that passes goes through the full harness re-run for the ledger.
+
+## Deviation 3 (2026-11-13, before the run): stuck-breaker trial 1 - modern-math-helper
+
+The abstention-boundary thesis, tested end to end on the cheapest real wart:
+- PATIENT: the 18-stage seed (`stage0-reverify/modern-math-helper/seed.sol`, sha in
+  stage0-ladder.json) - compile-fail 2271 bool|uint mixing, deterministic gates abstain.
+- INTERVENTION: repair_compile.py bounded, effort low, 4 calls, 2 attempts/call budget
+  (arm-B burn lesson priced in); feedback = compiler diagnostics only.
+- SUCCESS (fixed now): a compiling, dispatch-preserving candidate within budget, then the
+  FULL harness verdict on evaluation/tests/modern-math-helper.json (15 fb + 5 wh) - the
+  stuck case is broken iff any fb probe passes on the rescued candidate.
+- DISTILLATION (the actual deliverable): diff(seed, rescued) -> minimal rule -> candidate
+  stage implemented OUTSIDE PREPARE_STAGES, validated by the prereg gate (replay on the
+  seed, idempotence, full-suite no-regression). The ladder freeze is DEFERRED to a batch
+  (stages 14-18 precedent); this trial delivers a validated stage candidate + the
+  stuck-breaker loop verdict, not a re-freeze.
+- Failure modes (burned budget, no candidate, ungeneralizable one-off) recorded as such.
