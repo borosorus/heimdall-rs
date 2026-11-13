@@ -798,5 +798,54 @@ class PackedScalarTest(unittest.TestCase):
         self.assertIn("uint256 c;", stages[-1].source)
 
 
+class StageCandidateTests(unittest.TestCase):
+    """stuck-breaker trial 1 distillation - candidates OUTSIDE PREPARE_STAGES
+    (freeze deferred to a batch); the gate pins replay, idempotence, order."""
+
+    SEED = (
+        "contract C {\n"
+        "    uint256 s; event E(uint256 a);\n"
+        "    function f(uint256 a) public view returns (uint256) {\n"
+        "        if (((a) == 0) | s == a * s / a) {\n"
+        "            emit E(a);\n"
+        "            return a;\n"
+        "        }\n"
+        "        return 0;\n"
+        "    }\n"
+        "}\n"
+    )
+
+    def _composed(self):
+        first = prepare.comparison_parens(self.SEED).source
+        return prepare.view_emit_relaxation(first).source
+
+    def test_comparison_parens_rebalances_the_chain(self):
+        out = prepare.comparison_parens(self.SEED).source
+        self.assertIn("if (((a) == 0) || (s == a * s / a)) {", out)
+        again = prepare.comparison_parens(out).source
+        self.assertEqual(again, out)
+
+    def test_view_emit_relaxation_drops_view_once(self):
+        out = prepare.view_emit_relaxation(self.SEED).source
+        self.assertIn("public  returns (uint256)", out)
+        self.assertNotIn("public view returns", out)
+        again = prepare.view_emit_relaxation(out).source
+        self.assertEqual(again, out)
+
+    def test_composition_is_order_independent_and_idempotent(self):
+        forward = self._composed()
+        reverse = prepare.comparison_parens(prepare.view_emit_relaxation(self.SEED).source).source
+        self.assertEqual(forward, reverse)
+        self.assertEqual(
+            prepare.comparison_parens(prepare.view_emit_relaxation(forward).source).source,
+            forward,
+        )
+
+    def test_candidates_live_outside_the_frozen_pipeline(self):
+        names = [stage.__name__ for stage in prepare.PREPARE_STAGES]
+        self.assertNotIn("comparison_parens", names)
+        self.assertNotIn("view_emit_relaxation", names)
+
+
 if __name__ == "__main__":
     unittest.main()

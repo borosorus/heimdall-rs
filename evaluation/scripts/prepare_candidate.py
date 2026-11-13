@@ -1954,6 +1954,131 @@ def lower_unknown_external_calls(source: str) -> Stage:
     return Stage("lower-unknown-external-calls", "external call lowering", "".join(pieces), edits)
 
 
+_CMP_RE = re.compile(r"==|!=|<=|>=|<|>")
+_BITWISE_TAIL_RE = re.compile(r"(?P<op>[|^&])\s+(?P<lhs>[A-Za-z_][A-Za-z0-9_.]*)\s*(?P<cmp>==|!=|<=|>=|<|>)\s")
+
+
+def comparison_parens(source: str) -> Stage:
+    """STAGE CANDIDATE (stuck-breaker trial 1 distillation; NOT in PREPARE_STAGES
+    pending batch freeze). Parenthesize a comparison that sits, unparenthesized, on
+    the right-hand side of a bitwise operator inside a condition.
+
+    Why: solc binds `==`/`<`.. tighter than `|`/`&`/`^`, so the decompiler's linear
+    `a == b | c == d` parses as `(a == (b|c)) == d` - bool vs uint (2271). The
+    decompiler's intent, confirmed behaviorally (stuck1-v1: 7/10+5/5), is the
+    left-to-right reading `(a == b) | (c == d)`; making the intended precedence
+    explicit is semantics-preserving by construction.
+
+    Gate shape: the LHS of the bitwise op must already end a parenthesized group
+    (`...) op lhs cmp ...`), the rhs comparison is wrapped through its extent at
+    condition depth. Idempotent: parenthesized operands no longer match.
+    """
+    masked = _mask_strings_and_comments(source, 0, len(source))
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    for match in _BITWISE_TAIL_RE.finditer(masked):
+        # the rhs comparison extends to a `,` or the closing paren at the
+        # depth where the comparison itself lives
+        rhs_start = match.start("lhs")
+        depth = 0
+        rhs_end = None
+        for index in range(match.start("cmp"), len(masked)):
+            ch = masked[index]
+            if ch in "([":
+                depth += 1
+            elif ch in ")]":
+                if depth == 0:
+                    rhs_end = index
+                    break
+                depth -= 1
+            elif ch == "," and depth == 0:
+                rhs_end = index
+                break
+        if rhs_end is None:
+            continue
+        rhs_text = masked[rhs_start:rhs_end].strip()
+        if not _CMP_RE.search(rhs_text) or rhs_text.startswith("("):
+            continue
+        # one-span replacement [op .. rhs_end): the op doubles when the lhs is
+        # itself a parenthesized group (comparison|comparison -> comparisons
+        # joined logically; 0.8 refuses bool|bool), and the rhs comparison is
+        # wrapped - explicit precedence, the decompiler's linear reading
+        op = match.group("op")
+        before = masked[: match.start("op")].rstrip()
+        doubled = op * 2 if before.endswith(")") and op in "|&" else op
+        pieces.append(source[last : match.start("op")])
+        pieces.append(f"{doubled} ({rhs_text})")
+        last = rhs_end
+        edits.append(_record(
+            "comparison-parens",
+            f"{match.group('op')} {rhs_text} -> {match.group('op')} ({rhs_text})",
+            "bitwise chain over unparenthesized comparison; solc precedence misparse (2271 class)"))
+    if not pieces:
+        return Stage("comparison-parens", "comparison parenthesization", source, edits)
+    pieces.append(source[last:])
+    return Stage("comparison-parens", "comparison parenthesization", "".join(pieces), edits)
+
+
+def view_emit_relaxation(source: str) -> Stage:
+    """STAGE CANDIDATE (stuck-breaker trial 1 distillation; NOT in PREPARE_STAGES).
+    A `view` unit whose body contains `emit` cannot compile (8961): the decompiler
+    derives mutability from opcode traces but emits the event header anyway. The
+    faithful relaxation drops `view` (the recorded `mutability` stage only tightens
+    pure->view; this is the reverse direction). Unit spans come from the parser; the
+    modifier scan runs on the post-parameter code region only, because the preceding
+    `/// @custom:signature` comment may itself contain the word `view`."""
+    try:
+        parsed = parse_contract(source, None)
+    except ParseError:
+        return Stage("view-emit-relaxation", "view/emit mutability relaxation", source, [])
+    edits: list[dict[str, Any]] = []
+    pieces: list[str] = []
+    last = 0
+    for unit in parsed.functions:
+        header = unit.header
+        function_index = header.find("function ")
+        if function_index < 0:
+            continue
+        open_paren = header.find("(", function_index)
+        if open_paren < 0:
+            continue
+        depth = 0
+        params_close = None
+        for index in range(open_paren, len(header)):
+            ch = header[index]
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    params_close = index
+                    break
+        if params_close is None:
+            continue
+        mods = header[params_close + 1 :]
+        brace = mods.find("{")
+        mods = mods[:brace] if brace >= 0 else mods
+        view_match = re.search(r"\bview\b", mods)
+        if view_match is None:
+            continue
+        body = unit.text[len(header):]
+        body_masked = _mask_strings_and_comments(body, 0, len(body))
+        if not re.search(r"\bemit\s+[A-Za-z_]", body_masked):
+            continue
+        view_start = unit.start + params_close + 1 + view_match.start()
+        pieces.append(source[last:view_start])
+        last = view_start + 4
+        edits.append(_record(
+            "view-emit-relaxed",
+            f"{unit.name}: view dropped (body emits)",
+            "view unit containing emit; 8961"))
+    if not pieces:
+        return Stage("view-emit-relaxation", "view/emit mutability relaxation", source, edits)
+    pieces.append(source[last:])
+    return Stage("view-emit-relaxation", "view/emit mutability relaxation", "".join(pieces), edits)
+
+
 PREPARE_STAGES = (
     normalize_placeholders,
     declare_missing_symbols,

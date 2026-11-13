@@ -1,0 +1,9 @@
+{
+  "label": "baseline",
+  "solc_version": "0.8.30",
+  "returncode": 1,
+  "stdout": "Compiling 1 files with Solc 0.8.30\nSolc 0.8.30 finished in 26.92ms\n",
+  "stderr": "Error: Compiler run failed:\nError (2271): Built-in binary operator | cannot be applied to types bool and uint256.\n  --> src/Candidate.sol:42:13:\n   |\n42 |         if (((arg0) == 0) | unresolved_1b3ed722 == arg0 * unresolved_1b3ed722 / arg0) {\n   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nError (2271): Built-in binary operator == cannot be applied to types bool and uint256.\n  --> src/Candidate.sol:42:13:\n   |\n42 |         if (((arg0) == 0) | unresolved_1b3ed722 == arg0 * unresolved_1b3ed722 / arg0) {\n   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+  "source_sha256": "89e355255a237b1b88593af5a8b1127c20e7a4b3417b0dd56b17337cfd30fe88",
+  "ok": false
+}

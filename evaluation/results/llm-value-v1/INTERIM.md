@@ -111,3 +111,32 @@ FINAL arm-C synthesis for the llm-value question:
 Residual leads: empty-response retry hardening; wh-informed (harness-side) probe
 prioritization for repair targeting; nothing new deterministic - the stage-19 ledger
 entry for this class is CLOSED (tool covers it).
+
+## Stuck-breaker trial 1 (deviation 3) - THE LOOP, PROVEN END TO END (2026-11-13)
+
+Fixture: modern-math-helper; patient: the 18-stage seed (compile-fail 2271, gates abstain).
+
+1. RESCUE: repair_compile, effort low - compiling candidate in 2 of 4 budgeted calls
+   (`stuck1-math-helper/rescue/`; the schema needs explicit --contract/--solc, recorded).
+2. VERDICT: harness stuck1-v1 - **7/10 fb + 5/5 wh** from a fully stuck seed (criterion
+   exceeded; wh 5/5 = generalization signal).
+3. DISTILLATION: the semantic diff is TWO rules -
+   a. comparison-parens: the seed's `(X == 0) | Y == Z` misparses (solc binds == tighter
+      than |); the faithful form wraps the rhs comparison AND doubles the operator
+      (0.8 refuses bool|bool) -> `((X == 0) || (Y == Z))` - the model's exact fix;
+   b. view-emit-relaxation: `view` unit whose body emits -> drop `view` (8961); the
+      reverse of the recorded mutability stage.
+   Both implemented as candidate stages OUTSIDE PREPARE_STAGES (freeze deferred, batch
+   precedent); parser-span based after the masked-regex splice took two corrected
+   attempts (double-tail bookkeeping; comment `view` false match - both recorded).
+4. GATE: replay on seed PASS; idempotent both stages and composed, order-independent
+   PASS; suite green with 5 new pins (StageCandidateTests) PASS.
+5. REPLICATION: the pure deterministic composition (candidate-stages-only.sol) scores
+   **7/10 fb + 5/5 wh - IDENTICAL to the model's rescue** (stuck1-v2). Zero calls
+   forever after.
+
+VERDICT: the abstention-boundary thesis holds on a real wart - the LLM's value was the
+SPECIFICATION of two new deterministic rules, delivered at 2-call cost, then replaced
+by them entirely. The stage candidates (+ their future Rust mirrors) await the batch
+freeze with the parity discipline. This is the standing playbook for every subsequent
+stuck case: rescue once, distill, gate, freeze in batch.

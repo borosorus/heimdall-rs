@@ -1,0 +1,148 @@
+{
+  "baseline_compile": false,
+  "baseline_sha256": "89e355255a237b1b88593af5a8b1127c20e7a4b3417b0dd56b17337cfd30fe88",
+  "blocked_probes": 0,
+  "bound_reference_selectors": [
+    "0x1b3ed722",
+    "0x641579a6",
+    "0xc6888fa1"
+  ],
+  "candidate_compile": true,
+  "candidate_label": "stuck1-v1",
+  "candidate_sha256": "c4516af7ced8c05e636c534a69502cd7936961d5937ba902bd6473e749e13050",
+  "compare_events": false,
+  "compared_fields": [
+    "success_or_revert_status",
+    "return_data_for_read_steps",
+    "revert_data_for_read_steps",
+    "contract_balance",
+    "event_logs_only_when_compare_events_is_true"
+  ],
+  "deployment_context": {
+    "baseline": null,
+    "llm1": null
+  },
+  "executed_probes": 15,
+  "feedback_probes": [
+    "multiplier_initial",
+    "multiply_zero",
+    "multiply_one",
+    "multiply_42",
+    "multiply_overflow",
+    "set_multiplier_zero_then_multiply",
+    "set_multiplier_three_then_multiply_five",
+    "set_multiplier_with_value",
+    "truncated_multiply",
+    "multiply_after_rejected_value"
+  ],
+  "fixture": "modern-math-helper",
+  "llm1_compile": true,
+  "llm1_sha256": "c4516af7ced8c05e636c534a69502cd7936961d5937ba902bd6473e749e13050",
+  "max_tokens": null,
+  "model": null,
+  "planned_probes": 15,
+  "reasoning_effort": null,
+  "repair_attempts": [],
+  "repair_error": null,
+  "run_id": "stuck1-v2",
+  "schema_version": 2,
+  "seed": null,
+  "selected": "llm1",
+  "selected_feedback_failing": [
+    "multiplier_initial",
+    "set_multiplier_with_value",
+    "multiply_after_rejected_value"
+  ],
+  "selected_feedback_matched": 7,
+  "selected_feedback_total": 10,
+  "selected_reason": "no repair requested",
+  "selected_unbound_calls": [
+    "multiplier"
+  ],
+  "selected_withheld_failing": [],
+  "selected_withheld_matched": 5,
+  "selected_withheld_total": 5,
+  "send_payload_capture": "not_captured",
+  "solc_version": "0.8.30",
+  "stages": [
+    {
+      "blocked_reason": "candidate did not compile",
+      "compile": false,
+      "event_mismatches": [],
+      "executed_steps": 0,
+      "feedback_failing": [],
+      "feedback_matched": null,
+      "feedback_total": 10,
+      "interface": null,
+      "label": "baseline",
+      "semantic_failing": [],
+      "setup_steps": 0,
+      "source_sha256": "89e355255a237b1b88593af5a8b1127c20e7a4b3417b0dd56b17337cfd30fe88",
+      "unbound_calls": [],
+      "unbound_probes": [],
+      "withheld_failing": [],
+      "withheld_matched": null,
+      "withheld_total": 5
+    },
+    {
+      "blocked_reason": null,
+      "compile": true,
+      "event_mismatches": [],
+      "executed_steps": 24,
+      "feedback_failing": [
+        "multiplier_initial",
+        "set_multiplier_with_value",
+        "multiply_after_rejected_value"
+      ],
+      "feedback_matched": 7,
+      "feedback_total": 10,
+      "interface": {
+        "candidate_only": [
+          "0x102ee228",
+          "0x3b20269e",
+          "0xdfa9ec54",
+          "0xfcd38d9c"
+        ],
+        "candidate_selector_count": 4,
+        "matched": 0,
+        "missing": [
+          "0x1b3ed722",
+          "0x641579a6",
+          "0x771602f7",
+          "0xc6888fa1"
+        ],
+        "reference_selector_count": 4
+      },
+      "label": "llm1",
+      "semantic_failing": [
+        "multiplier_initial",
+        "set_multiplier_with_value",
+        "multiply_after_rejected_value"
+      ],
+      "setup_steps": 15,
+      "source_sha256": "c4516af7ced8c05e636c534a69502cd7936961d5937ba902bd6473e749e13050",
+      "unbound_calls": [
+        "multiplier"
+      ],
+      "unbound_probes": [
+        "multiplier_initial",
+        "set_multiplier_with_value"
+      ],
+      "withheld_failing": [],
+      "withheld_matched": 5,
+      "withheld_total": 5
+    }
+  ],
+  "temperature": null,
+  "timeout_seconds": null,
+  "unbound_reference_selectors": [
+    "0x771602f7"
+  ],
+  "withheld_probes": [
+    "multiply_max_with_multiplier_one",
+    "set_multiplier_max_then_multiply_two",
+    "multiply_seven",
+    "set_multiplier_seven_then_multiply_nine",
+    "multiply_after_truncated"
+  ]
+}
