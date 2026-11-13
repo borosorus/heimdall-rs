@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "tool": "repair_behavior_units",
+  "candidate_label": "stuck3-v1",
+  "focused_units": null,
+  "max_transactions": 2,
+  "origin_sha256": "7311b7fac704edcc9736f68d139b73116c6044cb2f6751ec4777155a1f79ffd5",
+  "selected_sha256": "7311b7fac704edcc9736f68d139b73116c6044cb2f6751ec4777155a1f79ffd5",
+  "origin_feedback_matched": 0,
+  "selected_feedback_matched": 0,
+  "selected_feedback_total": 12,
+  "selected_withheld_matched": 0,
+  "selected_withheld_total": 4,
+  "selected_feedback_failing": [
+    "initial_config",
+    "deposit_100",
+    "deposit_below_min",
+    "deposit_above_max",
+    "withdraw_50",
+    "withdraw_too_much",
+    "transfer_100",
+    "approve_transfer_from",
+    "transfer_from_unapproved_spender",
+    "pause_blocks_deposit",
+    "unpause_allows_deposit",
+    "preview_fee"
+  ],
+  "selected_withheld_failing": [
+    "set_limits_invalid",
+    "transfer_insufficient",
+    "burn_100",
+    "set_fee_max"
+  ],
+  "attempts": 5,
+  "llm_calls": 3,
+  "completion_tokens": 7401,
+  "ledger": [
+    {
+      "transaction": 1,
+      "attempt": 1,
+      "target": "initial_config",
+      "unit": "fn_9",
+      "name": "Unresolved_69fe0e2d",
+      "examples": [],
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": true,
+      "verdict": [
+        "target divergence 10 -> 8"
+      ]
+    },
+    {
+      "transaction": 2,
+      "attempt": 2,
+      "target": "initial_config",
+      "unit": "fn_18",
+      "name": "Unresolved_c47f0027",
+      "examples": [],
+      "request_error": null,
+      "compiled": true,
+      "abi_loss": [],
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "target divergence unchanged"
+      ],
+      "rolled_back": true
+    },
+    {
+      "transaction": 2,
+      "target": "initial_config",
+      "error": "no admissible edit; target deferred",
+      "no_progress": 1
+    },
+    {
+      "transaction": 2,
+      "attempt": 3,
+      "target": "initial_config",
+      "mode": "joint",
+      "members": [
+        "fn_18",
+        "fn_13"
+      ],
+      "examples": [],
+      "request_error": null
+    },
+    {
+      "transaction": 2,
+      "target": "initial_config",
+      "mode": "group-verdict",
+      "accepted": false,
+      "pending": false,
+      "verdict": [
+        "candidate does not compile"
+      ]
+    }
+  ],
+  "elapsed_ms": 217177
+}

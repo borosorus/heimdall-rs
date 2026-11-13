@@ -841,6 +841,36 @@ class StageCandidateTests(unittest.TestCase):
             forward,
         )
 
+    def test_event_shape_realign_needs_no_structural_change(self):
+        import json as jsonlib
+        import tempfile
+
+        seed = (
+            "contract C {\n"
+            "    event Event_8be0079c(address, address);\n"
+            "    event Event_deadbeef(uint256);\n"
+            "}\n"
+        )
+        abi = [
+            {
+                "type": "event",
+                "name": "OwnershipTransferred",
+                "inputs": [
+                    {"name": "a", "type": "address", "indexed": True},
+                    {"name": "b", "type": "address", "indexed": True},
+                ],
+            }
+        ]
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            jsonlib.dump(abi, handle)
+            path = handle.name
+        stage = prepare.event_shape_realign(seed, path)
+        self.assertEqual(len(stage.edits), 1)
+        self.assertIn("event Event_8be0079c(address indexed, address indexed);", stage.source)
+        self.assertIn("event Event_deadbeef(uint256);", stage.source)  # no match, untouched
+        again = prepare.event_shape_realign(stage.source, path).source
+        self.assertEqual(again, stage.source)
+
     def test_candidates_live_outside_the_frozen_pipeline(self):
         names = [stage.__name__ for stage in prepare.PREPARE_STAGES]
         self.assertNotIn("comparison_parens", names)

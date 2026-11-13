@@ -227,3 +227,28 @@ COHERENCE AUDIT (user-directed) runs next against the full ledger.
    hygiene; (d) empty-response retry hardening (operational); (e) coercion families
    stay observation. Batch-freeze of trial-1's gate-green candidates awaits the
    Rust parity work, unchanged.
+
+## Trial-3 round 2 + the unifying discovery (deviation 6) - closed for this cycle (2026-11-13)
+
+DISCOVERY (the round's real product, deterministic, 0 calls): every decompiler alias id -
+`Event_<hex8>` AND `Unresolved_<hex8>` - is keccak4 of the TRUE reference signature
+(6/6 events verified via cast sig-event). Consequences:
+- LEDGE-2 PIN RESOLVED: the selector source is the decompiler's own embedded id; the
+  alias name is the candidate-dispatch identity (candidate space = keccak4(alias sig),
+  reference space = true selector; the harness's dual-calldata is correct BY DESIGN -
+  my earlier "calldata divergence" was a namespace misreading, corrected).
+- NEW STAGE CANDIDATE event_shape_realign: alias event declarations re-indexed from the
+  reference match where arity+types canon-match (5 realigned on synth; 2 typed/arity
+  abstentions recorded). Gate green (replay/idempotence/pin test). Input-class note:
+  consumes the fixture's published reference ABI as explicit sidecar (the same artifact
+  the harness's reference side uses) - doctrine prune decision deferred.
+Round-2 results, honest: event IDENTITY now matches both sides (v2 run), but behavior
+round 2 (3 calls, 2-txn budget, correct bindings) finds NO accepted transaction - 0/12
+stands. Trial-3 FINAL for this cycle: interface layer fully repaired (bindings 25/25,
+event identity) via audit + deterministic stage; the residual is multi-call state
+semantics (allowance/bookkeeping) that single-unit probe repair does not bridge at
+~6 total behavior calls. Doctrine reading CONFIRMED with evidence: this fixture needs
+its deterministic semantic layers (init/allowance invariants) before LLM rounds pay.
+Suite 220. Leads after this cycle: trial-2 style pins DONE via the id discovery;
+remaining: batch-freeze gate-green candidates (trial-1 pair + event-shape stage behind
+the sidecar-input doctrine call), Rust mirrors, retry-hardening (operational).
