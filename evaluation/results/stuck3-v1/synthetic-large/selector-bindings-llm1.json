@@ -1,22 +1,22 @@
 {
   "bindings": {
     "allowance": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0xdd62ed3e",
       "baseline_signature": "allowance(address,address)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0xdd44a46d",
-      "candidate_signature": "Unresolved_dd62ed3e(address,uint256)",
+      "candidate_selector": "0x568848e2",
+      "candidate_signature": "Unresolved_dd62ed3e(address,address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_dd62ed3e(address,uint256)",
         "seed-v1": "Unresolved_dd62ed3e(address,uint256)",
         "seed-v2": "Unresolved_dd62ed3e(address,uint256)",
-        "stuck3-v1": "Unresolved_dd62ed3e(address,uint256)"
+        "stuck3-v1": "Unresolved_dd62ed3e(address,address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0xdd62ed3e",
       "reference_signature": "allowance(address,address)",
-      "unavailable_reason": "candidate selector 0xdd44a46d is not in the compiled ABI"
+      "unavailable_reason": null
     },
     "approve": {
       "available": true,
@@ -55,40 +55,40 @@
       "unavailable_reason": null
     },
     "burn": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0x42966c68",
       "baseline_signature": "burn(uint256)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0x331cc5d3",
-      "candidate_signature": "Unresolved_42966c68(uint256)",
+      "candidate_selector": "0x99b04b73",
+      "candidate_signature": "Unresolved_42966c68(address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_42966c68(uint256)",
         "seed-v1": "Unresolved_42966c68(uint256)",
         "seed-v2": "Unresolved_42966c68(uint256)",
-        "stuck3-v1": "Unresolved_42966c68(uint256)"
+        "stuck3-v1": "Unresolved_42966c68(address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0x42966c68",
       "reference_signature": "burn(uint256)",
-      "unavailable_reason": "candidate selector 0x331cc5d3 is not in the compiled ABI"
+      "unavailable_reason": null
     },
     "deposit": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0xb6b55f25",
       "baseline_signature": "deposit(uint256)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0x1af2760b",
-      "candidate_signature": "Unresolved_b6b55f25(uint256)",
+      "candidate_selector": "0x74023f6e",
+      "candidate_signature": "Unresolved_b6b55f25(address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_b6b55f25(uint256)",
         "seed-v1": "Unresolved_b6b55f25(uint256)",
         "seed-v2": "Unresolved_b6b55f25(uint256)",
-        "stuck3-v1": "Unresolved_b6b55f25(uint256)"
+        "stuck3-v1": "Unresolved_b6b55f25(address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0xb6b55f25",
       "reference_signature": "deposit(uint256)",
-      "unavailable_reason": "candidate selector 0x1af2760b is not in the compiled ABI"
+      "unavailable_reason": null
     },
     "fee": {
       "available": true,
@@ -199,22 +199,22 @@
       "unavailable_reason": null
     },
     "mint": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0x40c10f19",
       "baseline_signature": "mint(address,uint256)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0x3cc01048",
-      "candidate_signature": "Unresolved_40c10f19(address,uint256)",
+      "candidate_selector": "0x6452177f",
+      "candidate_signature": "Unresolved_40c10f19(address,address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_40c10f19(address,uint256)",
         "seed-v1": "Unresolved_40c10f19(address,uint256)",
         "seed-v2": "Unresolved_40c10f19(address,uint256)",
-        "stuck3-v1": "Unresolved_40c10f19(address,uint256)"
+        "stuck3-v1": "Unresolved_40c10f19(address,address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0x40c10f19",
       "reference_signature": "mint(address,uint256)",
-      "unavailable_reason": "candidate selector 0x3cc01048 is not in the compiled ABI"
+      "unavailable_reason": null
     },
     "name": {
       "available": true,
@@ -289,58 +289,58 @@
       "unavailable_reason": null
     },
     "setFee": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0x69fe0e2d",
       "baseline_signature": "setFee(uint256)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0x372ecc45",
-      "candidate_signature": "Unresolved_69fe0e2d(uint256)",
+      "candidate_selector": "0x9ac12751",
+      "candidate_signature": "Unresolved_69fe0e2d(address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_69fe0e2d(uint256)",
         "seed-v1": "Unresolved_69fe0e2d(uint256)",
         "seed-v2": "Unresolved_69fe0e2d(uint256)",
-        "stuck3-v1": "Unresolved_69fe0e2d(uint256)"
+        "stuck3-v1": "Unresolved_69fe0e2d(address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0x69fe0e2d",
       "reference_signature": "setFee(uint256)",
-      "unavailable_reason": "candidate selector 0x372ecc45 is not in the compiled ABI"
+      "unavailable_reason": null
     },
     "setLimits": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0xc4590d3f",
       "baseline_signature": "setLimits(uint256,uint256)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0x2ae57093",
-      "candidate_signature": "Unresolved_c4590d3f(uint256)",
+      "candidate_selector": "0x71d3148f",
+      "candidate_signature": "Unresolved_c4590d3f(address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_c4590d3f(uint256)",
         "seed-v1": "Unresolved_c4590d3f(uint256)",
         "seed-v2": "Unresolved_c4590d3f(uint256)",
-        "stuck3-v1": "Unresolved_c4590d3f(uint256)"
+        "stuck3-v1": "Unresolved_c4590d3f(address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0xc4590d3f",
       "reference_signature": "setLimits(uint256,uint256)",
-      "unavailable_reason": "candidate selector 0x2ae57093 is not in the compiled ABI"
+      "unavailable_reason": null
     },
     "setName": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0xc47f0027",
       "baseline_signature": "setName(string)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0x60c5f624",
-      "candidate_signature": "Unresolved_c47f0027(uint256)",
+      "candidate_selector": "0xf989381e",
+      "candidate_signature": "Unresolved_c47f0027(address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_c47f0027(uint256)",
         "seed-v1": "Unresolved_c47f0027(uint256)",
         "seed-v2": "Unresolved_c47f0027(uint256)",
-        "stuck3-v1": "Unresolved_c47f0027(uint256)"
+        "stuck3-v1": "Unresolved_c47f0027(address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0xc47f0027",
       "reference_signature": "setName(string)",
-      "unavailable_reason": "candidate selector 0x60c5f624 is not in the compiled ABI"
+      "unavailable_reason": null
     },
     "totalSupply": {
       "available": true,
@@ -433,22 +433,22 @@
       "unavailable_reason": null
     },
     "withdraw": {
-      "available": false,
+      "available": true,
       "baseline_selector": "0x2e1a7d4d",
       "baseline_signature": "withdraw(uint256)",
       "candidate_label": "stuck3-v1",
-      "candidate_selector": "0xb6fd490f",
-      "candidate_signature": "Unresolved_2e1a7d4d(uint256)",
+      "candidate_selector": "0x58860ed4",
+      "candidate_signature": "Unresolved_2e1a7d4d(address)",
       "candidate_signatures": {
         "inv-r1": "Unresolved_2e1a7d4d(uint256)",
         "seed-v1": "Unresolved_2e1a7d4d(uint256)",
         "seed-v2": "Unresolved_2e1a7d4d(uint256)",
-        "stuck3-v1": "Unresolved_2e1a7d4d(uint256)"
+        "stuck3-v1": "Unresolved_2e1a7d4d(address)"
       },
       "fallback_dispatch": false,
       "reference_selector": "0x2e1a7d4d",
       "reference_signature": "withdraw(uint256)",
-      "unavailable_reason": "candidate selector 0xb6fd490f is not in the compiled ABI"
+      "unavailable_reason": null
     }
   },
   "interface": {

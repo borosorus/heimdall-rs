@@ -201,3 +201,29 @@ a bigger budget or the deterministic semantic layers first. Candidate-stage ledg
 gains three OBSERVATION-grade families (address-integer, bytes32-integer, !T(x)
 truthiness) - promotion deferred; no freeze pressure.
 COHERENCE AUDIT (user-directed) runs next against the full ledger.
+
+## Coherence audit (codex, user-directed) - drift-detected, 3 corrections adopted (2026-11-13)
+
+1. TRIAL-1 COST: ledger said 2 calls; rescue metrics say 3 (compiling on attempt 3).
+   Corrected here; cost claims now quote metrics.json verbatim.
+2. TRIAL-3 ROOT CAUSE - the audit's decisive catch: 0/12 was read as "whole-contract
+   semantics too heavy" while the run's own artifacts showed 0/25 matched selectors with
+   setup unbound. FIXED AND RE-RUN: the era-inherited bindings broke because the rescue
+   RE-TYPED parameters (e.g. Unresolved_c4590d3f (uint256)->address); bindings rebuilt
+   from the composed candidate's ACTUAL canonical declarations -> 25/25 available. The
+   residual is now genuinely behavioral and NAMED: event data-shape divergence (the
+   re-typed emits change indexed/data layout vs the reference ABI; visible in
+   stuck3-v1 probe logs). Trial-3 verdict UPGRADED from semantic-null to
+   interface-fixed-pending: the cheap explanation was real, half-consumed, and the
+   rest has a concrete next target (event-shape rule: alias declarations must carry
+   reference-equivalent indexing).
+3. TRIAL-2 WORDING: "candidate-stage material" -> observation-grade until the gate
+   passes; the rescue stands, the rule is not promoted.
+4. Doctrine structure confirmed coherent (addition-first visible in all trials; arm-A
+   legacy line no liability); interim ledger NOT a completion of the arm-A table or
+   leads.md - those remain open preregistered deliverables.
+5. Lead queue (audit-ranked, adopted): (a) trial-3 event-shape rule now FIRST;
+   (b) trial-2 selector-source/delegate pin; (c) probe targeting after interface
+   hygiene; (d) empty-response retry hardening (operational); (e) coercion families
+   stay observation. Batch-freeze of trial-1's gate-green candidates awaits the
+   Rust parity work, unchanged.

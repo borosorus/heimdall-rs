@@ -25,7 +25,7 @@
     "seed-v1": "Unresolved_c4590d3f(uint256)",
     "inv-r1": "Unresolved_c4590d3f(uint256)",
     "seed-v2": "Unresolved_c4590d3f(uint256)",
-    "stuck3-v1": "Unresolved_c4590d3f(uint256)"
+    "stuck3-v1": "Unresolved_c4590d3f(address)"
    }
   },
   "setFee": {
@@ -36,7 +36,7 @@
     "seed-v1": "Unresolved_69fe0e2d(uint256)",
     "inv-r1": "Unresolved_69fe0e2d(uint256)",
     "seed-v2": "Unresolved_69fe0e2d(uint256)",
-    "stuck3-v1": "Unresolved_69fe0e2d(uint256)"
+    "stuck3-v1": "Unresolved_69fe0e2d(address)"
    }
   },
   "setName": {
@@ -47,7 +47,7 @@
     "seed-v1": "Unresolved_c47f0027(uint256)",
     "inv-r1": "Unresolved_c47f0027(uint256)",
     "seed-v2": "Unresolved_c47f0027(uint256)",
-    "stuck3-v1": "Unresolved_c47f0027(uint256)"
+    "stuck3-v1": "Unresolved_c47f0027(address)"
    }
   },
   "mint": {
@@ -58,7 +58,7 @@
     "seed-v1": "Unresolved_40c10f19(address,uint256)",
     "inv-r1": "Unresolved_40c10f19(address,uint256)",
     "seed-v2": "Unresolved_40c10f19(address,uint256)",
-    "stuck3-v1": "Unresolved_40c10f19(address,uint256)"
+    "stuck3-v1": "Unresolved_40c10f19(address,address)"
    }
   },
   "owner": {
@@ -168,7 +168,7 @@
     "seed-v1": "Unresolved_dd62ed3e(address,uint256)",
     "inv-r1": "Unresolved_dd62ed3e(address,uint256)",
     "seed-v2": "Unresolved_dd62ed3e(address,uint256)",
-    "stuck3-v1": "Unresolved_dd62ed3e(address,uint256)"
+    "stuck3-v1": "Unresolved_dd62ed3e(address,address)"
    }
   },
   "approve": {
@@ -190,7 +190,7 @@
     "seed-v1": "Unresolved_b6b55f25(uint256)",
     "inv-r1": "Unresolved_b6b55f25(uint256)",
     "seed-v2": "Unresolved_b6b55f25(uint256)",
-    "stuck3-v1": "Unresolved_b6b55f25(uint256)"
+    "stuck3-v1": "Unresolved_b6b55f25(address)"
    }
   },
   "withdraw": {
@@ -201,7 +201,7 @@
     "seed-v1": "Unresolved_2e1a7d4d(uint256)",
     "inv-r1": "Unresolved_2e1a7d4d(uint256)",
     "seed-v2": "Unresolved_2e1a7d4d(uint256)",
-    "stuck3-v1": "Unresolved_2e1a7d4d(uint256)"
+    "stuck3-v1": "Unresolved_2e1a7d4d(address)"
    }
   },
   "transfer": {
@@ -234,7 +234,7 @@
     "seed-v1": "Unresolved_42966c68(uint256)",
     "inv-r1": "Unresolved_42966c68(uint256)",
     "seed-v2": "Unresolved_42966c68(uint256)",
-    "stuck3-v1": "Unresolved_42966c68(uint256)"
+    "stuck3-v1": "Unresolved_42966c68(address)"
    }
   },
   "getStats": {
