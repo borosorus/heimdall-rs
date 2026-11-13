@@ -135,3 +135,23 @@ The abstention-boundary thesis, tested end to end on the cheapest real wart:
   (stages 14-18 precedent); this trial delivers a validated stage candidate + the
   stuck-breaker loop verdict, not a re-freeze.
 - Failure modes (burned budget, no candidate, ungeneralizable one-off) recorded as such.
+
+## Deviation 4 (2026-11-13, before the run): stuck-breaker trial 2 - modern-advanced
+
+Doctrine run (LLM as ADDITION to the deterministic pipeline, never versus):
+- BASE of record: re-frozen 18-stage seed (`stage0-reverify/modern-advanced/seed.sol`,
+  sha 36704d95af65...), compile-fail 6933; trial-1 candidate stages fire 0 times here
+  (different wart class - recorded).
+- ENTRY POINT: declared open per doctrine; observed residue = ONE wart, line 172:
+  `address(store_f).Unresolved_(memory[var_c:...])` - member call with a RUNTIME memory
+  slice as the "selector"; the deterministic lower-unknown-external-calls gate abstains
+  (literal-selector requirement). LLM enters at the compile stage; if the rescue passes,
+  deterministic finishers are re-run over its output before the verdict (composability
+  check per doctrine).
+- INTERVENTION: repair_compile bounded, effort low, 4 calls; diagnostics-only feedback.
+- SUCCESS (fixed now): compiling candidate; full harness verdict on
+  evaluation/tests/modern-advanced.json; the stuck case is broken iff any fb probe passes.
+  DISTILLATION target: a dynamic-selector call rule (generalization of the
+  lower-unknown-external-calls family) - same gate as trial 1, freeze deferred.
+- Compose-first rule: if the rescue output needs a finisher pass, the candidate of record
+  is the COMPOSED artifact; the harness sees only composed candidates.
