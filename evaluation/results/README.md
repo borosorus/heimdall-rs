@@ -3,7 +3,8 @@
 Committed runs are evidence snapshots. They are not CI inputs, and a single run does not establish
 general model quality. Do not reuse a run directory; the harness rejects nonempty output
 directories so saved evidence cannot be silently overwritten. Scratch `work/` directories are
-ignored.
+ignored. Concluded runs keep receipts only (metrics, probe results, final candidates, ledgers);
+raw `calls/` logs and other bulk live in git history.
 
 ## `modern-advanced-*` — multi-step investigator prototype
 
