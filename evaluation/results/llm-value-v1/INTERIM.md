@@ -172,3 +172,32 @@ distillate quality varies with wart class - arithmetic/typing warts distill clea
 (trial 1), control-flow/semantic warts leave a longer tail (trial 2). Doctrine holds:
 both trials' value is now candidate-stage material; the LLM layer exits each fixture
 after the rescue.
+
+## Stuck-breaker trial 3 (deviation 5) - partial: compile yes, behavior budget-bound (2026-11-13)
+
+Fixture: synthetic-large (16 probes, ERC20-shape storage semantics). Base seed+cand
+77b2d61e.../1 edit; 8-diagnostic coercion family.
+
+1. RESCUE: 2 calls -> compiling. The diff is the predicted coercion family PLUS bolder
+   moves: storage REDECLARATION (bytes->uint256 for slots the seed typed as dynamic),
+   a return-shape change (bool->bytes memory on c23f85d6), address-in-integer wraps
+   (uint256(uint160(..)) x4 sites), conversion-wrapped truthiness (!T(x)->T(x)==0,
+   return T(x)->!=0), require(true) elisions.
+2. COMPOSE: finishers 0 new edits (the rescue already emits parenthesized forms -
+   the stages and the model CONVERGE on form). Composed candidate compiles.
+3. VERDICT stuck3-v1: compile True, 0/12 fb + 0/4 wh. Behavior round (3 calls, 2 txn
+   budget): NO accepted transaction, 0/12 holds. Criterion (>=1 fb) NOT met at the
+   4+4 budget - recorded as the trial's result, not polished over.
+4. Root-cause shape: the fixture's ENTIRE storage semantic layer (init flow, mapping
+   accounting, packed flags) diverges; single-unit probe repair cannot bridge
+   whole-contract state semantics at this budget.
+5. Tooling fixed en route: run_behavior evaluate_stage reference-event-table None
+   crash (latent since the events feature; hdwallet's eventless probes masked it) -
+   one-line coalesce, suite-green, this trial's event-emitting probes exercise it.
+
+TRIAL TRIAD VERDICT: 2/3 full breaks (trial 1 sweep, trial 2 entry) + 1 honest partial.
+The loop's economics hold on mechanical warts; whole-contract semantic gaps need either
+a bigger budget or the deterministic semantic layers first. Candidate-stage ledger
+gains three OBSERVATION-grade families (address-integer, bytes32-integer, !T(x)
+truthiness) - promotion deferred; no freeze pressure.
+COHERENCE AUDIT (user-directed) runs next against the full ledger.

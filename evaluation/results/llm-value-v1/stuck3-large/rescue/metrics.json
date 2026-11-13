@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "contract": "DecompiledContract",
+  "solc_version": "0.8.30",
+  "source_sha256": "64cd64b01591926d8912e87b8720e3caa4c387c7a9b4de225d4a53d6c5acd0be",
+  "candidate_sha256": "635344ef56ea3e99ce5052f6b573481d987647a47b8da7f39c0b86df857a3ca7",
+  "compiled": true,
+  "already_compiled": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "call_mode": "json-schema",
+      "latency_ms": 334497,
+      "error": null,
+      "notes": "Fixed the reported type errors with minimal changes: byte-flag reads from store_f now cast through uint256 before uint8 and use == 0 / != 0 instead of !; comparisons against bytes storage use .length; uint256(store_e) cast for the totalSupply-style getter; bytes32 flag updates done in uint256 arithmetic then cast back; address-to-uint256 values cast via uint160; the string-typed name storage in Unresolved_c47f0027 is updated via a bytes copy (string/uint mixing was untypeable), and Unresolved_c23f85d6 returns bytes memory to match its packed return value. All function names, selectors' parameter types, errors and events are unchanged.",
+      "source_sha256": "2b1a7cfc6661fb554b89b22b0e4548bd7142eb42784c232b876f6cf00741d924",
+      "compiled": false,
+      "compile_summary": "Error: Compiler run failed:",
+      "compiler_returncode": 1
+    },
+    {
+      "attempt": 2,
+      "call_mode": "json-schema",
+      "latency_ms": 155313,
+      "error": null,
+      "notes": "Fixed bytes32/uint constant division by casting store_f to uint256, wrapped storage masks in bytes32(...), replaced invalid !uint8(...) with == 0 checks, changed store_c/store_d to uint256 and the name variable to bytes so comparisons/assignments type-check, replaced address arithmetic with uint160/uint256 casts, gave all functions explicit return paths, and removed unreachable code after revert().",
+      "source_sha256": "635344ef56ea3e99ce5052f6b573481d987647a47b8da7f39c0b86df857a3ca7",
+      "compiled": true,
+      "compile_summary": null,
+      "compiler_returncode": 0,
+      "dispatch_ok": true
+    }
+  ],
+  "dispatch_signatures": [
+    "Unresolved_095ea7b3(address,uint256)",
+    "Unresolved_0b663fe2(uint256)",
+    "Unresolved_18160ddd()",
+    "Unresolved_23b872dd(address,uint256,uint256)",
+    "Unresolved_2e1a7d4d(address)",
+    "Unresolved_3f4ba83a()",
+    "Unresolved_40c10f19(address,address)",
+    "Unresolved_42966c68(address)",
+    "Unresolved_69fe0e2d(address)",
+    "Unresolved_8456cb59()",
+    "Unresolved_860aefcf()",
+    "Unresolved_8da5cb5b()",
+    "Unresolved_a9059cbb(address,uint256)",
+    "Unresolved_b187bd26()",
+    "Unresolved_b6b55f25(address)",
+    "Unresolved_c23f85d6(address)",
+    "Unresolved_c4590d3f(address)",
+    "Unresolved_c47f0027(address)",
+    "Unresolved_c4d66de8(address)",
+    "Unresolved_dd62ed3e(address,address)",
+    "Unresolved_ef8b30f7(uint256)",
+    "Unresolved_f2fde38b(address)"
+  ],
+  "llm_calls": 2,
+  "completion_tokens": 23531,
+  "prompt_chars": 33742,
+  "elapsed_ms": 490009
+}

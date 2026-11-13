@@ -1169,7 +1169,9 @@ def evaluate_stage(
     # side is the published fixture runtime, resolved via the reference ABI
     event_tables = {
         "candidate": declared_event_topics(source),
-        "reference": reference_event_topics,
+        # callers may omit the reference table (the behavior-repair tool does);
+        # a present-but-None value would defeat the `.get(key, {})` defaults
+        "reference": reference_event_topics or {},
     }
     stage["probe_results"] = run_probes(
         rpc,
