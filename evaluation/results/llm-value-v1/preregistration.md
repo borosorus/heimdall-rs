@@ -155,3 +155,16 @@ Doctrine run (LLM as ADDITION to the deterministic pipeline, never versus):
   lower-unknown-external-calls family) - same gate as trial 1, freeze deferred.
 - Compose-first rule: if the rescue output needs a finisher pass, the candidate of record
   is the COMPOSED artifact; the harness sees only composed candidates.
+
+## Deviation 5 (2026-11-13, before the run): stuck-breaker trial 3 - synthetic-large
+
+Doctrine run. BASE: re-frozen seed 77b2d61ebc76... (+candidate stages: 1 comparison-parens
+edit already absorbed into the base artifact seed+cand.sol). Error census BEFORE rescue
+(8 diagnostics, two epicenters): bytes32-declared state used as uint across compare/divide/
+return/emite-guard (2271 x4, 6359, 9640 bytes32->uint8), unary ! on a conversion-wrapped
+uint8 (4907 - outside the truthiness stage grammar), one 9322 unresolved reference.
+INTERVENTION: repair_compile, effort low, 4 calls; then composed candidate (trial-1 stages
+re-run over the rescue) and the full harness verdict (fixture spec: the synthetic-large
+era spec of record). SUCCESS: compiling composed candidate + >=1 fb probe; DISTILLATION
+target: the bytes32-word coercion family + the !T(expr) negation form, same gate, freeze
+deferred. The codex coherence-and-leads audit runs at this trial's close (user directive).
