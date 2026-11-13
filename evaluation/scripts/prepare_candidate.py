@@ -1960,9 +1960,9 @@ _BITWISE_TAIL_RE = re.compile(r"(?P<op>[|^&])\s+(?P<lhs>[A-Za-z_][A-Za-z0-9_.]*)
 
 
 def comparison_parens(source: str) -> Stage:
-    """STAGE CANDIDATE (stuck-breaker trial 1 distillation; NOT in PREPARE_STAGES
-    pending batch freeze). Parenthesize a comparison that sits, unparenthesized, on
-    the right-hand side of a bitwise operator inside a condition.
+    """Promoted ladder stage (stuck-breaker trial 1 distillation). Parenthesize
+    a comparison that sits, unparenthesized, on the right-hand side of a bitwise
+    operator inside a condition.
 
     Why: solc binds `==`/`<`.. tighter than `|`/`&`/`^`, so the decompiler's linear
     `a == b | c == d` parses as `(a == (b|c)) == d` - bool vs uint (2271). The
@@ -1979,6 +1979,10 @@ def comparison_parens(source: str) -> Stage:
     pieces: list[str] = []
     last = 0
     for match in _BITWISE_TAIL_RE.finditer(masked):
+        if match.start("op") < last:
+            # a previous one-span replacement consumed this match (it sat inside
+            # the wrapped rhs); its text is already in the emitted group
+            continue
         # the rhs comparison extends to a `,` or the closing paren at the
         # depth where the comparison itself lives
         rhs_start = match.start("lhs")
@@ -2000,22 +2004,24 @@ def comparison_parens(source: str) -> Stage:
                     break
         if rhs_end is None:
             continue
-        rhs_text = masked[rhs_start:rhs_end].strip()
-        if not _CMP_RE.search(rhs_text) or rhs_text.startswith("("):
+        rhs_masked = masked[rhs_start:rhs_end].strip()
+        if not _CMP_RE.search(rhs_masked) or rhs_masked.startswith("("):
             continue
         # one-span replacement [op .. rhs_end): the op doubles when the lhs is
         # itself a parenthesized group (comparison|comparison -> comparisons
         # joined logically; 0.8 refuses bool|bool), and the rhs comparison is
-        # wrapped - explicit precedence, the decompiler's linear reading
+        # wrapped - explicit precedence, the decompiler's linear reading.
+        # Boundaries and the shape check come from the masked copy; the emitted
+        # text is the original source slice so literals/comments survive.
         op = match.group("op")
         before = masked[: match.start("op")].rstrip()
         doubled = op * 2 if before.endswith(")") and op in "|&" else op
         pieces.append(source[last : match.start("op")])
-        pieces.append(f"{doubled} ({rhs_text})")
+        pieces.append(f"{doubled} ({source[rhs_start:rhs_end].strip()})")
         last = rhs_end
         edits.append(_record(
             "comparison-parens",
-            f"{match.group('op')} {rhs_text} -> {match.group('op')} ({rhs_text})",
+            f"{match.group('op')} {rhs_masked} -> {match.group('op')} ({rhs_masked})",
             "bitwise chain over unparenthesized comparison; solc precedence misparse (2271 class)"))
     if not pieces:
         return Stage("comparison-parens", "comparison parenthesization", source, edits)
@@ -2098,8 +2104,8 @@ def event_shape_realign(source: str, reference_abi_path) -> Stage:
 
 
 def view_emit_relaxation(source: str) -> Stage:
-    """STAGE CANDIDATE (stuck-breaker trial 1 distillation; NOT in PREPARE_STAGES).
-    A `view` unit whose body contains `emit` cannot compile (8961): the decompiler
+    """Promoted ladder stage (stuck-breaker trial 1 distillation). A `view` unit
+    whose body contains `emit` cannot compile (8961): the decompiler
     derives mutability from opcode traces but emits the event header anyway. The
     faithful relaxation drops `view` (the recorded `mutability` stage only tightens
     pure->view; this is the reverse direction). Unit spans come from the parser; the
@@ -2136,7 +2142,10 @@ def view_emit_relaxation(source: str) -> Stage:
         mods = header[params_close + 1 :]
         brace = mods.find("{")
         mods = mods[:brace] if brace >= 0 else mods
-        view_match = re.search(r"\bview\b", mods)
+        # the scan runs on the length-preserving masked tail so a trailing
+        # comment's `view` cannot shadow the real modifier
+        mods_masked = _mask_strings_and_comments(mods, 0, len(mods))
+        view_match = re.search(r"\bview\b", mods_masked)
         if view_match is None:
             continue
         body = unit.text[len(header):]
@@ -2175,6 +2184,8 @@ PREPARE_STAGES = (
     widen_packed_pair_returns,
     coerce_word_returns,
     lower_unknown_external_calls,
+    comparison_parens,
+    view_emit_relaxation,
 )
 
 

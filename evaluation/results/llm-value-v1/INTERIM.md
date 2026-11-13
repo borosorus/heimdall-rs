@@ -252,3 +252,29 @@ its deterministic semantic layers (init/allowance invariants) before LLM rounds 
 Suite 220. Leads after this cycle: trial-2 style pins DONE via the id discovery;
 remaining: batch-freeze gate-green candidates (trial-1 pair + event-shape stage behind
 the sidecar-input doctrine call), Rust mirrors, retry-hardening (operational).
+
+## Batch freeze - trial-1 distillates promoted; program closed for this cycle (2026-11-13)
+
+PROMOTED (planner go-with-fixes -> both fixes applied -> reviewer pass; single commit):
+`comparison_parens` and `view_emit_relaxation` join PREPARE_STAGES as stages 19/20 in
+both implementations (parity fixtures regenerated; suite 221 py / 196 decompiler rust).
+Planner findings adopted BEFORE promotion: (1) overlapping-match skip - a rhs depth scan
+swallows later chain links; each match now wraps at most once per sweep, residual inner
+chains wrap on the next sweep to a stable fixpoint (3-chain pin both impls); (2) the
+wrapped rhs is emitted from the ORIGINAL source slice, not the mask-blinded detection
+copy (string-literal pin both impls).
+- Positive control: 20-stage ladder over the recorded math-helper seed reproduces the
+  accepted stuck1-v2 candidate BYTE-EXACT (sha16 c4516af7ced8c05e) - the pure-stage 7/10+5/5
+  replicate is now the default pipeline behavior, zero model calls.
+- No-regression proof by construction: both stages are zero-edit no-ops on all four parity
+  corpora (erc20/blockreader/lighthouse/hdwallet) - promoted-ladder candidates there are
+  byte-identical to the sealed 18-stage ones, so every recorded verdict stands; no matrix
+  re-run owed.
+NOT PROMOTED - event_shape_realign stays a candidate outside the ladder: no verdict delta
+on any fixture (trial-3 null stands) and the reference-ABI sidecar input-class doctrine
+call is parked. Promotion remains a mechanical step once a fixture proves the delta.
+LLM PROGRAM STATE: the addition-on-top doctrine is fully banked - the ladder carries the
+proven distillates; the LLM's remaining role is the abstention-boundary rescue on future
+stuck fixtures (bounded, effort low, distill-and-exit). Negative results remain as the
+trial sections above plus their receipt dirs; operational leads (retry hardening,
+probe targeting) stay ledger-only until a stuck fixture needs them.

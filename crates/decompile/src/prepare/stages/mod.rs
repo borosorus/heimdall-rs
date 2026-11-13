@@ -6,6 +6,7 @@
 
 pub(crate) mod arity;
 pub(crate) mod coerce_word_returns;
+pub(crate) mod comparison_parens;
 pub(crate) mod declarations;
 pub(crate) mod fallback_shape;
 pub(crate) mod helpers;
@@ -21,5 +22,6 @@ pub(crate) mod storage_getters;
 pub(crate) mod truthiness;
 pub(crate) mod typed_packed_literals;
 pub(crate) mod vars;
+pub(crate) mod view_emit_relaxation;
 pub(crate) mod widen_packed_pair_returns;
 pub(crate) mod wordify_address_mask;

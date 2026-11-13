@@ -325,6 +325,8 @@ class PipelineTest(unittest.TestCase):
                 "widen-packed-pair-returns",
                 "coerce-word-returns",
                 "lower-unknown-external-calls",
+                "comparison-parens",
+                "view-emit-relaxation",
             ],
         )
         final = stages[-1].source
@@ -799,8 +801,10 @@ class PackedScalarTest(unittest.TestCase):
 
 
 class StageCandidateTests(unittest.TestCase):
-    """stuck-breaker trial 1 distillation - candidates OUTSIDE PREPARE_STAGES
-    (freeze deferred to a batch); the gate pins replay, idempotence, order."""
+    """stuck-breaker trial distillates. comparison_parens and
+    view_emit_relaxation are PROMOTED ladder stages (trial 1; sealed at the
+    20-stage freeze); event_shape_realign stays a candidate outside the ladder
+    pending a verdict delta and the reference-ABI sidecar doctrine call."""
 
     SEED = (
         "contract C {\n"
@@ -825,10 +829,63 @@ class StageCandidateTests(unittest.TestCase):
         again = prepare.comparison_parens(out).source
         self.assertEqual(again, out)
 
+    def test_comparison_parens_consumes_chain_matches_once(self):
+        # reviewer/planner: a rhs scan swallows later chain links; each match
+        # must be wrapped at most once per sweep (no duplicated or dropped
+        # source), and the residual inner chain wraps on the next sweep to a
+        # stable fixpoint
+        source = (
+            "contract C {\n"
+            "    function f(uint256 a, uint256 b, uint256 c) public view returns (bool) {\n"
+            "        return (a == 1) | b == 2 | c == 3;\n"
+            "    }\n"
+            "}\n"
+        )
+        once = prepare.comparison_parens(source).source
+        self.assertIn("return (a == 1) || (b == 2 | c == 3);", once)
+        self.assertEqual(once.count("b == 2"), 1)
+        self.assertEqual(once.count("c == 3"), 1)
+        twice = prepare.comparison_parens(once).source
+        self.assertIn("return (a == 1) || (b == 2 | (c == 3));", twice)
+        self.assertEqual(prepare.comparison_parens(twice).source, twice)
+
+    def test_comparison_parens_emits_unmasked_source(self):
+        # reviewer/planner: the wrapped rhs is the ORIGINAL source slice, not
+        # the mask-blanked detection copy - a string literal inside the rhs
+        # survives verbatim (and its comma does not truncate the depth scan)
+        source = (
+            "contract C {\n"
+            "    function f(address a, string memory s) public view returns (bool) {\n"
+            '        return (a == address(0)) | s == "x,y";\n'
+            "    }\n"
+            "}\n"
+        )
+        out = prepare.comparison_parens(source).source
+        self.assertIn('return (a == address(0)) || (s == "x,y");', out)
+        again = prepare.comparison_parens(out).source
+        self.assertEqual(again, out)
+
     def test_view_emit_relaxation_drops_view_once(self):
         out = prepare.view_emit_relaxation(self.SEED).source
         self.assertIn("public  returns (uint256)", out)
         self.assertNotIn("public view returns", out)
+        again = prepare.view_emit_relaxation(out).source
+        self.assertEqual(again, out)
+
+    def test_view_scan_masks_trailing_comment(self):
+        # reviewer: a comment between the parameter list and the modifiers may
+        # contain `view`; the masked scan must drop the REAL modifier
+        source = (
+            "contract C {\n"
+            "    event E(uint256 a);\n"
+            "    function f(uint256 a) public /* see view docs */ view returns (uint256) {\n"
+            "        emit E(a);\n"
+            "        return a;\n"
+            "    }\n"
+            "}\n"
+        )
+        out = prepare.view_emit_relaxation(source).source
+        self.assertIn("public /* see view docs */  returns (uint256) {", out)
         again = prepare.view_emit_relaxation(out).source
         self.assertEqual(again, out)
 
@@ -871,10 +928,13 @@ class StageCandidateTests(unittest.TestCase):
         again = prepare.event_shape_realign(stage.source, path).source
         self.assertEqual(again, stage.source)
 
-    def test_candidates_live_outside_the_frozen_pipeline(self):
+    def test_promoted_stages_live_in_the_frozen_pipeline(self):
         names = [stage.__name__ for stage in prepare.PREPARE_STAGES]
-        self.assertNotIn("comparison_parens", names)
-        self.assertNotIn("view_emit_relaxation", names)
+        self.assertIn("comparison_parens", names)
+        self.assertIn("view_emit_relaxation", names)
+        self.assertEqual(names[-2:], ["comparison_parens", "view_emit_relaxation"])
+        # still a candidate: no verdict delta yet, sidecar doctrine call parked
+        self.assertNotIn("event_shape_realign", names)
 
 
 if __name__ == "__main__":

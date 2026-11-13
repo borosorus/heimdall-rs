@@ -24,10 +24,10 @@ use tracing::debug;
 use crate::prepare::{
     parser::ParseError,
     stages::{
-        arity, coerce_word_returns, declarations, fallback_shape, lower_unknown_external_calls,
-        mutability, packed_scalars, param_types, placeholders, selfref, send_guards, slot_aliases,
-        storage_getters, truthiness, typed_packed_literals, vars, widen_packed_pair_returns,
-        wordify_address_mask,
+        arity, coerce_word_returns, comparison_parens, declarations, fallback_shape,
+        lower_unknown_external_calls, mutability, packed_scalars, param_types, placeholders,
+        selfref, send_guards, slot_aliases, storage_getters, truthiness, typed_packed_literals,
+        vars, view_emit_relaxation, widen_packed_pair_returns, wordify_address_mask,
     },
 };
 
@@ -93,6 +93,8 @@ const PREPARE_STAGES: &[(&str, StageFn)] = &[
     ("widen_packed_pair_returns", widen_packed_pair_returns::run),
     ("coerce_word_returns", coerce_word_returns::run),
     ("lower_unknown_external_calls", lower_unknown_external_calls::run),
+    ("comparison_parens", comparison_parens::run),
+    ("view_emit_relaxation", view_emit_relaxation::run),
 ];
 
 /// Runs the full preparation ladder over `source`.
@@ -147,6 +149,8 @@ mod tests {
                 "widen_packed_pair_returns",
                 "coerce_word_returns",
                 "lower_unknown_external_calls",
+                "comparison_parens",
+                "view_emit_relaxation",
             ]
         );
     }
@@ -215,6 +219,8 @@ mod tests {
                 "widen-packed-pair-returns",
                 "coerce-word-returns",
                 "lower-unknown-external-calls",
+                "comparison-parens",
+                "view-emit-relaxation",
             ]
         );
         let staged_final = staged.source;
